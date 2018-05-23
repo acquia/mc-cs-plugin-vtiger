@@ -1,0 +1,19 @@
+{
+  "name": "galvani/mautic-vtiger-bundle",
+  "description": "This plugin enables VTiger CRM integration",
+  "type": "mautic-plugin",
+  "version": "0.1-dev",
+  "keywords": ["vtiger","mautic","plugin","crm"],
+  "authors": [
+    {
+      "name": "Jan Kozak",
+      "email": "galvani78@gmail.com",
+      "homepage": "https://github.com/galvani",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "mautic/composer-plugin": "^1.0",
+    "mautic/mautic": "^2.14"
+  }
+}
