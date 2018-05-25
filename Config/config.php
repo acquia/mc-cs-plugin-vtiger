@@ -10,9 +10,9 @@
  */
 
 return [
-    'name'        => 'VTiger',
+    'name' => 'vTiger CRM',
     'description' => 'Enables VTiger CRM integration',
-    'version'     => '1.0',
+    'version' => '2.0',
     'author'      => 'Mautic',
     'services'    => [
         'events'       => [
@@ -26,6 +26,13 @@ return [
         'models'       => [
         ],
         'integrations' => [
+            'mautic.integration.vtiger_crm' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerIntegration::class,
+                'arguments' => [
+                    'mautic.lead.model.field',
+                ],
+                'tags' => ['mautic.integration', 'mautic.basic_integration', 'mautic.dispatcher_integration', 'mautic.encryption_integration']
+            ],
         ],
     ],
     'routes'      => [

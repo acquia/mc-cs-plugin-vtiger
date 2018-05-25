@@ -9,18 +9,18 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticVtigerBundle;
+namespace MauticPlugin\MauticVtigerCrmBundle;
 
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
 use Mautic\SmsBundle\DependencyInjection\Compiler\SmsTransportPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * Class MauticVtigerBundle
+ * Class MauticVtigerCrmBundle
  *
- * @package MauticPlugin\MauticVtigerBundle
+ * @package MauticPlugin\MauticVtigerCrmBundle
  */
-class MauticVtigerBundle extends PluginBundleBase
+class MauticVtigerCrmBundle extends PluginBundleBase
 {
     public function build(ContainerBuilder $container)
     {
