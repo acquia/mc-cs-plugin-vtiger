@@ -51,9 +51,9 @@ class RepositoryManager
     public function getRepository(string $moduleName): RepositoryInterface
     {
         if (is_null($this->getConnection())) {
-            throw new VtigerSessionException('You need to ')
+            throw new VtigerSessionException('Repository is missing connection ');
         }
-        $repository = new ContactRepository($this->getConnection(), 'Contact');
+        $repository = new ContactRepository($this->getConnection(), 'Contacts');
         return $repository;
     }
 }

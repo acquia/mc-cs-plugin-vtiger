@@ -13,7 +13,9 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
  */
 
 
-class Connector
+use Codeception\Template\Api;
+
+class Client
 {
     /** @var Connection */
     private $connection;
@@ -21,10 +23,18 @@ class Connector
     /** @var RepositoryManager */
     private $repositoryManager;
 
-    public function __construct(Connection $connection, RepositoryManager $repositoryManager)
+    private $repositories = [];
+
+    /**
+     * @var ApiInfo
+     */
+    private $infoService;
+
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->repositoryManager = $repositoryManager;
+        $this->repositoryManager = new RepositoryManager();
+        $this->repositoryManager->setConnection($connection);
     }
 
     /**
@@ -37,9 +47,9 @@ class Connector
 
     /**
      * @param RepositoryManager $repositoryManager
-     * @return Connector
+     * @return Client
      */
-    public function setRepositoryManager(RepositoryManager $repositoryManager): Connector
+    public function setRepositoryManager(RepositoryManager $repositoryManager): Client
     {
         $this->repositoryManager = $repositoryManager;
 
@@ -56,5 +66,16 @@ class Connector
     public function getConnection(): Connection
     {
         return $this->connection;
+    }
+
+    /**
+     * @return ApiInfo
+     */
+    public function getInfoService(): ApiInfo {
+        if (is_null($this->infoService)) {
+            $this->infoService = new ApiInfo($this->getConnection());
+        }
+
+        return $this->infoService;
     }
 }

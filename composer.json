@@ -2,7 +2,7 @@
   "name": "galvani/mautic-vtiger-crm-bundle",
   "description": "This plugin enables VTiger CRM integration",
   "type": "mautic-plugin",
-  "version": "0.1-dev",
+  "version": "0.1.1-dev",
   "keywords": ["vtiger","mautic","plugin","crm"],
   "authors": [
     {
@@ -15,6 +15,7 @@
   "require": {
     "mautic/composer-plugin": "^1.0",
     "mautic/mautic": "^2.14",
+    "mautic/integrations": "^1.0.0-dev",
     "php": "^7.1 || ^7.2",
     "ext-mbstring": "*"
   }

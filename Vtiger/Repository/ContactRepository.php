@@ -8,7 +8,6 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
-
 use MauticPlugin\MauticVtigerCrmBundle\Module\ModuleInterface;
 
 class ContactRepository extends BaseRepository

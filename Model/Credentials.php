@@ -27,24 +27,6 @@ class Credentials
     /** @var string */
     private $accesskey;
 
-    /** @var string */
-    private $token;
-
-    /**
-     * @return string
-     * @throws AuthenticationException
-     */
-    public function getSessionId(): string
-    {
-        if (is_null($this->token) || is_null($this->accesskey)) {
-            throw new AuthenticationException('Session has not been authenticated');
-        }
-
-        $sessionId = md5($this->token . $this->accesskey);
-
-        return $sessionId;
-    }
-
     /**
      * @return string
      */
@@ -80,24 +62,4 @@ class Credentials
         $this->accesskey = $accesskey;
         return $this;
     }
-
-    /**
-     * @return string
-     */
-    public function getToken(): string
-    {
-        return $this->token;
-    }
-
-    /**
-     * @param string $token
-     * @return Credentials
-     */
-    public function setToken(string $token): Credentials
-    {
-        $this->token = $token;
-        return $this;
-    }
-
-
 }

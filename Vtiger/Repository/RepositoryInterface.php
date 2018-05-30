@@ -24,4 +24,5 @@ interface RepositoryInterface
 
     public function delete(ModuleInterface $module);
 
+    public function describe();
 }
