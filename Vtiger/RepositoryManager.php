@@ -21,8 +21,9 @@ class RepositoryManager
     /** @var Connection */
     private $connection;
 
-    public function __construct()
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     /**

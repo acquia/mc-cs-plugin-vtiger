@@ -22,12 +22,35 @@ return [
         'helpers'      => [
         ],
         'other'        => [
+            'mautic.guzzle_http.client' => [
+                'class' => GuzzleHttp\Client::class,
+            ],
+            'mautic.vtiger.client' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Client::class,
+                'arguments' => [
+                    'mautic.vtiger.connection',
+                    'mautic.vtiger.repository_manager'
+                ]
+            ],
+            'mautic.vtiger.connection' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection::class,
+                'arguments' => [
+                    'mautic.guzzle_http.client',
+                    'mautic.helper.integration'
+                ]
+            ],
+            'mautic.vtiger.repository_manager' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\RepositoryManager::class,
+                'arguments' => [
+                    'mautic.vtiger.connection'
+                ]
+            ]
         ],
         'models'       => [
         ],
         'integrations' => [
             'mautic.integration.vtiger_crm' => [
-                'class' => \MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerIntegration::class,
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration::class,
                 'arguments' => [
                     'mautic.lead.model.field',
                 ],

@@ -13,9 +13,11 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
  */
 
 use GuzzleHttp\Psr7\Response;
+use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerInvalidRequestException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerSessionException;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Model\Credentials;
 
 class Connection
@@ -35,9 +37,21 @@ class Connection
     private $credentials;
 
 
-    public function __construct()
+    /**
+     * Connection constructor.
+     *
+     * @param \GuzzleHttp\Client $client
+     */
+    public function __construct(\GuzzleHttp\Client $client, IntegrationHelper $integration)
     {
-        $this->httpClient = new \GuzzleHttp\Client();
+        $integrationEntity = $integration->getIntegrationObject('VtigerCrm');
+
+        if ($integrationEntity===false) {
+
+        }
+        var_dump($integrationEntity); die();
+
+        $this->httpClient = $client;
         $this->requestHeaders = [
             'Accept' => 'application/json',
             'Content-type' => 'application/json'
