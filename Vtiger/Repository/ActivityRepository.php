@@ -8,7 +8,7 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
-use MauticPlugin\MauticVtigerCrmBundle\Module\ModuleInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInterface;
 
 class ActivityRepository extends BaseRepository
 {

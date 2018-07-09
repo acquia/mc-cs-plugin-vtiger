@@ -2,7 +2,7 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Exceptions;
 
-class VtigerSessionException extends VtigerPluginException
+class SessionException extends VtigerPluginException
 {
 
 }

@@ -4,7 +4,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Exceptions;
 
 use Throwable;
 
-class VtigerInvalidRequestException extends VtigerSessionException
+class InvalidRequestException extends SessionException
 {
     public function __construct(string $message = "", string $apiUrl, $payload = [])
     {

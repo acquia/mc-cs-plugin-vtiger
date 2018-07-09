@@ -15,10 +15,11 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
 use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerAccessDeniedException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerInvalidRequestException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerSessionException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Model\Credentials;
 
@@ -111,7 +112,7 @@ class Connection
             $credentials = $credentials ?: $this->credentials;
 
             if (is_null($credentials)) {
-                throw new VtigerSessionException('No authentication credentials supplied');
+                throw new SessionException('No authentication credentials supplied');
             }
 
             $query = sprintf("%s?operation=%s",
@@ -200,7 +201,7 @@ class Connection
             $operation);
 
         if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
-            throw new VtigerSessionException('Not authenticated.');
+            throw new SessionException('Not authenticated.');
         } elseif ($this->isAuthenticateOnDemand()) {
             $this->authenticate();
         }
@@ -231,7 +232,7 @@ class Connection
         $payloadFinal['operation'] = $operation;
 
         if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
-            throw new VtigerSessionException('Not authenticated.');
+            throw new SessionException('Not authenticated.');
         } elseif ($this->isAuthenticateOnDemand()) {
             $this->authenticate();
         }
@@ -249,8 +250,10 @@ class Connection
     {
         $content = $response->getBody()->getContents();
 
+        var_dump($response->getReasonPhrase());
+
         if ($response->getReasonPhrase() != 'OK') {
-            throw new VtigerSessionException('Server responded with an error');
+            throw new SessionException('Server responded with an error');
         }
 
         $content = json_decode($content);
@@ -263,14 +266,18 @@ class Connection
             return $content->result;
         }
 
-
         $error = property_exists($content,'error') ? $content->error->code . ": " . $content->error->message : "No message";
 
-        if ($content->error->code === 'ACCESS_DENIED') {
-            throw new VtigerAccessDeniedException($error, $apiUrl, $payload);
+        switch($content->error->code) {
+            case "ACCESS_DENIED":
+                throw new AccessDeniedException($error, $apiUrl, $payload);
+            case "DATABASE_QUERY_ERROR":
+                throw new DatabaseQueryException($error, $apiUrl, $payload);
         }
 
-        throw new VtigerInvalidRequestException($error, $apiUrl, $payload);
+        var_dump($content);
+
+        throw new InvalidRequestException($error, $apiUrl, $payload);
     }
 
 }

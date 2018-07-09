@@ -9,10 +9,10 @@
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerInvalidRequestException;
-use MauticPlugin\MauticVtigerCrmBundle\Module\ModuleInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInterface;
 
 abstract class BaseRepository implements RepositoryInterface
 {
@@ -37,8 +37,9 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * @param string $columns
      * @param array $where
+     *
      * @return \Psr\Http\Message\ResponseInterface
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerSessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function findBy($where = [], $columns = '*')
     {
@@ -58,24 +59,27 @@ abstract class BaseRepository implements RepositoryInterface
         $query .= ";";
 
         return $this->connection->get('query', ['query' => $query]);
+
     }
 
     /**
+     * @param array  $where
      * @param string $columns
-     * @param array $where
-     * @return \Psr\Http\Message\ResponseInterface|bool
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerSessionException
+     *
+     * @return bool|mixed
+     * @throws InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function findOneBy($where = [], $columns = '*')
     {
-        $findResult = $this->find($where, $columns);
+        $findResult = $this->findBy($where, $columns);
 
         if (!count($findResult)) {
-            return false;
+            return null;
         }
 
         if (count($findResult)>1) {
-            throw new VtigerInvalidRequestException('Invalid query. Query returned more than one result.');
+            throw new InvalidRequestException('Invalid query. Query returned more than one result.');
         }
 
         return array_shift($findResult);
@@ -83,14 +87,22 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * @todo add caching
-     *
      * @return ModuleInfo
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerSessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function describe()
     {
         $info = $this->connection->get('describe', ['elementType' => $this->moduleName]);
 
         return new ModuleInfo($info);
+    }
+
+    public function create($module): ModuleInterface
+    {
+        $response = $this->connection->post('create', ['element' => json_encode($module->dehydrate()), 'elementType' => $module->getModuleName()]);
+        $className = get_class($module);
+        $contact = new $className((array)$response);
+
+        return $contact;
     }
 }

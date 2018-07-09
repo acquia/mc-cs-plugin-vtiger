@@ -4,7 +4,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Exceptions;
 
 use Throwable;
 
-class VtigerAccessDeniedException extends VtigerSessionException
+class AccessDeniedException extends SessionException
 {
     public function __construct(string $message = "", string $apiUrl, $payload = [])
     {

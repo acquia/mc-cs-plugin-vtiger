@@ -13,7 +13,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
  */
 
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerSessionException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\RepositoryInterface;
 
@@ -57,7 +57,7 @@ class RepositoryManager
      *
      * @return RepositoryInterface
      * @throws VtigerPluginException
-     * @throws VtigerSessionException
+     * @throws SessionException
      */
     public function getRepository(string $moduleName): RepositoryInterface
     {
@@ -66,7 +66,7 @@ class RepositoryManager
                 . join(', ', array_keys(self::$availableRepositories)));
         }
         if (is_null($this->getConnection())) {
-            throw new VtigerSessionException('Repository is missing connection ');
+            throw new SessionException('Repository is missing connection ');
         }
 
         $repositoryClass = "MauticPlugin\\MauticVtigerCrmBundle\\Vtiger\\Repository\\" .

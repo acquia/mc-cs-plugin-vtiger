@@ -12,13 +12,13 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
  * @author      Jan Kozak <galvani78@gmail.com>
  */
 
-use MauticPlugin\MauticVtigerCrmBundle\Module\ModuleInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInterface;
 
 interface RepositoryInterface
 {
-    public function create(ModuleInterface $module): ModuleInterface;
+    public function create($module): ModuleInterface;
 
-    public function retrieve($id): ModuleInterface;
+    public function retrieve(string $id): ModuleInterface;
 
     public function update(ModuleInterface $module): ModuleInterface;
 
