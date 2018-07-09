@@ -12,12 +12,16 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
  * @author      Jan Kozak <galvani78@gmail.com>
  */
 
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerSessionException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\RepositoryInterface;
 
 class RepositoryManager
 {
+    /** @var array  */
+    static $availableRepositories = ['Contacts' => 'Contact'];
+
     /** @var Connection */
     private $connection;
 
@@ -46,15 +50,25 @@ class RepositoryManager
 
     /**
      * @param string $moduleName
+     *
      * @return RepositoryInterface
+     * @throws VtigerPluginException
      * @throws VtigerSessionException
      */
     public function getRepository(string $moduleName): RepositoryInterface
     {
+        if (!isset(self::$availableRepositories[$moduleName])) {
+            throw new VtigerPluginException('Unknown repository '.$moduleName.' requested. Available repos: '
+                . join(', ', array_keys(self::$availableRepositories)));
+        }
         if (is_null($this->getConnection())) {
             throw new VtigerSessionException('Repository is missing connection ');
         }
-        $repository = new ContactRepository($this->getConnection(), 'Contacts');
+
+        $repositoryClass = "MauticPlugin\\MauticVtigerCrmBundle\\Vtiger\\Repository\\" .
+            self::$availableRepositories[$moduleName] . "Repository";
+        $repository = new $repositoryClass($this->getConnection(), $moduleName);
+
         return $repository;
     }
 }

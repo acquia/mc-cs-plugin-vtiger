@@ -16,10 +16,16 @@ use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerInvalidRequestException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerSessionException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Model\Credentials;
 
+/**
+ * Class Connection
+ *
+ * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger
+ */
 class Connection
 {
     private $apiDomain;
@@ -41,17 +47,29 @@ class Connection
      * Connection constructor.
      *
      * @param \GuzzleHttp\Client $client
+     * @param IntegrationHelper  $integrationsHelper
+     *
+     * @throws VtigerPluginException
      */
-    public function __construct(\GuzzleHttp\Client $client, IntegrationHelper $integration)
+    public function __construct(\GuzzleHttp\Client $client, IntegrationHelper $integrationsHelper)
     {
-        $integrationEntity = $integration->getIntegrationObject('VtigerCrm');
+        /** @var VtigerCrmIntegration $integrationEntity */
+        $integrationEntity = $integrationsHelper->getIntegrationObject('VtigerCrm');
 
         if ($integrationEntity===false) {
-
+            throw new VtigerPluginException('Plugin is not configured');
         }
-        var_dump($integrationEntity); die();
+
+        $credentialsCfg = $integrationEntity->getDecryptedApiKeys($integrationEntity->getIntegrationSettings());
 
         $this->httpClient = $client;
+
+        $this->setCredentials((new Credentials())
+            ->setAccesskey($credentialsCfg['accessKey'])
+            ->setUsername($credentialsCfg['username']));
+
+        $this->apiDomain = $credentialsCfg['url'];
+
         $this->requestHeaders = [
             'Accept' => 'application/json',
             'Content-type' => 'application/json'
@@ -114,7 +132,8 @@ class Connection
 
             $this->sessionId = $loginResponse->sessionName;
         } catch (\Exception $e) {
-            throw new AuthenticationException('Failed to authenticate. ' . $e->getMessage(), $e);
+            var_dump($e); die();
+            throw new AuthenticationException('Failed to authenticate. ' . $e->getMessage());
         }
 
         return $this;
@@ -226,7 +245,15 @@ class Connection
             throw new VtigerSessionException('Server responded with an error');
         }
 
+
+        echo($content);
         $content = json_decode($content);
+        var_dump($content);
+
+
+        if ($content===false) {
+            throw new VtigerPluginException('Incorrect endpoint response');
+        }
 
         if ($content->success) {
             return $content->result;
