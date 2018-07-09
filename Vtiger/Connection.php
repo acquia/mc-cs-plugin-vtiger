@@ -62,6 +62,10 @@ class Connection
 
         $credentialsCfg = $integrationEntity->getDecryptedApiKeys($integrationEntity->getIntegrationSettings());
 
+        if (!isset($credentialsCfg['accessKey']) || !isset($credentialsCfg['username']) || !isset($credentialsCfg['url'])) {
+            throw new VtigerPluginException('Plugin is not fully configured');
+        }
+
         $this->httpClient = $client;
 
         $this->setCredentials((new Credentials())
@@ -110,7 +114,7 @@ class Connection
             }
 
             $query = sprintf("%s?operation=%s",
-                $this->getApiDomain(),
+                $this->getApiUrl(),
                 'getchallenge');
 
 
@@ -122,17 +126,16 @@ class Connection
 
             $query = [
                 'operation' => 'login',
-                'username' => urlencode($credentials->getUsername()),
+                'username' => $credentials->getUsername(),
                 'accessKey' => md5($response->token . $credentials->getAccesskey()),
             ];
 
-            $response = $this->httpClient->post($this->apiDomain, ['form_params' => $query]);
+            $response = $this->httpClient->post($this->getApiUrl(), ['form_params' => $query]);
 
-            $loginResponse = $this->handleResponse($response, $this->apiDomain, $query);
+            $loginResponse = $this->handleResponse($response, $this->getApiUrl(), $query);
 
             $this->sessionId = $loginResponse->sessionName;
         } catch (\Exception $e) {
-            var_dump($e); die();
             throw new AuthenticationException('Failed to authenticate. ' . $e->getMessage());
         }
 
@@ -173,6 +176,11 @@ class Connection
         return $this->apiDomain;
     }
 
+    public function getApiUrl() {
+        return sprintf("https://%s/webservice.php",
+            $this->getApiDomain());
+    }
+
     /**
      * @param mixed $apiDomain
      * @return Connection
@@ -187,9 +195,8 @@ class Connection
     public function get(string $operation, array $payload = [])
     {
         $query = sprintf("%s?operation=%s",
-            $this->getApiDomain(),
+            $this->getApiUrl(),
             $operation);
-
 
         if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
             throw new VtigerSessionException('Not authenticated.');
@@ -232,9 +239,9 @@ class Connection
 
         $payloadFinal = array_merge($payloadFinal, $payload);
 
-        $response = $this->httpClient->post($this->apiDomain, ['form_params' => $payloadFinal]);
+        $response = $this->httpClient->post($this->getApiUrl(), ['form_params' => $payloadFinal]);
 
-        return $this->handleResponse($response, $this->apiDomain, $payloadFinal);
+        return $this->handleResponse($response, $this->getApiUrl(), $payloadFinal);
     }
 
     private function handleResponse(Response $response, string $apiUrl, array $payload = [])
@@ -245,11 +252,7 @@ class Connection
             throw new VtigerSessionException('Server responded with an error');
         }
 
-
-        echo($content);
         $content = json_decode($content);
-        var_dump($content);
-
 
         if ($content===false) {
             throw new VtigerPluginException('Incorrect endpoint response');
@@ -259,7 +262,7 @@ class Connection
             return $content->result;
         }
 
-        $error = isset($content->error) ? $content->error->code . ": " . $content->error->message : "No message";
+        $error = property_exists($content,'error') ? $content->error->code . ": " . $content->error->message : "No message";
 
 
         throw new VtigerInvalidRequestException($error, $apiUrl, $payload);
