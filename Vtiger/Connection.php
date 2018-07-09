@@ -15,6 +15,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
 use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerAccessDeniedException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerInvalidRequestException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerSessionException;
@@ -262,8 +263,12 @@ class Connection
             return $content->result;
         }
 
+
         $error = property_exists($content,'error') ? $content->error->code . ": " . $content->error->message : "No message";
 
+        if ($content->error->code === 'ACCESS_DENIED') {
+            throw new VtigerAccessDeniedException($error, $apiUrl, $payload);
+        }
 
         throw new VtigerInvalidRequestException($error, $apiUrl, $payload);
     }

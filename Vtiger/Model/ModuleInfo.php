@@ -50,6 +50,11 @@ class ModuleInfo
     /** @var string */
     private $labelFields;
 
+    /**
+     * ModuleInfo constructor.
+     *
+     * @param \stdClass $data
+     */
     public function __construct(\stdClass $data)
     {
         $this->label = $data->label;

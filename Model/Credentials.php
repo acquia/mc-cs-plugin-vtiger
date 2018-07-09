@@ -1,7 +1,7 @@
 <?php
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic
+ * @author      Mautic inc.
  *
  * @link        http://mautic.org
  *
@@ -10,9 +10,6 @@
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Model;
-
-
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
 
 /**
  * Class Credentials represents credentials needed for authentication

@@ -20,7 +20,11 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\RepositoryInterface;
 class RepositoryManager
 {
     /** @var array  */
-    static $availableRepositories = ['Contacts' => 'Contact'];
+    static $availableRepositories = [
+        'Contacts' => 'Contact',
+        'Accounts' => 'Account',
+        'Activities' => 'Activity',
+        'Tasks' => 'Task'];
 
     /** @var Connection */
     private $connection;
@@ -58,7 +62,7 @@ class RepositoryManager
     public function getRepository(string $moduleName): RepositoryInterface
     {
         if (!isset(self::$availableRepositories[$moduleName])) {
-            throw new VtigerPluginException('Unknown repository '.$moduleName.' requested. Available repos: '
+            throw new VtigerPluginException('Unknown repository '.$moduleName.' requested. Available repositories: '
                 . join(', ', array_keys(self::$availableRepositories)));
         }
         if (is_null($this->getConnection())) {

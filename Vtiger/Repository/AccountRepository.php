@@ -10,7 +10,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Module\ModuleInterface;
 
-class ContactRepository extends BaseRepository
+class AccountRepository extends BaseRepository
 {
     public function create(ModuleInterface $module): ModuleInterface
     {
