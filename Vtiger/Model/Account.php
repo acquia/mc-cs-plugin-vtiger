@@ -8,7 +8,7 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-class Contact extends BaseModel
+class Account extends BaseModel
 {
 
 }

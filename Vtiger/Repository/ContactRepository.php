@@ -8,27 +8,27 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 class ContactRepository extends BaseRepository
 {
-    public function create($moduleData): ModuleInterface
-    {
-        $model = $moduleData instanceof BaseModel ? $moduleData : new Contact($moduleData);
+    use RepositoryHelper;
 
-        return parent::create($model);
+    public function create(Contact $module): Contact
+    {
+        return $this->createUnified($module);
     }
 
-    public function retrieve(string $id): ModuleInterface
+    public function retrieve(string $id): Contact
     {
         $record = $this->findOneBy(['id'=>$id]);
 
-        var_dump($record); die();
+        return $record;
     }
 
-    public function update(ModuleInterface $module): ModuleInterface
+    public function update(Contact $module): Contact
     {
         // TODO: Implement update() method.
     }
