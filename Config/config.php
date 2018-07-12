@@ -25,26 +25,26 @@ return [
             'mautic.guzzle_http.client' => [
                 'class' => GuzzleHttp\Client::class,
             ],
-            'mautic.vtiger.client' => [
-                'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Client::class,
-                'arguments' => [
-                    'mautic.vtiger.connection',
-                    'mautic.vtiger.repository_manager'
-                ]
-            ],
-            'mautic.vtiger.connection' => [
+            'mautic.vtiger_crm.connection' => [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection::class,
                 'arguments' => [
                     'mautic.guzzle_http.client',
                     'mautic.helper.integration'
                 ]
             ],
-            'mautic.vtiger.repository_manager' => [
-                'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\RepositoryManager::class,
+            'mautic.vtiger_crm.repository.contacts' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository::class,
                 'arguments' => [
-                    'mautic.vtiger.connection'
+                    'mautic.vtiger_crm.connection'
+                ]
+            ],
+            'mautic.vtiger_crm.repository.accounts' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository::class,
+                'arguments' => [
+                    'mautic.vtiger_crm.connection'
                 ]
             ]
+            
         ],
         'models'       => [
         ],

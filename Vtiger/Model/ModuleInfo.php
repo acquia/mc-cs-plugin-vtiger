@@ -50,6 +50,11 @@ class ModuleInfo
     /** @var string */
     private $labelFields;
 
+    /**
+     * ModuleInfo constructor.
+     *
+     * @param \stdClass $data
+     */
     public function __construct(\stdClass $data)
     {
         $this->label = $data->label;
@@ -59,7 +64,7 @@ class ModuleInfo
         $this->deleteable = $data->deleteable;
         $this->retrieveable = $data->retrieveable;
         foreach ($data->fields as $key=>$fieldInfo) {
-            $this->fields[$key] = new ModuleFieldInfo($fieldInfo);
+            $this->fields[$fieldInfo->name] = new ModuleFieldInfo($fieldInfo);
         }
         $this->idPrefix = $data->idPrefix;
         $this->allowDuplicates = $data->allowDuplicates;

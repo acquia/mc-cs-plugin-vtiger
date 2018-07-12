@@ -15,19 +15,34 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
 use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerInvalidRequestException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerSessionException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Model\Credentials;
 
+/**
+ * Class Connection
+ * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger
+ */
 class Connection
 {
+    /** @var string */
     private $apiDomain;
 
-    private $requestHeaders;
+    /** @var array */
+    private $requestHeaders = [
+        'Accept' => 'application/json',
+        'Content-type' => 'application/json',
+    ];
 
+    /** @var \GuzzleHttp\Client */
     private $httpClient;
 
+    /** @var string */
     private $sessionId;
 
     /** @var bool */
@@ -36,26 +51,36 @@ class Connection
     /** @var Credentials */
     private $credentials;
 
-
     /**
      * Connection constructor.
      *
      * @param \GuzzleHttp\Client $client
+     * @param IntegrationHelper  $integrationsHelper
+     *
+     * @throws VtigerPluginException
      */
-    public function __construct(\GuzzleHttp\Client $client, IntegrationHelper $integration)
+    public function __construct(\GuzzleHttp\Client $client, IntegrationHelper $integrationsHelper)
     {
-        $integrationEntity = $integration->getIntegrationObject('VtigerCrm');
+        /** @var VtigerCrmIntegration $integrationEntity */
+        $integrationEntity = $integrationsHelper->getIntegrationObject('VtigerCrm');
 
-        if ($integrationEntity===false) {
-
+        if ($integrationEntity === false) {
+            throw new VtigerPluginException('Plugin is not configured');
         }
-        var_dump($integrationEntity); die();
+
+        $credentialsCfg = $integrationEntity->getDecryptedApiKeys($integrationEntity->getIntegrationSettings());
+
+        if (!isset($credentialsCfg['accessKey']) || !isset($credentialsCfg['username']) || !isset($credentialsCfg['url'])) {
+            throw new VtigerPluginException('Plugin is not fully configured');
+        }
 
         $this->httpClient = $client;
-        $this->requestHeaders = [
-            'Accept' => 'application/json',
-            'Content-type' => 'application/json'
-        ];
+
+        $this->setCredentials((new Credentials())
+            ->setAccesskey($credentialsCfg['accessKey'])
+            ->setUsername($credentialsCfg['username']));
+
+        $this->apiDomain = $credentialsCfg['url'];
     }
 
     /**
@@ -68,17 +93,20 @@ class Connection
 
     /**
      * @param bool $authenticateOnDemand
+     *
      * @return Connection
      */
     public function setAuthenticateOnDemand(bool $authenticateOnDemand): Connection
     {
         $this->authenticateOnDemand = $authenticateOnDemand;
+
         return $this;
     }
 
 
     /**
      * @param Credentials|null $credentials
+     *
      * @return Connection
      * @throws AuthenticationException
      */
@@ -88,11 +116,11 @@ class Connection
             $credentials = $credentials ?: $this->credentials;
 
             if (is_null($credentials)) {
-                throw new VtigerSessionException('No authentication credentials supplied');
+                throw new SessionException('No authentication credentials supplied');
             }
 
             $query = sprintf("%s?operation=%s",
-                $this->getApiDomain(),
+                $this->getApiUrl(),
                 'getchallenge');
 
 
@@ -104,17 +132,18 @@ class Connection
 
             $query = [
                 'operation' => 'login',
-                'username' => urlencode($credentials->getUsername()),
+                'username' => $credentials->getUsername(),
                 'accessKey' => md5($response->token . $credentials->getAccesskey()),
             ];
 
-            $response = $this->httpClient->post($this->apiDomain, ['form_params' => $query]);
+            $response = $this->httpClient->post($this->getApiUrl(), ['form_params' => $query]);
 
-            $loginResponse = $this->handleResponse($response, $this->apiDomain, $query);
+            $loginResponse = $this->handleResponse($response, $this->getApiUrl(), $query);
 
             $this->sessionId = $loginResponse->sessionName;
-        } catch (\Exception $e) {
-            throw new AuthenticationException('Failed to authenticate. ' . $e->getMessage(), $e);
+        }
+        catch (\Exception $e) {
+            throw new AuthenticationException('Failed to authenticate. ' . $e->getMessage());
         }
 
         return $this;
@@ -138,11 +167,13 @@ class Connection
 
     /**
      * @param Credentials $credentials
+     *
      * @return Connection
      */
     public function setCredentials(Credentials $credentials): Connection
     {
         $this->credentials = $credentials;
+
         return $this;
     }
 
@@ -154,26 +185,45 @@ class Connection
         return $this->apiDomain;
     }
 
+    public function getApiUrl()
+    {
+        return sprintf("https://%s/webservice.php",
+            $this->getApiDomain());
+    }
+
     /**
      * @param mixed $apiDomain
+     *
      * @return Connection
      */
     public function setApiDomain($apiDomain)
     {
         $this->apiDomain = $apiDomain;
+
         return $this;
     }
 
-
+    /**
+     * @param string $operation
+     * @param array  $payload
+     *
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws AccessDeniedException
+     * @throws AuthenticationException
+     * @throws DatabaseQueryException
+     * @throws InvalidArgumentException
+     * @throws InvalidRequestException
+     * @throws SessionException
+     * @throws VtigerPluginException
+     */
     public function get(string $operation, array $payload = [])
     {
         $query = sprintf("%s?operation=%s",
-            $this->getApiDomain(),
+            $this->getApiUrl(),
             $operation);
 
-
         if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
-            throw new VtigerSessionException('Not authenticated.');
+            throw new SessionException('Not authenticated.');
         } elseif ($this->isAuthenticateOnDemand()) {
             $this->authenticate();
         }
@@ -198,13 +248,25 @@ class Connection
         return $response;
     }
 
-
+    /**
+     * @param string $operation
+     * @param array  $payload
+     *
+     * @return mixed
+     * @throws AccessDeniedException
+     * @throws AuthenticationException
+     * @throws DatabaseQueryException
+     * @throws InvalidArgumentException
+     * @throws InvalidRequestException
+     * @throws SessionException
+     * @throws VtigerPluginException
+     */
     public function post(string $operation, array $payload)
     {
         $payloadFinal['operation'] = $operation;
 
         if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
-            throw new VtigerSessionException('Not authenticated.');
+            throw new SessionException('Not authenticated.');
         } elseif ($this->isAuthenticateOnDemand()) {
             $this->authenticate();
         }
@@ -213,29 +275,54 @@ class Connection
 
         $payloadFinal = array_merge($payloadFinal, $payload);
 
-        $response = $this->httpClient->post($this->apiDomain, ['form_params' => $payloadFinal]);
+        $response = $this->httpClient->post($this->getApiUrl(), ['form_params' => $payloadFinal]);
 
-        return $this->handleResponse($response, $this->apiDomain, $payloadFinal);
+        return $this->handleResponse($response, $this->getApiUrl(), $payloadFinal);
     }
 
+    /**
+     * @param Response $response
+     * @param string   $apiUrl
+     * @param array    $payload
+     *
+     * @return mixed
+     * @throws AccessDeniedException
+     * @throws DatabaseQueryException
+     * @throws InvalidArgumentException
+     * @throws InvalidRequestException
+     * @throws SessionException
+     * @throws VtigerPluginException
+     */
     private function handleResponse(Response $response, string $apiUrl, array $payload = [])
     {
         $content = $response->getBody()->getContents();
 
         if ($response->getReasonPhrase() != 'OK') {
-            throw new VtigerSessionException('Server responded with an error');
+            throw new SessionException('Server responded with an error');
         }
 
         $content = json_decode($content);
+
+        if ($content === false) {
+            throw new VtigerPluginException('Incorrect endpoint response');
+        }
 
         if ($content->success) {
             return $content->result;
         }
 
-        $error = isset($content->error) ? $content->error->code . ": " . $content->error->message : "No message";
+        $error = property_exists($content, 'error') ? $content->error->code . ": " . $content->error->message : "No message";
 
+        switch ($content->error->code) {
+            case "ACCESS_DENIED":
+                throw new AccessDeniedException($error, $apiUrl, $payload);
+            case "DATABASE_QUERY_ERROR":
+                throw new DatabaseQueryException($error, $apiUrl, $payload);
+            case "MANDATORY_FIELDS_MISSING":
+                throw new InvalidArgumentException($content->error->message, $apiUrl, $payload);
+        }
 
-        throw new VtigerInvalidRequestException($error, $apiUrl, $payload);
+        throw new InvalidRequestException($error, $apiUrl, $payload);
     }
 
 }
