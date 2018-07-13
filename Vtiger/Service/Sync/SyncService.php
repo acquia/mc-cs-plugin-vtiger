@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Service\Sync;
 
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
 
 /**
@@ -32,15 +30,34 @@ final class SyncService implements SyncServiceInterface
     }
 
     /**
-     * @param string $object
-     * @param int[]  $ids
-     * @param int[]  $columns
+     * @param IntegrationMappingManual $integrationMappingManual
+     * @param int|null                 $fromTimestamp
      *
-     * @return ObjectDAO[]
+     * @return ReportDAO
      */
-    public function getSyncObjects(string $object, array $ids, array $columns): array
+    public function getSyncReport(IntegrationMappingManual $integrationMappingManual, int $fromTimestamp = null): ReportDAO
     {
-
+        $objectsMapping = $integrationMappingManual->getObjects();
+        $syncLog = $this->generalRepository->getSyncLog($fromTimestamp);
+        $syncReport = new ReportDAO();
+        foreach($objectsMapping as $objectMapping) {
+            $object = $objectMapping->getObject();
+            $updatedIds = $syncLog->getUpdatedIds($object);
+            $repository = $this->getObjectRepository($object);
+            $fields = $objectMapping->getFields();
+            /** @var BaseModel[] $currentObjects */
+            $currentObjects = $repository->findBy(['id' => $updatedIds], $fields);
+            foreach($currentObjects as $currentObject) {
+                $objectChange = new ObjectChangeDAO();
+                foreach($fields as $field) {
+                    $fieldValue = $currentObject->{'get'. ucwords($field)}();
+                    $objectChange->addField(new FieldDAO($field, $fieldValue));
+                }
+                $objectChange->setChangeTimestamp($syncLog->getObjectChangeTimestamp($object, $currentObject->getId()));
+                $syncReport->addObject($objectChange);
+            }
+        }
+        return $syncReport;
     }
 
     /**
@@ -50,15 +67,17 @@ final class SyncService implements SyncServiceInterface
     {
         $object = $objectDAO->getObject();
 
+        $repository = $this->getObjectRepository($object);
+        $updateModel = $repository->getEmptyModel();
         $objectId = $objectDAO->getObjectId();
-        $updateObject->setId($objectId);
+        $updateModel->setId($objectId);
         $fields = $objectDAO->getFields();
         foreach($fields as $field) {
             $fieldName = $field->getName();
             $fieldValue = $field->getValue();
-            $updateObject->{'set' . ucwords($fieldName)}($fieldValue);
+            $updateModel->{'set' . ucwords($fieldName)}($fieldValue);
         }
-        $repository->update($updateObject);
+        $repository->update($updateModel);
     }
 
     /**

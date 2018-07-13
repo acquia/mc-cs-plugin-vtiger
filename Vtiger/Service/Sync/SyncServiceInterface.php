@@ -9,18 +9,15 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Service\Sync;
 interface SyncServiceInterface
 {
     /**
-     * @param string $object
-     * @param int[]  $ids
-     * @param int[]  $columns
+     * @param IntegrationMappingManual $integrationMappingManual
+     * @param int|null                 $fromTimestamp
      *
-     * @return ObjectDAO[]
+     * @return ReportDAO
      */
-    public function getSyncObjects(string $object, array $ids, array $columns): array;
+    public function getSyncReport(IntegrationMappingManual $integrationMappingManual, int $fromTimestamp = null) : ReportDAO;
 
     /**
      * @param ObjectDAO $objectDAO
      */
     public function syncObject(ObjectDAO $objectDAO);
-
-    public function getRepositoryByObject();
 }

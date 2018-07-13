@@ -9,6 +9,7 @@
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
@@ -26,5 +27,10 @@ class AccountRepository extends BaseRepository
         $record = $this->findOneBy(['id'=>$id]);
 
         return $record;
+    }
+
+    public function getEmptyModel(): BaseModel
+    {
+        return new Account();
     }
 }

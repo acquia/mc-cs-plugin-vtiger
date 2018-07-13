@@ -10,6 +10,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInterface;
 
 /**
@@ -32,4 +33,9 @@ abstract class BaseRepository
     {
         $this->connection = $connection;
     }
+
+    /**
+     * @return BaseModel
+     */
+    abstract public function getEmptyModel(): BaseModel;
 }
