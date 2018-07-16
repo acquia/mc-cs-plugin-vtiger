@@ -53,6 +53,8 @@ return [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration::class,
                 'arguments' => [
                     'mautic.lead.model.field',
+                    'mautic.lead.model.lead',
+                    'translator',
                 ],
                 'tags' => ['mautic.integration', 'mautic.basic_integration', 'mautic.dispatcher_integration', 'mautic.encryption_integration']
             ],
