@@ -21,7 +21,7 @@ use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\AuthenticationI
 use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\BasicInterface;
 use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\DispatcherInterface;
 use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\EncryptionInterface;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
+use MauticPlugin\MauticVtigerCrmBundle\Mapping\FieldMapping;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -57,9 +57,9 @@ class VtigerCrmIntegration extends BasicIntegration implements
     private $translator;
 
     /**
-     * @var ContactRepository
+     * @var FieldMapping
      */
-    private $contactRepository;
+    private $fieldMapping;
 
     /**
      * VtigerCrmIntegration constructor.
@@ -67,19 +67,19 @@ class VtigerCrmIntegration extends BasicIntegration implements
      * @param FieldModel          $fieldModel
      * @param LeadModel           $leadModel
      * @param TranslatorInterface $translator
-     * @param ContactRepository   $contactRepository
+     * @param FieldMapping        $fieldMapping
      */
     public function __construct(
         FieldModel $fieldModel,
         LeadModel $leadModel,
         TranslatorInterface $translator,
-        ContactRepository $contactRepository
+        FieldMapping $fieldMapping
     )
     {
         $this->fieldModel = $fieldModel;
         $this->leadModel = $leadModel;
         $this->translator = $translator;
-        $this->contactRepository = $contactRepository;
+        $this->fieldMapping = $fieldMapping;
     }
 
     /**
@@ -214,71 +214,15 @@ class VtigerCrmIntegration extends BasicIntegration implements
      */
     public function getFormLeadFields($settings = [])
     {
-        $leadFields    = $this->getFormFieldsByObject('Lead', $settings);
-        $contactFields = $this->getFormFieldsByObject('Contact', $settings);
-
-        return array_merge($leadFields, $contactFields);
-    }
-
-    /**
-     * @param string $object
-     * @param array  $settings
-     *
-     * @return array
-     */
-    private function getFormFieldsByObject($object, array $settings = [])
-    {
-        $settings['feature_settings']['objects'] = [$object => $object];
-
-        $fields = $this->isAuthorized() ? $this->getAvailableLeadFields($settings) : [];
-
-        return isset($fields[$object]) ? $fields[$object] : [];
-    }
-
-    /**
-     * @param array $settings
-     *
-     * @return array
-     */
-    private function getAvailableLeadFields(array $settings = [])
-    {
-        $salesForceObjects = [];
-
-        if (isset($settings['feature_settings']['objects'])) {
-            $salesForceObjects = $settings['feature_settings']['objects'];
-        } else {
-            $salesForceObjects[] = 'Lead';
+        if (!$this->isAuthorized()) {
+            return false;
         }
 
-        if (!$this->isAuthorized() || (!empty($salesForceObjects) && is_array($salesForceObjects))) {
-            return [];
-        }
+        $leadFields    = $this->fieldMapping->getLeadFields();
+        //$contactFields = $this->getFormFieldsByObject('Contact', $settings);
 
-        $salesFields = [];
-        foreach ($salesForceObjects as $key => $sfObject) {
-
-            $sfObject = trim($sfObject);
-
-            if (!isset($salesFields[$sfObject])) {
-                $fields = $this->contactRepository->describe();
-                dump($fields);exit;
-                if (!empty($fields['fields'])) {
-                    foreach ($fields['fields'] as $fieldInfo) {
-                        $type = 'string';
-                        $salesFields[$sfObject][$fieldInfo['name'].'__'.$sfObject] = [
-                            'type'        => $type,
-                            'label'       => $sfObject.'-'.$fieldInfo['label'],
-                            'required'    => false,
-                            'group'       => $sfObject,
-                            'optionLabel' => $fieldInfo['label'],
-                        ];
-                    }
-                }
-            }
-
-            asort($salesFields[$sfObject]);
-        }
-
-        return $salesFields;
+        //return array_merge($leadFields, $contactFields);
+dump($leadFields);exit;
+        return $leadFields;
     }
 }
