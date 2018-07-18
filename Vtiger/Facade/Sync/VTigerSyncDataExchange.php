@@ -40,14 +40,13 @@ final class VTigerSyncDataExchange implements IntegrationSyncDataExchangeInterfa
     }
 
     /**
-     * @param IntegrationMappingManual $integrationMappingManual
-     * @param int|null                 $fromTimestamp
+     * @param RequestDAO $requestDAO
      *
      * @return ReportDAO
      */
-    public function getSyncReport(IntegrationMappingManual $integrationMappingManual, int $fromTimestamp = null): ReportDAO
+    public function getSyncReport(RequestDAO $requestDAO): ReportDAO
     {
-        return $this->syncService->getReport($integrationMappingManual, $fromTimestamp);
+        return $this->syncService->getReport($requestDAO);
     }
 
     /**

@@ -30,35 +30,36 @@ final class SyncService implements SyncServiceInterface
     }
 
     /**
-     * @param IntegrationMappingManual $integrationMappingManual
-     * @param int|null                 $fromTimestamp
+     * @param RequestDAO $requestDAO
      *
      * @return ReportDAO
      */
-    public function getSyncReport(IntegrationMappingManual $integrationMappingManual, int $fromTimestamp = null): ReportDAO
+    public function getSyncReport(RequestDAO $requestDAO): ReportDAO
     {
-        $objectsMapping = $integrationMappingManual->getObjects();
-        $syncLog = $this->generalRepository->getSyncLog($fromTimestamp);
-        $syncReport = new ReportDAO();
-        foreach($objectsMapping as $objectMapping) {
-            $object = $objectMapping->getObject();
+        $requestObjects = $requestDAO->getObjects();
+        $syncLog = $this->generalRepository->getSyncLog($requestDAO->getFromTimestamp());
+        $reportDAO = new ReportDAO();
+        foreach($requestObjects as $requestObject) {
+            $object = $requestObject->getObject();
             $updatedIds = $syncLog->getUpdatedIds($object);
             $repository = $this->getObjectRepository($object);
-            $fields = $objectMapping->getFields();
+            $fields = $requestObject->getFields();
             /** @var BaseModel[] $currentObjects */
             $currentObjects = $repository->findBy(['id' => $updatedIds], $fields);
             foreach($currentObjects as $currentObject) {
-                $objectChange = new ObjectChangeDAO();
+                $reportObjectDAO = new ReportObjectDAO();
                 foreach($fields as $field) {
                     $fieldValue = $currentObject->{'get'. ucwords($field)}();
-                    $objectChange->addField(new FieldDAO($field, $fieldValue));
+                    $reportObjectDAO->addField(new ReportFieldDAO($field, $fieldValue));
                 }
-                $objectChange->setChangeTimestamp($syncLog->getObjectChangeTimestamp($object, $currentObject->getId()));
-                $syncReport->addObject($objectChange);
+                $reportObjectDAO->setChangeTimestamp($syncLog->getObjectChangeTimestamp($object, $currentObject->getId()));
+                $reportDAO->addObject($reportObjectDAO);
             }
         }
-        return $syncReport;
+        return $reportDAO;
     }
+
+
 
     /**
      * @param ObjectDAO $objectDAO
