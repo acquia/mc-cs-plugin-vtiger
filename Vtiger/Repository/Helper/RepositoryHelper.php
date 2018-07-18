@@ -8,10 +8,13 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper;
 
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\SyncReport;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 
 /**
  * Trait RepositoryHelper
@@ -20,11 +23,6 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
  */
 trait RepositoryHelper
 {
-    public static $moduleClassMapping = [
-            'Contacts' => Contact::class,
-            'Accounts' => Account::class
-        ];
-
     /**
      * @param array  $where
      * @param string $columns
@@ -53,11 +51,13 @@ trait RepositoryHelper
 
         $result = $this->connection->get('query', ['query' => $query]);
 
+        $return = [];
+
         foreach ($result as $key=>$moduleObject) {
-            $result[] = new $className((array) $moduleObject);
+            $return[] = new $className((array) $moduleObject);
         }
 
-        return $result;
+        return $return;
     }
 
     /**
@@ -106,6 +106,21 @@ trait RepositoryHelper
         return $createdModule;
     }
 
+    /**
+     * @param BaseModel $module
+     *
+     * @return BaseModel
+     */
+    public function update(BaseModel $module): BaseModel
+    {
+        $response = $this->connection->post('update', ['element' => json_encode($module->dehydrate())]);
+
+        $className = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
+        $createdModule = new $className((array)$response);
+
+        return $createdModule;
+    }
+
 
     /**
      * @return string
@@ -129,5 +144,36 @@ trait RepositoryHelper
     public function query($query) {
         $response =  $this->connection->get('query', ['query' => $query]);
         return $response;
+    }
+
+    /**
+     * @param $id string Vtiger ID
+     *
+     * @return mixed
+     */
+    public function delete(string $id) {
+        $response = $this->connection->post('delete', ['id' =>  (string) $id]);
+        return $response;
+    }
+
+    /**
+     * @see
+     * ```sync(modifiedTime: Timestamp, elementType: String, syncType: String):SyncResult```
+     */
+    public function sync(int $modifiedTime, $syncType = BaseRepository::SYNC_APPLICATION) {
+        $moduleName = $this->getModuleFromRepositoryName();
+
+        /** @var Connection $this->connection */
+        $response = $this->connection->get('sync', [
+            'modifiedTime' => intval($modifiedTime),
+            'elementType' => $moduleName,
+            'syncType'  => $syncType
+        ]);
+
+        $report = new SyncReport($response, $moduleName);
+
+        var_dump($report);
+        var_dump($response);
+        die();
     }
 }

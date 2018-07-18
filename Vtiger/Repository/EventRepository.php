@@ -9,27 +9,29 @@
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
-class ContactRepository extends BaseRepository
+class EventRepository extends BaseRepository
 {
     use RepositoryHelper;
 
-    public function create(Contact $module): Contact
+    public function create(Event $module): Event
     {
         return $this->createUnified($module);
     }
 
-    public function retrieve(string $id): Contact
+    public function retrieve(string $id): Event
     {
         $record = $this->findOneBy(['id'=>$id]);
 
         return $record;
     }
 
-    public function delete(ModuleInterface $module)
-    {
-        // TODO: Implement delete() method.
+    public function getByContactId($contactId) {
+        $this->findBy(['contact_id'=>(string) $contactId]);
     }
+
+
 }

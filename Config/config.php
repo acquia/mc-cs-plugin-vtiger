@@ -43,6 +43,12 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection'
                 ]
+            ],
+            'mautic.vtiger_crm.repository.events' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\EventRepository::class,
+                'arguments' => [
+                    'mautic.vtiger_crm.connection'
+                ]
             ]
             
         ],
