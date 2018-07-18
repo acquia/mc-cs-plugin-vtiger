@@ -10,7 +10,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
 
-class Contact extends BaseModel
+class Event extends BaseModel
 {
 
 }

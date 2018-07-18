@@ -325,4 +325,29 @@ class Connection
         throw new InvalidRequestException($error, $apiUrl, $payload);
     }
 
+    /**
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws AccessDeniedException
+     * @throws AuthenticationException
+     * @throws DatabaseQueryException
+     * @throws InvalidArgumentException
+     * @throws InvalidRequestException
+     * @throws SessionException
+     * @throws VtigerPluginException
+     */
+    public function logout() {
+        return $this->get('logout');
+    }
+
+    /**
+     * returns love
+     */
+    public function __destruct()
+    {
+        try {
+            $this->logout();
+        } catch (\Exception $e) {
+
+        }
+    }
 }
