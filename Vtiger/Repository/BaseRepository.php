@@ -11,7 +11,9 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
 
 /**
  * Class BaseRepository
@@ -20,6 +22,15 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInterface;
  */
 abstract class BaseRepository
 {
+    const SYNC_USER = 'user';   //  user: fetches all the updates done on records assigned to you.
+    const SYNC_APPLICATION = 'application'; //  application: fetches all the updates done on records assigned to any user.
+
+    public static $moduleClassMapping = [
+        'Contacts' => Contact::class,
+        'Accounts' => Account::class,
+        'Events'   => Event::class,
+    ];
+
     /** @var Connection */
     protected $connection;
 
@@ -27,7 +38,6 @@ abstract class BaseRepository
      * BaseRepository constructor.
      *
      * @param Connection $connection
-     * @param $moduleName
      */
     public function __construct(Connection $connection)
     {
