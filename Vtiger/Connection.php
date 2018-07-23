@@ -112,6 +112,7 @@ class Connection
      */
     public function authenticate(Credentials $credentials = null): Connection
     {
+        var_dump('auth');
         try {
             $credentials = $credentials ?: $this->credentials;
 
@@ -126,6 +127,8 @@ class Connection
 
             $query .= '&' . http_build_query(['username' => $credentials->getUsername()]);
 
+            var_dump($query);
+
             $response = $this->httpClient->get($query, ['headers' => $this->requestHeaders]);
 
             $response = $this->handleResponse($response, $query);
@@ -138,11 +141,14 @@ class Connection
 
             $response = $this->httpClient->post($this->getApiUrl(), ['form_params' => $query]);
 
+            var_dump($response);
+
             $loginResponse = $this->handleResponse($response, $this->getApiUrl(), $query);
 
             $this->sessionId = $loginResponse->sessionName;
         }
         catch (\Exception $e) {
+            var_dump($e); die();
             throw new AuthenticationException('Failed to authenticate. ' . $e->getMessage());
         }
 
@@ -225,7 +231,10 @@ class Connection
         if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
             throw new SessionException('Not authenticated.');
         } elseif ($this->isAuthenticateOnDemand()) {
+            var_dump('bbb');
             $this->authenticate();
+            var_dump('ccc');
+
         }
 
         $payload['sessionName'] = $this->sessionId;
@@ -310,6 +319,7 @@ class Connection
         if ($content->success) {
             return $content->result;
         }
+
 
         $error = property_exists($content, 'error') ? $content->error->code . ": " . $content->error->message : "No message";
 
