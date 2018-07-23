@@ -49,8 +49,14 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection'
                 ]
-            ]
-            
+            ],
+            'mautic.vtiger_crm.mapping.field_mapping' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Mapping\FieldMapping::class,
+                'arguments' => [
+                    //'mautic.vtiger_crm.repository.contacts',
+                    'service_container',
+                ],
+            ],
         ],
         'models'       => [
         ],
@@ -61,6 +67,7 @@ return [
                     'mautic.lead.model.field',
                     'mautic.lead.model.lead',
                     'translator',
+                    'mautic.vtiger_crm.mapping.field_mapping',
                 ],
                 'tags' => ['mautic.integration', 'mautic.basic_integration', 'mautic.dispatcher_integration', 'mautic.encryption_integration']
             ],

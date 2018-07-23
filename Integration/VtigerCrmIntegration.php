@@ -21,6 +21,7 @@ use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\AuthenticationI
 use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\BasicInterface;
 use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\DispatcherInterface;
 use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\EncryptionInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Mapping\FieldMapping;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -55,21 +56,29 @@ class VtigerCrmIntegration extends BasicIntegration implements
     private $translator;
 
     /**
+     * @var FieldMapping
+     */
+    private $fieldMapping;
+
+    /**
      * VtigerCrmIntegration constructor.
      *
      * @param FieldModel          $fieldModel
      * @param LeadModel           $leadModel
      * @param TranslatorInterface $translator
+     * @param FieldMapping        $fieldMapping
      */
     public function __construct(
         FieldModel $fieldModel,
         LeadModel $leadModel,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        FieldMapping $fieldMapping
     )
     {
         $this->fieldModel = $fieldModel;
         $this->leadModel = $leadModel;
         $this->translator = $translator;
+        $this->fieldMapping = $fieldMapping;
     }
 
     /**
@@ -187,5 +196,31 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ]
         );
 
+    }
+
+    public function isConfigured()
+    {
+        return true; // Method in Trait does not work, so bypass it temporary
+    }
+
+    /**
+     * @param array $settings
+     *
+     * @return array|mixed
+     *
+     * @throws \Exception
+     */
+    public function getFormLeadFields($settings = [])
+    {
+        if (!$this->isAuthorized()) {
+            return false;
+        }
+
+        $leadFields    = $this->fieldMapping->getLeadFields();
+        //$contactFields = $this->getFormFieldsByObject('Contact', $settings);
+
+        //return array_merge($leadFields, $contactFields);
+dump($leadFields);exit;
+        return $leadFields;
     }
 }
