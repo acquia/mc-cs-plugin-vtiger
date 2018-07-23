@@ -27,4 +27,8 @@ class AccountRepository extends BaseRepository
 
         return $record;
     }
+
+    public function getByContactId(string $contactId) {
+        return $this->findBy(['contact_id' => $contactId]);
+    }
 }
