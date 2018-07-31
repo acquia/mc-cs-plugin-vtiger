@@ -22,6 +22,7 @@ use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\BasicInterface;
 use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\DispatcherInterface;
 use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\EncryptionInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -102,7 +103,8 @@ class VtigerCrmIntegration extends BasicIntegration implements
     /** @inheritdoc */
     public function getApiUrl(): string { return sprintf('%s/webservice.php', $this->keys['url']); }
 
-    public function appendToForm(&$builder, $data, $formArea) {
+    public function appendToForm(FormBuilder $builder, array $data, string $formArea): void
+    {
         if ($formArea !== 'features') {
             return;
         }
