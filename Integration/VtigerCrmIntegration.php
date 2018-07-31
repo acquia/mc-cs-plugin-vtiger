@@ -212,7 +212,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
      *
      * @throws \Exception
      */
-    public function getFormLeadFields($settings = [])
+    public function getFormLeadFields(array $settings = [])
     {
         if (!$this->isAuthorized()) {
             return false;
