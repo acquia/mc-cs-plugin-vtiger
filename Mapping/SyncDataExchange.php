@@ -15,14 +15,11 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Mapping;
 
 use BadMethodCallException;
 use DateTimeImmutable;
-use MauticPlugin\MagentoBundle\Exception\ObjectNotSupportedException;
-use MauticPlugin\MagentoBundle\Integration\MagentoIntegration;
-use MauticPlugin\MagentoBundle\Magento\DTO\Customer;
-use MauticPlugin\MagentoBundle\Magento\Repository\CustomerRepository;
 use MauticPlugin\MauticIntegrationsBundle\DAO\Sync\Order\OrderDAO;
 use MauticPlugin\MauticIntegrationsBundle\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\MauticIntegrationsBundle\DAO\Sync\Request\RequestDAO;
 use MauticPlugin\MauticIntegrationsBundle\Facade\SyncDataExchange\SyncDataExchangeInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 
 final class SyncDataExchange implements SyncDataExchangeInterface
 {
@@ -31,19 +28,16 @@ final class SyncDataExchange implements SyncDataExchangeInterface
      */
     private $syncObjectBuilder;
 
-    /**
-     * @var CustomerRepository
-     */
-    private $customerRepository;
+    private $contactRepository;
 
     /**
      * @param SyncObjectBuilder  $syncObjectBuilder
      * @param CustomerRepository $customerRepository
      */
-    public function __construct(SyncObjectBuilder $syncObjectBuilder, CustomerRepository $customerRepository)
+    public function __construct(SyncObjectBuilder $syncObjectBuilder, ContactRepository $contactRepository)
     {
         $this->syncObjectBuilder  = $syncObjectBuilder;
-        $this->customerRepository = $customerRepository;
+        $this->contactRepository = $contactRepository;
     }
 
     /**

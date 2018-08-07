@@ -23,6 +23,7 @@ use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\DispatcherInter
 use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\EncryptionInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\FieldMapping;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -235,4 +236,78 @@ class VtigerCrmIntegration extends BasicIntegration implements
 
         return $leadFields;
     }
+
+    /**
+     * @return array
+     */
+    public function getSupportedFeatures(): array
+    {
+        return ($this->isConfigured() && $this->getSupportedFeatures()) ? $this->getSupportedFeatures() : [];
+    }
+
+    public function getMappedFields() {
+        return $this->fieldMapping->getLeadFields();
+        return empty($this->getFeatureSettings()['leadFields']) ? [] : $this->getFeatureSettings()['leadFields'];
+    }
+
+    /**
+     * @param string $alias
+     *
+     * @return string
+     *
+     * @throws UnexpectedValueExceptionf
+     */
+    public function getFieldDirection(string $alias): string
+    {
+        if (isset($this->getMappedFieldsDirections()[$alias])) {
+            return $this->getMappedFieldsDirections()[$alias];
+        }
+
+        throw new UnexpectedValueException("There is no field direction for field '${alias}'.");
+    }
+
+    /**
+     * Returns direction of what field to sinc where.
+     * In format [magento_field_alias => direction].
+     *
+     * @return array
+     *
+     * @throws UnexpectedValueException
+     */
+    public function getMappedFieldsDirections(): array
+    {
+        if (!$this->fieldDirections) {
+            foreach ($this->getRawFieldDirections() as $alias => $rawValue) {
+                $rawValueInt = (int) $rawValue;
+                if (1 === $rawValueInt) {
+                    $value = ObjectMappingDAO::SYNC_TO_MAUTIC;
+                } elseif (0 === $rawValueInt) {
+                    $value = ObjectMappingDAO::SYNC_TO_INTEGRATION;
+                } else {
+                    throw new UnexpectedValueException(
+                        "Value '${rawValue}' is not supported as a mapped field direction."
+                    );
+                }
+
+                $this->fieldDirections[$alias] = $value;
+            }
+        }
+
+        return $this->fieldDirections;
+    }
+
+    /**
+     * Returns mapped field directions in format [magento_field_alias => 0/1].
+     *
+     * @return array
+     */
+    private function getRawFieldDirections(): array
+    {
+        return empty($this->getFeatureSettings()['update_mautic']) ? [] : $this->getFeatureSettings()['update_mautic'];
+    }
+
+    /**
+     * @var string[]
+     */
+    private $fieldDirections = [];
 }

@@ -19,6 +19,9 @@ use MauticPlugin\MauticIntegrationsBundle\DAO\Mapping\ObjectMappingDAO;
 use MauticPlugin\MauticIntegrationsBundle\Event\SyncEvent;
 use MauticPlugin\MauticIntegrationsBundle\Facade\SyncDataExchange\MauticSyncDataExchange;
 use MauticPlugin\MauticIntegrationsBundle\IntegrationEvents;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
+use MauticPlugin\MauticVtigerCrmBundle\Mapping\SyncDataExchange;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\DTO\Contact;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final class IntegrationEventSubscriber implements EventSubscriberInterface
@@ -33,13 +36,9 @@ final class IntegrationEventSubscriber implements EventSubscriberInterface
      */
     private $config;
 
-    /**
-     * @param SyncDataExchange $syncDataExchange
-     * @param Config           $syncDataExchange
-     */
-    public function __construct(SyncDataExchange $syncDataExchange,  $config)
+    public function __construct(SyncDataExchange $syncDataExchange, IntegrationHelper $integrationEntity)
     {
-        $this->config           = $config;
+        $this->config           = $integrationEntity;
         $this->syncDataExchange = $syncDataExchange;
     }
 
@@ -58,11 +57,12 @@ final class IntegrationEventSubscriber implements EventSubscriberInterface
      */
     public function onSync(SyncEvent $syncEvent): void
     {
-        if (!$syncEvent->shouldIntegrationSync(MagentoIntegration::NAME)) {
+        if (!$syncEvent->shouldIntegrationSync($this->config->getName())) {
+            echo "no sync";
             return;
         }
 
-        $customerObjectMapping = new ObjectMappingDAO(MauticSyncDataExchange::CONTACT_OBJECT, Customer::NAME);
+        $customerObjectMapping = new ObjectMappingDAO(MauticSyncDataExchange::CONTACT_OBJECT, Contact::NAME);
 
         foreach ($this->config->getMappedFields() as $magentoField => $mauticField) {
             $customerObjectMapping->addFieldMapping(
@@ -74,6 +74,7 @@ final class IntegrationEventSubscriber implements EventSubscriberInterface
 
         $mappingManual = new MappingManualDAO(MagentoIntegration::NAME);
         $mappingManual->addObjectMapping($customerObjectMapping);
+
         $syncEvent->setSyncServices($this->syncDataExchange, $mappingManual);
     }
 }

@@ -62,12 +62,4 @@ class FieldMapping
 
         return $salesFields;
     }
-
-    private function initializeHackBecauseOfCircularDependency()
-    {
-        if (isset($this->contactRepository)) {
-            return;
-        }
-
-    }
 }

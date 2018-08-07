@@ -18,7 +18,7 @@ return [
         'events' => [
             'mautic.vtiger_crm.subscriber' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\IntegrationEventSubscriber::class,
-                'arguments' => ['mautic.vtiger_crm.mapping.sync_data_exchange', 'mautic.integration.vtiger_crm'],
+                'arguments' => ['mautic.vtiger_crm.mapping.sync_data_exchange', 'mautic.helper.integration'],
             ],
         ],
         'forms'        => [
