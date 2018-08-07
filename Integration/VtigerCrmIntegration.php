@@ -203,6 +203,21 @@ class VtigerCrmIntegration extends BasicIntegration implements
         return true; // Method in Trait does not work, so bypass it temporary
     }
 
+    public function isAuthorized()
+    {
+        if (!$this->isConfigured()) {
+            return false;
+        }
+
+        $credentialsCfg = $this->getDecryptedApiKeys($this->getIntegrationSettings());
+
+        if (!isset($credentialsCfg['accessKey']) || !isset($credentialsCfg['username']) || !isset($credentialsCfg['url'])) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * @param array $settings
      *
@@ -212,14 +227,12 @@ class VtigerCrmIntegration extends BasicIntegration implements
      */
     public function getFormLeadFields($settings = [])
     {
-        if (!$this->isAuthorized()) {
+        if (!$this->isConfigured()) {
             return false;
         }
 
         $leadFields    = $this->fieldMapping->getLeadFields();
-        //$contactFields = $this->getFormFieldsByObject('Contact', $settings);
 
-        //return array_merge($leadFields, $contactFields);
         return $leadFields;
     }
 }
