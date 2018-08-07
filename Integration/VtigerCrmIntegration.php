@@ -220,7 +220,6 @@ class VtigerCrmIntegration extends BasicIntegration implements
         //$contactFields = $this->getFormFieldsByObject('Contact', $settings);
 
         //return array_merge($leadFields, $contactFields);
-dump($leadFields);exit;
         return $leadFields;
     }
 }

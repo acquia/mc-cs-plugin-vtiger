@@ -53,8 +53,7 @@ return [
             'mautic.vtiger_crm.mapping.field_mapping' => [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Mapping\FieldMapping::class,
                 'arguments' => [
-                    //'mautic.vtiger_crm.repository.contacts',
-                    'service_container',
+                    'service_containerservice_container'
                 ],
             ],
         ],

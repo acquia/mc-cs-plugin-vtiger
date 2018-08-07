@@ -11,6 +11,7 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Mapping;
 
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -27,50 +28,37 @@ class FieldMapping
     private $container;
 
     /**
-     * @param ContactRepository $contactRepository
-     */
-    /*
-    public function __construct(
-        ContactRepository $contactRepository
-    ) {
-        $this->contactRepository = $contactRepository;
-    }
-    */
-
-    /**
+     * FieldMapping constructor.
+     *
      * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(
+        ContainerInterface $container
+    )
     {
         $this->container = $container;
     }
 
     public function getLeadFields()
     {
-        $this->initializeHackBecauseOfCircularDependency();
-
         $salesFields = [];
 
-        $sfObject = 'Lead';
+        $this->contactRepository = $this->container->get('mautic.vtiger_crm.repository.contacts');
 
-        if (!isset($salesFields[$sfObject])) {
-            $fields = $this->contactRepository->describe();
-            dump($fields);exit;
-            if (!empty($fields['fields'])) {
-                foreach ($fields['fields'] as $fieldInfo) {
-                    $type = 'string';
-                    $salesFields[$sfObject][$fieldInfo['name'].'__'.$sfObject] = [
-                        'type'        => $type,
-                        'label'       => $sfObject.'-'.$fieldInfo['label'],
-                        'required'    => false,
-                        'group'       => $sfObject,
-                        'optionLabel' => $fieldInfo['label'],
-                    ];
-                }
-            }
+        $fields = $this->contactRepository->describe()->getFields();
+
+        /** @var ModuleFieldInfo $fieldInfo */
+        foreach ($fields as $fieldInfo) {
+            $type = 'string';
+            $salesFields[$fieldInfo->getName()] = [
+                'type' => $type,
+                'label' => $fieldInfo->getLabel(),
+                'required' => $fieldInfo->isMandatory(),
+                'optionLabel' => $fieldInfo->getLabel(),
+            ];
         }
 
-        asort($salesFields[$sfObject]);
+        asort($salesFields);
 
         return $salesFields;
     }
@@ -81,6 +69,5 @@ class FieldMapping
             return;
         }
 
-        $this->contactRepository = $this->container->get('mautic.vtiger_crm.repository.contacts');
     }
 }
