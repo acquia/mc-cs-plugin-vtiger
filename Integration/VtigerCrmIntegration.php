@@ -111,7 +111,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
     /** @inheritdoc */
     public function getApiUrl(): string { return sprintf('%s/webservice.php', $this->keys['url']); }
 
-    public function appendToForm(&$builder, $data, $formArea) {
+    public function appendToForm(FormBuilder $builder, array $data, string $formArea) {
         if ($formArea !== 'features') {
             return;
         }
@@ -225,7 +225,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
      *
      * @throws \Exception
      */
-    public function getFormLeadFields($settings = [])
+    public function getFormLeadFields(array $settings = [])
     {
         if (!$this->isConfigured()) {
             return false;

@@ -15,7 +15,11 @@ return [
     'version' => '2.0',
     'author'      => 'Mautic',
     'services'    => [
-        'events'       => [
+        'events' => [
+            'mautic.vtiger_crm.subscriber' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\IntegrationEventSubscriber::class,
+                'arguments' => ['mautic.vtiger_crm.mapping.sync_data_exchange', 'mautic.integration.vtiger_crm'],
+            ],
         ],
         'forms'        => [
         ],
@@ -62,6 +66,14 @@ return [
                     'mautic.vtiger_crm.repository.contacts',
                     'mautic.lead.repository.lead',
                 ],
+            ],
+            'mautic.vtiger_crm.mapping.sync_data_exchange' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Mapping\SyncDataExchange::class,
+                'arguments' => ['mautic.vtiger_crm.mapping.sync_object_builder', 'mautic.vtiger_crm.repository.contacts'],
+            ],
+            'mautic.vtiger_crm.mapping.sync_object_builder' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Mapping\SyncObjectBuilder::class,
+                'arguments' => ['mautic.vtiger_crm.mapping.field_mapping'],
             ],
         ],
         'models'       => [
