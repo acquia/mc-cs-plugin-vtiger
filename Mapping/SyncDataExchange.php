@@ -50,6 +50,7 @@ final class SyncDataExchange implements SyncDataExchangeInterface
      */
     public function executeSyncOrder(OrderDAO $syncOrderDAO): void
     {
+        var_dump($syncOrderDAO);
         throw new BadMethodCallException('Mautic to Magento sync is not supported yet');
     }
 
