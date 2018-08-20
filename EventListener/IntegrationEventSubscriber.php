@@ -80,6 +80,8 @@ final class IntegrationEventSubscriber implements EventSubscriberInterface
 
         $customerObjectMapping = new ObjectMappingDAO(MauticSyncDataExchange::CONTACT_OBJECT, Contact::NAME);
 
+        var_dump($this->getMappedFields());
+
         foreach ($this->getMappedFields() as $magentoField => $mauticField) {
             $customerObjectMapping->addFieldMapping(
                 $mauticField,
