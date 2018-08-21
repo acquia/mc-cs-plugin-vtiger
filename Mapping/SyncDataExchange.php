@@ -15,10 +15,10 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Mapping;
 
 use BadMethodCallException;
 use DateTimeImmutable;
-use MauticPlugin\MauticIntegrationsBundle\DAO\Sync\Order\OrderDAO;
-use MauticPlugin\MauticIntegrationsBundle\DAO\Sync\Report\ReportDAO;
-use MauticPlugin\MauticIntegrationsBundle\DAO\Sync\Request\RequestDAO;
-use MauticPlugin\MauticIntegrationsBundle\Facade\SyncDataExchange\SyncDataExchangeInterface;
+use MauticPlugin\IntegrationsBundle\DAO\Sync\Order\OrderDAO;
+use MauticPlugin\IntegrationsBundle\DAO\Sync\Report\ReportDAO;
+use MauticPlugin\IntegrationsBundle\DAO\Sync\Request\RequestDAO;
+use MauticPlugin\IntegrationsBundle\Facade\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 
 final class SyncDataExchange implements SyncDataExchangeInterface

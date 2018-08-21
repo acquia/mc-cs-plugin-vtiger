@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Mapping;
 
 use MauticPlugin\MagentoBundle\Magento\DTO\SyncableInterface;
-use MauticPlugin\MauticIntegrationsBundle\DAO\Sync\Report\FieldDAO;
-use MauticPlugin\MauticIntegrationsBundle\DAO\Sync\Report\ObjectDAO;
-use MauticPlugin\MauticIntegrationsBundle\Helpers\ValueNormalizer\ValueNormalizer;
+use MauticPlugin\IntegrationsBundle\DAO\Sync\Report\FieldDAO;
+use MauticPlugin\IntegrationsBundle\DAO\Sync\Report\ObjectDAO;
+use MauticPlugin\IntegrationsBundle\Helpers\ValueNormalizer\ValueNormalizer;
 
 class SyncObjectBuilder
 {

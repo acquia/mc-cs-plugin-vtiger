@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\EventListener;
 
 use Mautic\PluginBundle\Helper\IntegrationHelper;
-use MauticPlugin\MauticIntegrationsBundle\DAO\Mapping\MappingManualDAO;
-use MauticPlugin\MauticIntegrationsBundle\DAO\Mapping\ObjectMappingDAO;
-use MauticPlugin\MauticIntegrationsBundle\Event\SyncEvent;
-use MauticPlugin\MauticIntegrationsBundle\Facade\SyncDataExchange\MauticSyncDataExchange;
-use MauticPlugin\MauticIntegrationsBundle\IntegrationEvents;
+use MauticPlugin\IntegrationsBundle\DAO\Mapping\MappingManualDAO;
+use MauticPlugin\IntegrationsBundle\DAO\Mapping\ObjectMappingDAO;
+use MauticPlugin\IntegrationsBundle\Event\SyncEvent;
+use MauticPlugin\IntegrationsBundle\Facade\SyncDataExchange\MauticSyncDataExchange;
+use MauticPlugin\IntegrationsBundle\IntegrationEvents;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\SyncDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\DTO\Contact;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
