@@ -21,7 +21,8 @@ use MauticPlugin\IntegrationsBundle\Integration\Interfaces\AuthenticationInterfa
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\BasicInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\DispatcherInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\EncryptionInterface;
-use MauticPlugin\MauticVtigerCrmBundle\Mapping\FieldMapping;
+use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -57,9 +58,11 @@ class VtigerCrmIntegration extends BasicIntegration implements
     private $translator;
 
     /**
-     * @var FieldMapping
+     * @var ObjectFieldMapper
      */
     private $fieldMapping;
+
+    const NAME = 'VtigerCrm';
 
     /**
      * VtigerCrmIntegration constructor.
@@ -67,13 +70,13 @@ class VtigerCrmIntegration extends BasicIntegration implements
      * @param FieldModel          $fieldModel
      * @param LeadModel           $leadModel
      * @param TranslatorInterface $translator
-     * @param FieldMapping        $fieldMapping
+     * @param ObjectFieldMapper   $fieldMapping
      */
     public function __construct(
         FieldModel $fieldModel,
         LeadModel $leadModel,
         TranslatorInterface $translator,
-        FieldMapping $fieldMapping
+        ObjectFieldMapper $fieldMapping
     )
     {
         $this->fieldModel = $fieldModel;
@@ -85,7 +88,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
     /**
      * @inheritDoc
      */
-    public function getName(): string { return 'VtigerCrm'; }
+    public function getName(): string { return self::NAME; }
 
     /** @inheritdoc */
     public function getIcon() { return 'plugins/MauticVtigerCrmBundle/Assets/img/vtiger_crm.png'; }
@@ -232,7 +235,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
             return false;
         }
 
-        $leadFields    = $this->fieldMapping->getLeadFields();
+        $leadFields    = $this->fieldMapping->getObjectFields('Contacts');
 
         return $leadFields;
     }

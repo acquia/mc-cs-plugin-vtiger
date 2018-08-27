@@ -18,7 +18,7 @@ return [
         'events' => [
             'mautic.vtiger_crm.subscriber' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\IntegrationEventSubscriber::class,
-                'arguments' => ['mautic.vtiger_crm.mapping.sync_data_exchange', 'mautic.helper.integration'],
+                'arguments' => ['mautic.vtiger_crm.sync.data_exchange', 'mautic.helper.integration'],
             ],
         ],
         'forms'        => [
@@ -55,26 +55,21 @@ return [
                 ]
             ],
             'mautic.vtiger_crm.mapping.field_mapping' => [
-                'class' => \MauticPlugin\MauticVtigerCrmBundle\Mapping\FieldMapping::class,
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper::class,
                 'arguments' => [
                     'service_container'
                 ],
             ],
-            'mautic.vtiger_crm.sync.contact' => [
-                'class' => \MauticPlugin\MauticVtigerCrmBundle\Sync\ContactSyncService::class,
-                'arguments' => [
-                    'mautic.vtiger_crm.repository.contacts',
-                    'mautic.lead.repository.lead',
-                ],
+            'mautic.vtiger_crm.sync.data_exchange' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\DataExchange::class,
+                'arguments' => ['mautic.vtiger_crm.mapping.field_mapping', 'mautic.vtiger_crm.sync.data_exchange_contacts'],
             ],
-            'mautic.vtiger_crm.mapping.sync_data_exchange' => [
-                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Mapping\SyncDataExchange::class,
-                'arguments' => ['mautic.vtiger_crm.mapping.sync_object_builder', 'mautic.vtiger_crm.repository.contacts'],
+
+            'mautic.vtiger_crm.sync.data_exchange_contacts' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange::class,
+                'arguments' => ['mautic.vtiger_crm.repository.contacts'],
             ],
-            'mautic.vtiger_crm.mapping.sync_object_builder' => [
-                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Mapping\SyncObjectBuilder::class,
-                'arguments' => ['mautic.vtiger_crm.mapping.field_mapping'],
-            ],
+
         ],
         'models'       => [
         ],
