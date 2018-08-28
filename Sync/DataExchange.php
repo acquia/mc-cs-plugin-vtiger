@@ -164,7 +164,8 @@ class DataExchange implements SyncDataExchangeInterface
                     !empty($object['date_modified']) ? $object['date_modified'] : $object['date_added'],
                     new \DateTimeZone('UTC')
                 );
-                $objectDAO        = new ReportObjectDAO($objectDAO->getObject(), $object['id'], $modifiedDateTime);
+//                $objectDAO        = new
+//                ($objectDAO->getObject(), $object['id'], $modifiedDateTime);
                 $syncReport->addObject($objectDAO);
 
                 foreach ($fields as $field) {

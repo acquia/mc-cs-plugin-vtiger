@@ -187,7 +187,7 @@ class Connection
 
     public function getApiUrl()
     {
-        return sprintf("http://%s/webservice.php",
+        return sprintf("%s/webservice.php",
             $this->getApiDomain());
     }
 
@@ -303,9 +303,11 @@ class Connection
 
         $content = json_decode($content);
 
-        if ($content === false) {
-            throw new VtigerPluginException('Incorrect endpoint response');
+        if ($content === false || $content === null) {
+            //throw new VtigerPluginException('Incorrect endpoint response');
         }
+
+
 
         if ($content->success) {
             return $content->result;
