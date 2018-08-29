@@ -123,6 +123,7 @@ class ObjectFieldMapper
      */
     public function getFieldDirection(string $alias): string
     {
+        return ObjectMappingDAO::SYNC_BIDIRECTIONALLY;
         if (isset($this->getMappedFieldsDirections()[$alias])) {
             return $this->getMappedFieldsDirections()[$alias];
         }

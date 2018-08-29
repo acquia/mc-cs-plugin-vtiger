@@ -81,8 +81,6 @@ class DataExchange implements SyncDataExchangeInterface
             $syncReport = $exchangeService->getObjectSyncReport($requestedObject, $syncReport);
         }
 
-        debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-        //var_dump($syncReport); die();
         return $syncReport;
     }
 
