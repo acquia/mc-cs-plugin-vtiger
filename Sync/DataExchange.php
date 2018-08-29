@@ -62,6 +62,7 @@ class DataExchange implements SyncDataExchangeInterface
      */
     public function getSyncReport(RequestDAO $requestDAO)
     {
+        var_dump('sync report');
         // Build a report of objects that have been modified
         $syncReport = new ReportDAO(VtigerCrmIntegration::NAME);
 
@@ -76,8 +77,13 @@ class DataExchange implements SyncDataExchangeInterface
 
             $exchangeService = $this->getDataExchangeService($objectName);
 
-            return $exchangeService->getSyncReport($requestDAO);
+            /** @var  ContactDataExchange $exchangeService */
+            $syncReport = $exchangeService->getObjectSyncReport($requestedObject, $syncReport);
         }
+
+        debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        //var_dump($syncReport); die();
+        return $syncReport;
     }
 
     /**

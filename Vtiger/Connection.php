@@ -231,13 +231,13 @@ class Connection
         $payload['sessionName'] = $this->sessionId;
 
         if (count($payload)) {
-            if (isset($payload['queryString'])) {
-                $queryString = '&queryString=' . urlencode($payload['queryString']);
-                unset($payload['queryString']);
+            if (isset($payload['query'])) {
+                $queryString = '&query=' . $payload['query'];
+                unset($payload['query']);
             }
             $query .= '&' . http_build_query($payload);
             if (isset($queryString)) {
-                $query .= $queryString;
+                $query .= trim($queryString, ';') . ';';
             }
         }
 

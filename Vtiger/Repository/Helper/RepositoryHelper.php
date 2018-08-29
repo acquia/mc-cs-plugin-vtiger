@@ -23,7 +23,12 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
  */
 trait RepositoryHelper
 {
+    /** @var array[ModuleInfo] */
+    private $modulesInfo;
+
     /**
+     * @todo this is useless you cannot use operators, needa complete rewrite
+     *
      * @param array  $where
      * @param string $columns
      *
@@ -61,6 +66,8 @@ trait RepositoryHelper
     }
 
     /**
+     * todo same problem as above
+     *
      * @param array  $where
      * @param string $columns
      *
@@ -86,9 +93,13 @@ trait RepositoryHelper
      */
     public function describe()
     {
-        $info = $this->connection->get('describe', ['elementType' => $this->getModuleFromRepositoryName()]);
+        if (!isset($this->modulesInfo[$this->getModuleFromRepositoryName()])) {
+            $this->modulesInfo[$this->getModuleFromRepositoryName()] = new ModuleInfo(
+                $this->connection->get('describe', ['elementType' => $this->getModuleFromRepositoryName()])
+            );
+        }
 
-        return new ModuleInfo($info);
+        return $this->modulesInfo[$this->getModuleFromRepositoryName()];
     }
 
     /**
@@ -138,12 +149,22 @@ trait RepositoryHelper
     /**
      * @param $query
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return array
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function query($query) {
-        $response =  $this->connection->get('query', ['query' => $query]);
-        return $response;
+        $moduleName = $this->getModuleFromRepositoryName();
+        $className = self::$moduleClassMapping[$moduleName];
+
+        $result = $this->connection->get('query', ['query' => $query]);
+
+        $return = [];
+
+        foreach ($result as $key=>$moduleObject) {
+            $return[] = new $className((array) $moduleObject);
+        }
+
+        return $return;
     }
 
     /**

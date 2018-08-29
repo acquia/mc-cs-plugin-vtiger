@@ -25,13 +25,21 @@ abstract class BaseModel
         }
     }
 
-    public function dehydrate() {
-        return $this->data;
+    public function dehydrate($fields = []) {
+        if (count($fields)===0) {
+            return $this->data;
+        }
+
+        $response = [];
+
+        foreach ($fields as $fieldName) {
+            $response[$fieldName] = isset($this->data[$fieldName]) ? $this->data[$fieldName] : null;
+        }
+        return $response;
     }
 
     public function __get($name)
     {
-        var_dump($name); die();
         if (!isset($this->data[$name]) && !in_array($name, $this->knowFields)) {
             throw new \InvalidArgumentException('Unknown property ' . $name);
         }
@@ -68,4 +76,10 @@ abstract class BaseModel
         return $this;
     }
 
+    /**
+     * @return \DateTime|null
+     */
+    public function getModifiedTime() :?\DateTime {
+        return $this->modifiedtime ? new \DateTime($this->modifiedtime) : null;
+    }
 }
