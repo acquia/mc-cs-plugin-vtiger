@@ -13,16 +13,17 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Integration;
 
 use Mautic\LeadBundle\Model\FieldModel;
 use Mautic\LeadBundle\Model\LeadModel;
-use MauticPlugin\MauticIntegrationsBundle\Integration\AuthenticationIntegration;
-use MauticPlugin\MauticIntegrationsBundle\Integration\BasicIntegration;
-use MauticPlugin\MauticIntegrationsBundle\Integration\DispatcherIntegration;
-use MauticPlugin\MauticIntegrationsBundle\Integration\EncryptionIntegration;
-use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\AuthenticationInterface;
-use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\BasicInterface;
-use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\DispatcherInterface;
-use MauticPlugin\MauticIntegrationsBundle\Integration\Interfaces\EncryptionInterface;
+use MauticPlugin\IntegrationsBundle\Integration\AuthenticationIntegration;
+use MauticPlugin\IntegrationsBundle\Integration\BasicIntegration;
+use MauticPlugin\IntegrationsBundle\Integration\DispatcherIntegration;
+use MauticPlugin\IntegrationsBundle\Integration\EncryptionIntegration;
+use MauticPlugin\IntegrationsBundle\Integration\Interfaces\AuthenticationInterface;
+use MauticPlugin\IntegrationsBundle\Integration\Interfaces\BasicInterface;
+use MauticPlugin\IntegrationsBundle\Integration\Interfaces\DispatcherInterface;
+use MauticPlugin\IntegrationsBundle\Integration\Interfaces\EncryptionInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -103,8 +104,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
     /** @inheritdoc */
     public function getApiUrl(): string { return sprintf('%s/webservice.php', $this->keys['url']); }
 
-    public function appendToForm(FormBuilder $builder, array $data, string $formArea): void
-    {
+    public function appendToForm(&$builder, $data, $formArea) {
         if ($formArea !== 'features') {
             return;
         }

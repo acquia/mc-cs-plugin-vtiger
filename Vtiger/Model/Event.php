@@ -8,8 +8,6 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
-
 class Event extends BaseModel
 {
 

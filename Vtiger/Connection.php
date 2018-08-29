@@ -187,7 +187,7 @@ class Connection
 
     public function getApiUrl()
     {
-        return sprintf("https://%s/webservice.php",
+        return sprintf("%s/webservice.php",
             $this->getApiDomain());
     }
 
@@ -231,13 +231,13 @@ class Connection
         $payload['sessionName'] = $this->sessionId;
 
         if (count($payload)) {
-            if (isset($payload['queryString'])) {
-                $queryString = '&queryString=' . urlencode($payload['queryString']);
-                unset($payload['queryString']);
+            if (isset($payload['query'])) {
+                $queryString = '&query=' . $payload['query'];
+                unset($payload['query']);
             }
             $query .= '&' . http_build_query($payload);
             if (isset($queryString)) {
-                $query .= $queryString;
+                $query .= trim($queryString, ';') . ';';
             }
         }
 
@@ -303,13 +303,16 @@ class Connection
 
         $content = json_decode($content);
 
-        if ($content === false) {
-            throw new VtigerPluginException('Incorrect endpoint response');
+        if ($content === false || $content === null) {
+            //throw new VtigerPluginException('Incorrect endpoint response');
         }
+
+
 
         if ($content->success) {
             return $content->result;
         }
+
 
         $error = property_exists($content, 'error') ? $content->error->code . ": " . $content->error->message : "No message";
 

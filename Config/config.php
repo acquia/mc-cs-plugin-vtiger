@@ -15,7 +15,11 @@ return [
     'version' => '2.0',
     'author'      => 'Mautic',
     'services'    => [
-        'events'       => [
+        'events' => [
+            'mautic.vtiger_crm.subscriber' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\IntegrationEventSubscriber::class,
+                'arguments' => ['mautic.vtiger_crm.sync.data_exchange', 'mautic.helper.integration'],
+            ],
         ],
         'forms'        => [
         ],
@@ -49,8 +53,23 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection'
                 ]
-            ]
-            
+            ],
+            'mautic.vtiger_crm.mapping.field_mapping' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper::class,
+                'arguments' => [
+                    'service_container'
+                ],
+            ],
+            'mautic.vtiger_crm.sync.data_exchange' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\DataExchange::class,
+                'arguments' => ['mautic.vtiger_crm.mapping.field_mapping', 'mautic.vtiger_crm.sync.data_exchange_contacts'],
+            ],
+
+            'mautic.vtiger_crm.sync.data_exchange_contacts' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange::class,
+                'arguments' => ['mautic.vtiger_crm.repository.contacts'],
+            ],
+
         ],
         'models'       => [
         ],
@@ -61,6 +80,7 @@ return [
                     'mautic.lead.model.field',
                     'mautic.lead.model.lead',
                     'translator',
+                    'mautic.vtiger_crm.mapping.field_mapping',
                 ],
                 'tags' => ['mautic.integration', 'mautic.basic_integration', 'mautic.dispatcher_integration', 'mautic.encryption_integration']
             ],

@@ -89,6 +89,13 @@ class ModuleFieldInfo
      */
     public function getType()
     {
+        return $this->getTypeObject()->name;
+    }
+
+    /**
+     * @return \stdClass
+     */
+    public function getTypeObject() {
         return $this->type;
     }
 
