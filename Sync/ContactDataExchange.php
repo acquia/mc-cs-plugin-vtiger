@@ -84,7 +84,7 @@ class ContactDataExchange implements SyncDataExchangeInterface
     }
 
     private function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields) {
-        $report = $this->contactRepository->query('SELECT * FROM Contacts WHERE modifiedtime>' . $fromDate->getTimestamp());
+        $report = $this->contactRepository->query('SELECT id,modifiedtime,'. join(',', $mappedFields) .' FROM Contacts WHERE modifiedtime>' . $fromDate->getTimestamp());
         return $report;
     }
 }

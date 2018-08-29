@@ -40,7 +40,8 @@ abstract class BaseModel
 
     public function __get($name)
     {
-        if (!isset($this->data[$name]) && !in_array($name, $this->knowFields)) {
+        if (!isset($this->data[$name]) && !in_array($name, [])) {
+            var_dump($this->data);
             throw new \InvalidArgumentException('Unknown property ' . $name);
         }
 
