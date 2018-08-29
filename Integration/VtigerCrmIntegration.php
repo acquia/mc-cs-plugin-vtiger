@@ -170,14 +170,32 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ChoiceType::class,
             [
                 'choices' => [
-                    'Lead'     => 'mautic.plugin.vtiger.object.lead',
+                    //'Lead'     => 'mautic.plugin.vtiger.object.lead',
                     'Contact'  => 'mautic.plugin.vtiger.object.contact',
-                    'Account'  => 'mautic.plugin.vtiger.object.account',
+                    //'Account'  => 'mautic.plugin.vtiger.object.account',
                     'Activity' => 'mautic.plugin.vtiger.object.activity',
                 ],
                 'expanded'    => true,
                 'multiple'    => true,
                 'label'       => 'mautic.plugin.vtiger.form.objects_to_pull_from',
+                'label_attr'  => ['class' => ''],
+                'empty_value' => false,
+                'required'    => false,
+            ]
+        );
+        $builder->add(
+            'objects_to_push',
+            ChoiceType::class,
+            [
+                'choices' => [
+                    //'Lead'     => 'mautic.plugin.vtiger.object.lead',
+                    'Contact'  => 'mautic.plugin.vtiger.object.contact',
+                    //'Account'  => 'mautic.plugin.vtiger.object.account',
+                    'Activity' => 'mautic.plugin.vtiger.object.activity',
+                ],
+                'expanded'    => true,
+                'multiple'    => true,
+                'label'       => 'mautic.plugin.vtiger.form.objects_to_push',
                 'label_attr'  => ['class' => ''],
                 'empty_value' => false,
                 'required'    => false,
