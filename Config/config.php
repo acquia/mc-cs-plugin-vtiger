@@ -62,12 +62,12 @@ return [
             ],
             'mautic.vtiger_crm.sync.data_exchange' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\DataExchange::class,
-                'arguments' => ['mautic.vtiger_crm.mapping.field_mapping', 'mautic.vtiger_crm.sync.data_exchange_contacts'],
+                'arguments' => ['mautic.vtiger_crm.mapping.field_mapping', 'mautic.integrations.helper.sync_mapping_helper', 'mautic.vtiger_crm.sync.data_exchange_contacts'],
             ],
 
             'mautic.vtiger_crm.sync.data_exchange_contacts' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange::class,
-                'arguments' => ['mautic.vtiger_crm.repository.contacts'],
+                'arguments' => ['mautic.vtiger_crm.repository.contacts', 'mautic.lead.model.lead'],
             ],
 
         ],

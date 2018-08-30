@@ -8,10 +8,12 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
+use MauticPlugin\IntegrationsBundle\Sync\Mapping\MappingHelper;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
@@ -28,9 +30,22 @@ class DataExchange implements SyncDataExchangeInterface
      */
     private $contactDataExchange;
 
-    public function __construct(ObjectFieldMapper $fieldMapper, ContactDataExchange $contactDataExchange) {
+    /**
+     * @var MappingHelper
+     */
+    private $mappingHelper;
+
+    /**
+     * DataExchange constructor.
+     *
+     * @param ObjectFieldMapper   $fieldMapper
+     * @param MappingHelper       $mappingHelper
+     * @param ContactDataExchange $contactDataExchange
+     */
+    public function __construct(ObjectFieldMapper $fieldMapper, MappingHelper $mappingHelper, ContactDataExchange $contactDataExchange) {
         $this->fieldMapper = $fieldMapper;
         $this->contactDataExchange = $contactDataExchange;
+        $this->mappingHelper = $mappingHelper;
     }
 
     /**
@@ -54,15 +69,15 @@ class DataExchange implements SyncDataExchangeInterface
     }
 
     /**
-     * Sync to integration
+     * Get Sync report from integration
      *
      * @param RequestDAO $requestDAO
      *
      * @return ReportDAO
+     * @throws ObjectNotSupportedException
      */
     public function getSyncReport(RequestDAO $requestDAO)
     {
-        var_dump('sync report');
         // Build a report of objects that have been modified
         $syncReport = new ReportDAO(VtigerCrmIntegration::NAME);
 
@@ -72,6 +87,7 @@ class DataExchange implements SyncDataExchangeInterface
         }
 
         $requestedObjects = $requestDAO->getObjects();
+
         foreach ($requestedObjects as $requestedObject) {
             $objectName = $requestedObject->getObject();
 
@@ -85,14 +101,47 @@ class DataExchange implements SyncDataExchangeInterface
     }
 
     /**
-     * Sync from integration
-     *
      * @param OrderDAO $syncOrderDAO
+     *
+     * @throws ObjectNotSupportedException
      */
     public function executeSyncOrder(OrderDAO $syncOrderDAO)
     {
-        var_dump('execute sync order'); die();
-        // TODO: Implement executeSyncOrder() method.
+        $identifiedObjects = $syncOrderDAO->getIdentifiedObjects();
+
+        foreach ($identifiedObjects as $objectName => $updateObjects) {
+            $updateCount = count($updateObjects);
+
+            if (0 === $updateCount) {
+                continue;
+            }
+
+            $identifiedObjectIds = $syncOrderDAO->getIdentifiedObjectIds($objectName);
+
+            /** @var ContactDataExchange $dataExchange */
+            $dataExchange = $this->getDataExchangeService($objectName);
+
+            $updatedObjectMappings = $dataExchange->update($identifiedObjectIds, $updateObjects);
+
+            $this->updateObjectMappings($updatedObjectMappings);
+        }
+
+
+        $unidentifiedObjects = $syncOrderDAO->getUnidentifiedObjects();
+        foreach ($unidentifiedObjects as $objectName => $createObjects) {
+            $createCount = count($createObjects);
+
+            if (0 === $createCount) {
+                continue;
+            }
+
+            /** @var ContactDataExchange $dataExchange */
+            $dataExchange = $this->getDataExchangeService($objectName);
+
+            $objectMappings = $dataExchange->insert($createObjects);
+
+            $this->saveObjectMappings($objectMappings);
+        }
     }
 
     /**
@@ -112,78 +161,12 @@ class DataExchange implements SyncDataExchangeInterface
 
 
     /**
-     * @param RequestDAO $requestDAO
-     *
-     * @return ReportDAO
-     * @throws ObjectNotSupportedException
+     * @param UpdatedObjectMappingDAO[] $mappings
      */
-    private function buildReportFromFullObjects(RequestDAO $requestDAO)
+    public function updateObjectMappings(array $mappings)
     {
-        $syncReport       = new ReportDAO(self::NAME);
-        $requestedObjects = $requestDAO->getObjects();
-
-        $limit = 200;
-        $start = $limit * ($requestDAO->getSyncIteration() - 1);
-
-        foreach ($requestedObjects as $objectDAO) {
-            $mauticFields = $this->getFieldList($objectDAO->getObject());
-
-            DebugLogger::log(
-                self::NAME,
-                sprintf(
-                    "Searching for %s objects between %s and %s (%d,%d)",
-                    $objectDAO->getObject(),
-                    $objectDAO->getFromDateTime()->format('Y:m:d H:i:s'),
-                    $objectDAO->getToDateTime()->format('Y:m:d H:i:s'),
-                    $start,
-                    $limit
-                ),
-                __CLASS__.':'.__FUNCTION__
-            );
-
-            switch ($objectDAO->getObject()) {
-                case self::OBJECT_CONTACT:
-                    $foundObjects = $this->contactObjectHelper->findObjectsBetweenDates(
-                        $objectDAO->getFromDateTime(),
-                        $objectDAO->getToDateTime(),
-                        $start,
-                        $limit
-                    );
-                    break;
-                case self::OBJECT_COMPANY:
-                    $foundObjects = $this->companyObjectHelper->findObjectsBetweenDates(
-                        $objectDAO->getFromDateTime(),
-                        $objectDAO->getToDateTime(),
-                        $start,
-                        $limit
-                    );
-                    break;
-                default:
-                    throw new ObjectNotSupportedException(self::NAME, $objectDAO->getObject());
-            }
-
-            $fields = $objectDAO->getFields();
-            foreach ($foundObjects as $object) {
-                $modifiedDateTime = new \DateTime(
-                    !empty($object['date_modified']) ? $object['date_modified'] : $object['date_added'],
-                    new \DateTimeZone('UTC')
-                );
-//                $objectDAO        = new
-//                ($objectDAO->getObject(), $object['id'], $modifiedDateTime);
-                $syncReport->addObject($objectDAO);
-
-                foreach ($fields as $field) {
-                    $fieldType       = $this->getNormalizedFieldType($mauticFields[$field]['type']);
-                    $normalizedValue = new NormalizedValueDAO(
-                        $fieldType,
-                        $object[$field]
-                    );
-
-                    $objectDAO->addField(new ReportFieldDAO($field, $normalizedValue));
-                }
-            }
+        foreach ($mappings as $mapping) {
+            $this->mappingHelper->updateObjectMapping($mapping);
         }
-
-        return $syncReport;
     }
 }

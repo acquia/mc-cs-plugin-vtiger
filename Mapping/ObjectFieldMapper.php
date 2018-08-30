@@ -19,10 +19,8 @@ use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange
 use MauticPlugin\MauticFullContactBundle\Exception\Base;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ObjectFieldMapper
