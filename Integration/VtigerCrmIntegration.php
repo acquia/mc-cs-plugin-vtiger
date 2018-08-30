@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc.
  *
  * @link        http://mautic.org
  *
@@ -22,6 +24,7 @@ use MauticPlugin\IntegrationsBundle\Integration\Interfaces\BasicInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\DispatcherInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\EncryptionInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
+use MauticPlugin\MauticVtigerCrmBundle\Mapping\OwnerMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilder;
@@ -62,27 +65,33 @@ class VtigerCrmIntegration extends BasicIntegration implements
      */
     private $fieldMapping;
 
+    /**
+     * @var OwnerMapper
+     */
+    private $ownerMapper;
+
     const NAME = 'VtigerCrm';
 
     /**
-     * VtigerCrmIntegration constructor.
-     *
      * @param FieldModel          $fieldModel
      * @param LeadModel           $leadModel
      * @param TranslatorInterface $translator
      * @param ObjectFieldMapper   $fieldMapping
+     * @param OwnerMapper         $ownerMapper
      */
     public function __construct(
         FieldModel $fieldModel,
         LeadModel $leadModel,
         TranslatorInterface $translator,
-        ObjectFieldMapper $fieldMapping
+        ObjectFieldMapper $fieldMapping,
+        OwnerMapper $ownerMapper
     )
     {
         $this->fieldModel = $fieldModel;
         $this->leadModel = $leadModel;
         $this->translator = $translator;
         $this->fieldMapping = $fieldMapping;
+        $this->ownerMapper = $ownerMapper;
     }
 
     /**
@@ -170,7 +179,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ChoiceType::class,
             [
                 'choices' => [
-                    //'Lead'     => 'mautic.plugin.vtiger.object.lead',
+                    'Lead'     => 'mautic.plugin.vtiger.object.lead',
                     'Contact'  => 'mautic.plugin.vtiger.object.contact',
                     //'Account'  => 'mautic.plugin.vtiger.object.account',
                     'Activity' => 'mautic.plugin.vtiger.object.activity',
@@ -188,7 +197,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ChoiceType::class,
             [
                 'choices' => [
-                    //'Lead'     => 'mautic.plugin.vtiger.object.lead',
+                    'Lead'     => 'mautic.plugin.vtiger.object.lead',
                     'Contact'  => 'mautic.plugin.vtiger.object.contact',
                     //'Account'  => 'mautic.plugin.vtiger.object.account',
                     'Activity' => 'mautic.plugin.vtiger.object.activity',
@@ -218,6 +227,21 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ]
         );
 
+        if ($this->isAuthorized()) {
+            $builder->add(
+                'owner',
+                ChoiceType::class,
+                [
+                    'choices'    => $this->ownerMapper->getOwners(),
+                    'label'      => 'mautic.plugin.vtiger.form.owner',
+                    'label_attr' => [
+                        'class'       => 'control-label',
+                    ],
+                    'multiple'   => false,
+                    'required'   => true,
+                ]
+            );
+        }
     }
 
     public function isConfigured()

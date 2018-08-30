@@ -60,6 +60,12 @@ return [
                     'service_container'
                 ],
             ],
+            'mautic.vtiger_crm.mapping.owner_mapper' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Mapping\OwnerMapper::class,
+                'arguments' => [
+                    'service_container'
+                ],
+            ],
             'mautic.vtiger_crm.sync.data_exchange' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\DataExchange::class,
                 'arguments' => ['mautic.vtiger_crm.mapping.field_mapping', 'mautic.vtiger_crm.sync.data_exchange_contacts'],
@@ -81,6 +87,7 @@ return [
                     'mautic.lead.model.lead',
                     'translator',
                     'mautic.vtiger_crm.mapping.field_mapping',
+                    'mautic.vtiger_crm.mapping.owner_mapper',
                 ],
                 'tags' => ['mautic.integration', 'mautic.basic_integration', 'mautic.dispatcher_integration', 'mautic.encryption_integration']
             ],
