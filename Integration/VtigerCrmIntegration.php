@@ -24,6 +24,7 @@ use MauticPlugin\IntegrationsBundle\Integration\Interfaces\EncryptionInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
@@ -56,6 +57,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
      */
     private $translator;
 
+    const NAME = 'VtigerCrm';
     /**
      * VtigerCrmIntegration constructor.
      *
@@ -77,7 +79,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
     /**
      * @inheritDoc
      */
-    public function getName(): string { return 'VtigerCrm'; }
+    public function getName(): string { return self::NAME; }
 
     /** @inheritdoc */
     public function getIcon() { return 'plugins/MauticVtigerCrmBundle/Assets/img/vtiger_crm.png'; }
@@ -104,7 +106,9 @@ class VtigerCrmIntegration extends BasicIntegration implements
     /** @inheritdoc */
     public function getApiUrl(): string { return sprintf('%s/webservice.php', $this->keys['url']); }
 
-    public function appendToForm(&$builder, $data, $formArea) {
+
+    public function appendToForm(FormBuilder $builder, array $data, string $formArea)
+    {
         if ($formArea !== 'features') {
             return;
         }
