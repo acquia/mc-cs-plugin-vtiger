@@ -169,4 +169,14 @@ class DataExchange implements SyncDataExchangeInterface
             $this->mappingHelper->updateObjectMapping($mapping);
         }
     }
+
+    /**
+     * @param ObjectMapping[] $mappings
+     */
+    public function saveObjectMappings(array $mappings)
+    {
+        foreach ($mappings as $mapping) {
+            $this->mappingHelper->saveObjectMapping($mapping);
+        }
+    }
 }
