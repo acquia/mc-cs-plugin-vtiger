@@ -30,4 +30,12 @@ class Account extends BaseModel
 
         return $this->data['accountname'];
     }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getAccountName();
+    }
 }

@@ -19,6 +19,7 @@ use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange
 use MauticPlugin\MauticFullContactBundle\Exception\Base;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -30,7 +31,7 @@ class ObjectFieldMapper
     ];
 
     static $mauticToVtigerObjectMapping = [
-        'Lead' => 'Contacts',
+        'Lead' => 'Contacts'
     ];
 
     /**
@@ -51,17 +52,23 @@ class ObjectFieldMapper
     /** @var array */
     private $fieldDirections;
 
+    /** @var VtigerSettingProvider  */
+    private $settings;
+
 
     /**
-     * FieldMapping constructor.
+     * ObjectFieldMapper constructor.
      *
-     * @param ContainerInterface $container
+     * @param ContainerInterface    $container
+     * @param VtigerSettingProvider $settingProvider
      */
     public function __construct(
-        ContainerInterface $container
+        ContainerInterface $container,
+        VtigerSettingProvider $settingProvider
     )
     {
         $this->container = $container;
+        $this->settings = $settingProvider;
     }
 
 
@@ -91,26 +98,15 @@ class ObjectFieldMapper
         return $salesFields;
     }
 
-    public function getIntegrationEntity()
-    {
-        if (is_null($this->integrationEntity)) {
-            $this->integrationEntity = $this->container->get('mautic.helper.integration')
-                ->getIntegrationObject(VtigerCrmIntegration::NAME)->getIntegrationEntity();
-        }
-
-        return $this->integrationEntity;
-    }
-
     public function getMappedFields($objectName): array
     {
         if (!isset(BaseRepository::$moduleClassMapping[$objectName]) || !isset(self::$objectToSettings[$objectName])) {
             throw new ObjectNotSupportedException(VtigerCrmIntegration::NAME, $objectName);
         }
 
-
-        return empty($this->integrationEntity->getFeatureSettings()[self::$objectToSettings[$objectName]])
+        return empty($this->settings->getSetting(self::$objectToSettings[$objectName]))
             ? []
-            : $this->integrationEntity->getFeatureSettings()[self::$objectToSettings[$objectName]];
+            : $this->settings->getSetting(self::$objectToSettings[$objectName]);
     }
 
     /**
@@ -191,8 +187,6 @@ class ObjectFieldMapper
 
             $mappingManual->addObjectMapping($objectMapping);
         }
-        // Each object like lead, contact, user, company, account, etc, will need it's own ObjectMappingDAO
-        // In this example, Mautic's Contact object is mapped to the Example's Lead object
 
         return $mappingManual;
     }
@@ -202,7 +196,7 @@ class ObjectFieldMapper
      */
     public function getSyncableObjects(): array
     {
-        return $this->getIntegrationEntity()->getFeatureSettings()['objects'];
+        return $this->settings->getSetting('objects');
     }
 
     /**

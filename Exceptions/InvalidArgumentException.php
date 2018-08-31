@@ -6,7 +6,7 @@ use Throwable;
 
 class InvalidArgumentException extends SessionException
 {
-    public function __construct(string $message = "", string $apiUrl, $payload = [])
+    public function __construct(string $message = "", string $apiUrl = '', $payload = [])
     {
         $message = sprintf("call to %s failed. with message '%s'. Payload %s",
             $apiUrl,

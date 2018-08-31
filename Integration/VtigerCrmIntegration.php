@@ -26,6 +26,7 @@ use MauticPlugin\IntegrationsBundle\Integration\Interfaces\EncryptionInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\OwnerMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -65,6 +66,11 @@ class VtigerCrmIntegration extends BasicIntegration implements
      */
     private $fieldMapping;
 
+    /**
+     * @var VtigerSettingProvider
+     */
+    private $settingsProvider;
+
     const NAME = 'VtigerCrm';
 
     /**
@@ -74,20 +80,21 @@ class VtigerCrmIntegration extends BasicIntegration implements
      * @param LeadModel           $leadModel
      * @param TranslatorInterface $translator
      * @param ObjectFieldMapper   $fieldMapping
-     * @param OwnerMapper         $ownerMapper
+     * @param AccountRepository   $settingsProvider
      */
     public function __construct(
         FieldModel $fieldModel,
         LeadModel $leadModel,
         TranslatorInterface $translator,
-        ObjectFieldMapper $fieldMapping
+        ObjectFieldMapper $fieldMapping,
+        VtigerSettingProvider $settingsProvider
     )
     {
         $this->fieldModel = $fieldModel;
         $this->leadModel = $leadModel;
         $this->translator = $translator;
         $this->fieldMapping = $fieldMapping;
-        $this->ownerMapper = $ownerMapper;
+        $this->settingsProvider = $settingsProvider;
     }
 
     /**
@@ -175,7 +182,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ChoiceType::class,
             [
                 'choices' => [
-                    //'Lead'     => 'mautic.plugin.vtiger.object.lead',
+                    'Lead'     => 'mautic.plugin.vtiger.object.lead',
                     'Contact'  => 'mautic.plugin.vtiger.object.contact',
                     //'Account'  => 'mautic.plugin.vtiger.object.account',
                     'Activity' => 'mautic.plugin.vtiger.object.activity',
@@ -193,8 +200,8 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ChoiceType::class,
             [
                 'choices' => [
-                    //'Lead'     => 'mautic.plugin.vtiger.object.lead',
-                    'Contact'  => 'mautic.plugin.vtiger.object.contact',
+                    'Lead'     => 'mautic.plugin.vtiger.object.lead',
+                    //'Contact'  => 'mautic.plugin.vtiger.object.contact',
                     //'Account'  => 'mautic.plugin.vtiger.object.account',
                     'Activity' => 'mautic.plugin.vtiger.object.activity',
                 ],
@@ -228,7 +235,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
                 'owner',
                 ChoiceType::class,
                 [
-                    'choices'    => $this->ownerMapper->getOwners(),
+                    'choices'    => $this->settingsProvider->getFormOwners(),
                     'label'      => 'mautic.plugin.vtiger.form.owner',
                     'label_attr' => [
                         'class'       => 'control-label',
@@ -240,17 +247,28 @@ class VtigerCrmIntegration extends BasicIntegration implements
         }
     }
 
-    public function isConfigured()
-    {
-        return true; // Method in Trait does not work, so bypass it temporary
-    }
-
+    /**
+     *
+     *
+     * @return bool
+     */
     public function isAuthorized()
     {
         if (!$this->isConfigured()) {
             return false;
         }
 
+        return true;
+    }
+
+
+    /**
+     * Checks to see if the integration is configured by checking that required keys are populated.
+     *
+     * @return bool
+     */
+    public function isConfigured()
+    {
         $credentialsCfg = $this->getDecryptedApiKeys($this->getIntegrationSettings());
 
         if (!isset($credentialsCfg['accessKey']) || !isset($credentialsCfg['username']) || !isset($credentialsCfg['url'])) {

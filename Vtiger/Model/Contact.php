@@ -8,9 +8,22 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
-
 class Contact extends BaseModel
 {
+    /**
+     * @return string|null
+     */
+    public function getAssignedUserId() {
+        return !isset($this->data['assigned_user_id']) ? null : $this->data['assigned_user_id'];
+    }
 
+    /**
+     * @param null|string $userId
+     *
+     * @return Contact
+     */
+    public function setAssignedUserId(?string $userId): Contact {
+        $this->data['assigned_user_id'] = $userId;
+        return $this;
+    }
 }

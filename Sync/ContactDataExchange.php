@@ -9,6 +9,7 @@
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use Mautic\LeadBundle\Model\LeadModel;
+use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
@@ -17,15 +18,18 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
+use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 use phpDocumentor\Reflection\Types\Self_;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 class ContactDataExchange implements SyncDataExchangeInterface
 {
@@ -37,17 +41,21 @@ class ContactDataExchange implements SyncDataExchangeInterface
     /** @var ValueNormalizer */
     private $valueNormalizer;
 
-    /** @var array */
-    private $fieldTypes;
-
     /** @var LeadModel */
     private $model;
 
-    public function __construct(ContactRepository $contactRepository, LeadModel $leadModel)
+    /** @var VtigerSettingProvider  */
+    private $settings;
+
+    public function __construct(
+        ContactRepository $contactRepository,
+        VtigerSettingProvider $settingProvider,
+        LeadModel $leadModel)
     {
         $this->contactRepository = $contactRepository;
         $this->valueNormalizer = new VtigerValueNormalizer();
         $this->model = $leadModel;
+        $this->settings = $settingProvider;
     }
 
     /**
@@ -99,7 +107,7 @@ class ContactDataExchange implements SyncDataExchangeInterface
 
     private function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
     {
-        $report = $this->contactRepository->query('SELECT id,modifiedtime,' . join(',', $mappedFields) . ' FROM Contacts WHERE modifiedtime>' . $fromDate->getTimestamp());
+        $report = $this->contactRepository->query('SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields) . ' FROM Contacts WHERE modifiedtime>' . $fromDate->getTimestamp());
 
         return $report;
     }
@@ -136,6 +144,10 @@ class ContactDataExchange implements SyncDataExchangeInterface
 
             $vtigerModel = new Contact($objectData);
 
+            if ($this->settings->getSetting('updateOwner')) {
+                $vtigerModel->setAssignedUserId($this->settings->getSetting('owner'));
+            }
+
             try {
                 $returnedModel = $this->contactRepository->update($vtigerModel);
 
@@ -150,7 +162,7 @@ class ContactDataExchange implements SyncDataExchangeInterface
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
                     sprintf(
-                        "Updated to %s ID %d",
+                        "Updated to %s ID %s",
                         self::OBJECT_NAME,
                         $integrationObjectId
                     ),
@@ -160,9 +172,10 @@ class ContactDataExchange implements SyncDataExchangeInterface
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
                     sprintf(
-                        "Update to %s ID %d failed",
+                        "Update to %s ID %s failed: %s",
                         self::OBJECT_NAME,
-                        $integrationObjectId
+                        $integrationObjectId,
+                        $e->getMessage()
                     ),
                     __CLASS__ . ':' . __FUNCTION__
                 );
@@ -184,8 +197,6 @@ class ContactDataExchange implements SyncDataExchangeInterface
 
         $objectMappings = [];
         foreach ($objects as $object) {
-            var_dump($object);
-
             $fields = $object->getFields();
 
             $objectData = [];
@@ -194,11 +205,42 @@ class ContactDataExchange implements SyncDataExchangeInterface
                 /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
+            /** @var Contact $contact */
             $contact = new $modelName($objectData);
+            if (!$this->settings->getSetting('owner')) {
+                throw new InvalidConfigurationException('You need to configure owner for new objects');
+            }
+            $contact->setAssignedUserId($this->settings->getSetting('owner'));
 
             try {
                 $response = $this->contactRepository->create($contact);
-                var_dump($response);
+
+                // Integration name and ID are stored in the change's mappedObject/mappedObjectId
+                $updatedMappedObjects[] = new UpdatedObjectMappingDAO(
+                    $object,
+                    $object->getObjectId(),
+                    $response->getId(),
+                    $response->getModifiedTime()
+                );
+
+                DebugLogger::log(
+                    VtigerCrmIntegration::NAME,
+                    sprintf(
+                        "Created Contact ID %s from Lead %d",
+                        $response->getId(),
+                        $object->getMappedObjectId()
+                    ),
+                    __CLASS__.':'.__FUNCTION__
+                );
+
+                $objectMapping = new ObjectMapping();
+                $objectMapping->setLastSyncDate($response->getModifiedTime())
+                    ->setIntegration($object->getIntegration())
+                    ->setIntegrationObjectName($object->getMappedObject())
+                    ->setIntegrationObjectId($object->getMappedObjectId())
+                    ->setInternalObjectName(MauticSyncDataExchange::OBJECT_CONTACT)
+                    ->setInternalObjectId($object->getMappedObjectId());
+                $objectMappings[] = $objectMapping;
             } catch (InvalidArgumentException $e) {
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
@@ -210,27 +252,6 @@ class ContactDataExchange implements SyncDataExchangeInterface
                     __CLASS__.':'.__FUNCTION__
                 );
             }
-
-
-            die();
-
-            DebugLogger::log(
-                MauticSyncDataExchange::NAME,
-                sprintf(
-                    "Created Contact ID %d",
-                    $response->getId()
-                ),
-                __CLASS__.':'.__FUNCTION__
-            );
-
-            $objectMapping = new ObjectMapping();
-            $objectMapping->setLastSyncDate($contact->getDateAdded())
-                ->setIntegration($object->getIntegration())
-                ->setIntegrationObjectName($object->getMappedObject())
-                ->setIntegrationObjectId($object->getMappedObjectId())
-                ->setInternalObjectName(MauticSyncDataExchange::OBJECT_CONTACT)
-                ->setInternalObjectId($contact->getId());
-            $objectMappings[] = $objectMapping;
         }
 
         return $objectMappings;

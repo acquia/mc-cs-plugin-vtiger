@@ -29,11 +29,18 @@ return [
             'mautic.guzzle_http.client' => [
                 'class' => GuzzleHttp\Client::class,
             ],
+            'mautic.vtiger_crm.settings' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider::class,
+                'arguments' => [
+                    'mautic.helper.integration',
+                    'service_container'
+                ]
+            ],
             'mautic.vtiger_crm.connection' => [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection::class,
                 'arguments' => [
                     'mautic.guzzle_http.client',
-                    'mautic.helper.integration'
+                    'mautic.vtiger_crm.settings'
                 ]
             ],
             'mautic.vtiger_crm.repository.contacts' => [
@@ -57,13 +64,8 @@ return [
             'mautic.vtiger_crm.mapping.field_mapping' => [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper::class,
                 'arguments' => [
-                    'service_container'
-                ],
-            ],
-            'mautic.vtiger_crm.mapping.owner_mapper' => [
-                'class' => \MauticPlugin\MauticVtigerCrmBundle\Mapping\OwnerMapper::class,
-                'arguments' => [
-                    'service_container'
+                    'service_container',
+                    'mautic.vtiger_crm.settings'
                 ],
             ],
             'mautic.vtiger_crm.sync.data_exchange' => [
@@ -73,7 +75,7 @@ return [
 
             'mautic.vtiger_crm.sync.data_exchange_contacts' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange::class,
-                'arguments' => ['mautic.vtiger_crm.repository.contacts', 'mautic.lead.model.lead'],
+                'arguments' => ['mautic.vtiger_crm.repository.contacts', 'mautic.vtiger_crm.settings', 'mautic.lead.model.lead'],
             ],
 
         ],
@@ -87,7 +89,7 @@ return [
                     'mautic.lead.model.lead',
                     'translator',
                     'mautic.vtiger_crm.mapping.field_mapping',
-                    'mautic.vtiger_crm.mapping.owner_mapper',
+                    'mautic.vtiger_crm.settings',
                 ],
                 'tags' => ['mautic.integration', 'mautic.basic_integration', 'mautic.dispatcher_integration', 'mautic.encryption_integration']
             ],
