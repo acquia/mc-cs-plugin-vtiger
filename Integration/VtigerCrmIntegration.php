@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc.
  *
  * @link        http://mautic.org
  *
@@ -22,6 +24,7 @@ use MauticPlugin\IntegrationsBundle\Integration\Interfaces\BasicInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\DispatcherInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\EncryptionInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
+use MauticPlugin\MauticVtigerCrmBundle\Mapping\OwnerMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilder;
@@ -57,23 +60,34 @@ class VtigerCrmIntegration extends BasicIntegration implements
      */
     private $translator;
 
+    /**
+     * @var ObjectFieldMapper
+     */
+    private $fieldMapping;
+
     const NAME = 'VtigerCrm';
+
     /**
      * VtigerCrmIntegration constructor.
      *
      * @param FieldModel          $fieldModel
      * @param LeadModel           $leadModel
      * @param TranslatorInterface $translator
+     * @param ObjectFieldMapper   $fieldMapping
+     * @param OwnerMapper         $ownerMapper
      */
     public function __construct(
         FieldModel $fieldModel,
         LeadModel $leadModel,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        ObjectFieldMapper $fieldMapping
     )
     {
         $this->fieldModel = $fieldModel;
         $this->leadModel = $leadModel;
         $this->translator = $translator;
+        $this->fieldMapping = $fieldMapping;
+        $this->ownerMapper = $ownerMapper;
     }
 
     /**
@@ -106,9 +120,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
     /** @inheritdoc */
     public function getApiUrl(): string { return sprintf('%s/webservice.php', $this->keys['url']); }
 
-
-    public function appendToForm(FormBuilder $builder, array $data, string $formArea)
-    {
+    public function appendToForm(FormBuilder $builder, array $data, string $formArea) {
         if ($formArea !== 'features') {
             return;
         }
@@ -163,14 +175,32 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ChoiceType::class,
             [
                 'choices' => [
-                    'Lead'     => 'mautic.plugin.vtiger.object.lead',
+                    //'Lead'     => 'mautic.plugin.vtiger.object.lead',
                     'Contact'  => 'mautic.plugin.vtiger.object.contact',
-                    'Account'  => 'mautic.plugin.vtiger.object.account',
+                    //'Account'  => 'mautic.plugin.vtiger.object.account',
                     'Activity' => 'mautic.plugin.vtiger.object.activity',
                 ],
                 'expanded'    => true,
                 'multiple'    => true,
                 'label'       => 'mautic.plugin.vtiger.form.objects_to_pull_from',
+                'label_attr'  => ['class' => ''],
+                'empty_value' => false,
+                'required'    => false,
+            ]
+        );
+        $builder->add(
+            'objects_to_push',
+            ChoiceType::class,
+            [
+                'choices' => [
+                    //'Lead'     => 'mautic.plugin.vtiger.object.lead',
+                    'Contact'  => 'mautic.plugin.vtiger.object.contact',
+                    //'Account'  => 'mautic.plugin.vtiger.object.account',
+                    'Activity' => 'mautic.plugin.vtiger.object.activity',
+                ],
+                'expanded'    => true,
+                'multiple'    => true,
+                'label'       => 'mautic.plugin.vtiger.form.objects_to_push',
                 'label_attr'  => ['class' => ''],
                 'empty_value' => false,
                 'required'    => false,
@@ -193,5 +223,58 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ]
         );
 
+        if ($this->isAuthorized()) {
+            $builder->add(
+                'owner',
+                ChoiceType::class,
+                [
+                    'choices'    => $this->ownerMapper->getOwners(),
+                    'label'      => 'mautic.plugin.vtiger.form.owner',
+                    'label_attr' => [
+                        'class'       => 'control-label',
+                    ],
+                    'multiple'   => false,
+                    'required'   => true,
+                ]
+            );
+        }
+    }
+
+    public function isConfigured()
+    {
+        return true; // Method in Trait does not work, so bypass it temporary
+    }
+
+    public function isAuthorized()
+    {
+        if (!$this->isConfigured()) {
+            return false;
+        }
+
+        $credentialsCfg = $this->getDecryptedApiKeys($this->getIntegrationSettings());
+
+        if (!isset($credentialsCfg['accessKey']) || !isset($credentialsCfg['username']) || !isset($credentialsCfg['url'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $settings
+     *
+     * @return array|mixed
+     *
+     * @throws \Exception
+     */
+    public function getFormLeadFields(array $settings = [])
+    {
+        if (!$this->isConfigured()) {
+            return false;
+        }
+
+        $leadFields    = $this->fieldMapping->getObjectFields('Contacts');
+
+        return $leadFields;
     }
 }

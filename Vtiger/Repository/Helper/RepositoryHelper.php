@@ -32,7 +32,7 @@ trait RepositoryHelper
      * @param array  $where
      * @param string $columns
      *
-     * @return array
+     * @return array|Account[]
      */
     public function findBy($where = [], $columns = '*')
     {
