@@ -185,10 +185,9 @@ trait RepositoryHelper
         $moduleName = $this->getModuleFromRepositoryName();
 
         /** @var Connection $this->connection */
-        $response = $this->connection->get('sync', [
+        $response = $this->connection->query('sync', [
             'modifiedTime' => intval($modifiedTime),
-            'elementType' => $moduleName,
-            'syncType'  => $syncType
+            'elementType' => rtrim($moduleName,'s')
         ]);
 
         $report = new SyncReport($response, $moduleName);

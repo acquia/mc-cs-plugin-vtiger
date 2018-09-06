@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
  * @author      Mautic
@@ -11,12 +11,9 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Mapping;
 
-use Mautic\PluginBundle\Integration\AbstractIntegration;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\ObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
-use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
-use MauticPlugin\MauticFullContactBundle\Exception\Base;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
@@ -24,14 +21,30 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Class ObjectFieldMapper provides all necessary information  to supply mapping information
+ * @package MauticPlugin\MauticVtigerCrmBundle\Mapping
+ */
 class ObjectFieldMapper
 {
+    /**
+     * Maps module to settings in integration configuration
+     *
+     * @var array
+     */
     static $objectToSettings = [
         'Contacts' => 'leadFields',
+        'Leads' => 'leadFields',
     ];
 
-    static $mauticToVtigerObjectMapping = [
-        'Lead' => 'Contacts'
+    /**
+     * Map mautic objects to Vtiger module objects
+     *
+     * @var array
+     */
+    static $vtiger2mauticObjectMapping = [
+        'Contacts' => 'Lead',
+        'Leads' => 'AbstractLead',
     ];
 
     /**
@@ -49,10 +62,14 @@ class ObjectFieldMapper
      */
     private $integrationEntity;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $fieldDirections;
 
-    /** @var VtigerSettingProvider  */
+    /**
+     * @var VtigerSettingProvider
+     */
     private $settings;
 
 
@@ -71,7 +88,12 @@ class ObjectFieldMapper
         $this->settings = $settingProvider;
     }
 
-
+    /**
+     * @param $objectName
+     *
+     * @return array
+     * @throws InvalidArgumentException
+     */
     public function getObjectFields($objectName): array
     {
         if (!isset(BaseRepository::$moduleClassMapping[$objectName])) {
@@ -81,6 +103,8 @@ class ObjectFieldMapper
         $this->repositories[$objectName] = $this->container->get('mautic.vtiger_crm.repository.' . strtolower($objectName));
 
         $fields = $this->repositories[$objectName]->describe()->getFields();
+
+        $salesFields = [];
 
         /** @var ModuleFieldInfo $fieldInfo */
         foreach ($fields as $fieldInfo) {
@@ -98,9 +122,16 @@ class ObjectFieldMapper
         return $salesFields;
     }
 
+    /**
+     * @param $objectName
+     *
+     * @return array
+     * @throws ObjectNotSupportedException
+     */
     public function getMappedFields($objectName): array
     {
-        if (!isset(BaseRepository::$moduleClassMapping[$objectName]) || !isset(self::$objectToSettings[$objectName])) {
+        if (!isset(BaseRepository::$moduleClassMapping[$objectName])
+            || !isset(self::$objectToSettings[$objectName])) {
             throw new ObjectNotSupportedException(VtigerCrmIntegration::NAME, $objectName);
         }
 
@@ -109,19 +140,30 @@ class ObjectFieldMapper
             : $this->settings->getSetting(self::$objectToSettings[$objectName]);
     }
 
-    /**
-     * @param string $alias
-     *
-     * @return string
-     * @throws BadMappingDirectionException
-     */
-    public function getFieldDirection(string $alias): string
+
+    public function getObjectSyncDirection(string $vtigerObject, string $mauticObject)
     {
-        return ObjectMappingDAO::SYNC_BIDIRECTIONALLY;
-        if (isset($this->getMappedFieldsDirections()[$alias])) {
-            return $this->getMappedFieldsDirections()[$alias];
+        $vtigerSyncable = $this->getVtigerSyncable();
+        $mauticSyncable = $this->getSyncableObjects();
+
+        /** a little hack */
+        if (in_array('Lead', $mauticSyncable) && in_array('Leads', $vtigerSyncable)) {
+            $mauticSyncable[] = 'AbstractLead';
         }
-        throw new BadMappingDirectionException("There is no field direction for field '${alias}'.");
+
+        if ($v = in_array($vtigerObject, $vtigerSyncable) && $m = in_array($mauticObject, $mauticSyncable)) {
+            return ObjectMappingDAO::SYNC_BIDIRECTIONALLY;
+        }
+
+        if (false !== $v) {
+            return ObjectMappingDAO::SYNC_TO_MAUTIC;
+        }
+
+        if (false !== $v) {
+            return ObjectMappingDAO::SYNC_TO_INTEGRATION;
+        }
+
+        return false;
     }
 
     /**
@@ -143,7 +185,7 @@ class ObjectFieldMapper
      * @return array|mixed[]
      * @throws BadMappingDirectionException
      */
-    public function getMappedFieldsDirections($objectName = 'Contacts'): array
+    public function getMappedFieldsDirections($objectName): array
     {
         if (isset($this->fieldDirections[$objectName])) {
             return $this->fieldDirections[$objectName];
@@ -167,26 +209,34 @@ class ObjectFieldMapper
         return $this->fieldDirections;
     }
 
+    /**
+     * @return MappingManualDAO
+     * @throws ObjectNotSupportedException
+     */
     public function getObjectsMappingManual(): MappingManualDAO
     {
         $mappingManual = new MappingManualDAO(VtigerCrmIntegration::NAME);
 
-        foreach ($this->getSyncableObjects() as $mauticObject) {
+        foreach ($this->getVtigerSyncable() as $vtigerObject) {
             $objectMapping = new ObjectMappingDAO(
-                $mauticObject,
-                $this->getObjectNameMapping($mauticObject)
+                $this->getVtiger2MauticObjectNameMapping($vtigerObject),
+                $vtigerObject
             );
 
-            foreach ($this->getMappedFields($this->getObjectNameMapping($mauticObject)) as $vtigerField => $mauticField) {
+            $direction = $this->getObjectSyncDirection($vtigerObject, $this->getVtiger2MauticObjectNameMapping($vtigerObject));
+
+            foreach ($this->getMappedFields($vtigerObject) as $vtigerField => $mauticField) {
                 $objectMapping->addFieldMapping(
                     $mauticField,
                     $vtigerField,
-                    $this->getFieldDirection($vtigerField)
+                    $direction
                 );
             }
 
             $mappingManual->addObjectMapping($objectMapping);
         }
+
+        var_dump($mappingManual);
 
         return $mappingManual;
     }
@@ -194,9 +244,19 @@ class ObjectFieldMapper
     /**
      * @return array
      */
-    public function getSyncableObjects(): array
+    public function getVtigerSyncable(): array
     {
         return $this->settings->getSetting('objects');
+    }
+
+    /**
+     * @return array
+     */
+    public function getSyncableObjects(): array
+    {
+        var_dump($this->settings->getSettings());
+
+        return $this->settings->getSetting('objects_to_push');
     }
 
     /**
@@ -205,12 +265,25 @@ class ObjectFieldMapper
      * @return string
      * @throws ObjectNotSupportedException
      */
-    public function getObjectNameMapping($objectName): string
+    public function getMautic2VtigerObjectNameMapping($objectName): string
     {
-        if (!isset(self::$mauticToVtigerObjectMapping[$objectName])) {
-            throw new ObjectNotSupportedException(VtigerCrmIntegration::NAME, $objectName);
+        if ($objectName=='Lead') {
+            return 'Contacts';
         }
 
-        return self::$mauticToVtigerObjectMapping[$objectName];
+        if (false === $key = in_array($objectName, self::$vtiger2mauticObjectMapping))  {
+            throw new ObjectNotSupportedException('Mautic', $objectName);
+        }
+
+
+        return self::$vtiger2mauticObjectMapping[$key];
+    }
+
+    public function getVtiger2MauticObjectNameMapping($vtigerObjectName) {
+        if (!isset(self::$vtiger2mauticObjectMapping[$vtigerObjectName])) {
+            throw new ObjectNotSupportedException(VtigerCrmIntegration::NAME, $vtigerObjectName);
+        }
+
+        return self::$vtiger2mauticObjectMapping[$vtigerObjectName];
     }
 }

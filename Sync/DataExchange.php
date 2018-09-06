@@ -31,6 +31,11 @@ class DataExchange implements SyncDataExchangeInterface
     private $contactDataExchange;
 
     /**
+     * @var LeadDataExchange
+     */
+    private $leadDataExchange;
+
+    /**
      * @var MappingHelper
      */
     private $mappingHelper;
@@ -41,10 +46,17 @@ class DataExchange implements SyncDataExchangeInterface
      * @param ObjectFieldMapper   $fieldMapper
      * @param MappingHelper       $mappingHelper
      * @param ContactDataExchange $contactDataExchange
+     * @param LeadDataExchange    $leadDataExchange
      */
-    public function __construct(ObjectFieldMapper $fieldMapper, MappingHelper $mappingHelper, ContactDataExchange $contactDataExchange) {
+    public function __construct(
+        ObjectFieldMapper $fieldMapper,
+        MappingHelper $mappingHelper,
+        ContactDataExchange $contactDataExchange,
+        LeadDataExchange $leadDataExchange)
+    {
         $this->fieldMapper = $fieldMapper;
         $this->contactDataExchange = $contactDataExchange;
+        $this->leadDataExchange = $leadDataExchange;
         $this->mappingHelper = $mappingHelper;
     }
 
@@ -88,12 +100,15 @@ class DataExchange implements SyncDataExchangeInterface
 
         $requestedObjects = $requestDAO->getObjects();
 
+        var_dump('get sync report');
+
+        var_dump($requestedObjects);
+
         foreach ($requestedObjects as $requestedObject) {
             $objectName = $requestedObject->getObject();
 
             $exchangeService = $this->getDataExchangeService($objectName);
 
-            /** @var  ContactDataExchange $exchangeService */
             $syncReport = $exchangeService->getObjectSyncReport($requestedObject, $syncReport);
         }
 
@@ -118,14 +133,13 @@ class DataExchange implements SyncDataExchangeInterface
 
             $identifiedObjectIds = $syncOrderDAO->getIdentifiedObjectIds($objectName);
 
-            /** @var ContactDataExchange $dataExchange */
+            /** @var ObjectSyncDataExchangeInterface $dataExchange */
             $dataExchange = $this->getDataExchangeService($objectName);
 
             $updatedObjectMappings = $dataExchange->update($identifiedObjectIds, $updateObjects);
 
             $this->updateObjectMappings($updatedObjectMappings);
         }
-
 
         $unidentifiedObjects = $syncOrderDAO->getUnidentifiedObjects();
         foreach ($unidentifiedObjects as $objectName => $createObjects) {
@@ -135,13 +149,14 @@ class DataExchange implements SyncDataExchangeInterface
                 continue;
             }
 
-            /** @var ContactDataExchange $dataExchange */
+            /** @var ObjectSyncDataExchangeInterface $dataExchange */
             $dataExchange = $this->getDataExchangeService($objectName);
 
             $objectMappings = $dataExchange->insert($createObjects);
 
             $this->saveObjectMappings($objectMappings);
         }
+        // @todo add delete support
     }
 
     /**
@@ -150,10 +165,13 @@ class DataExchange implements SyncDataExchangeInterface
      * @return SyncDataExchangeInterface
      * @throws ObjectNotSupportedException
      */
-    private function getDataExchangeService($objectName) {
+    private function getDataExchangeService($objectName)
+    {
         switch ($objectName) {
             case 'Contacts':
                 return $this->contactDataExchange;
+            case 'Leads':
+                return $this->leadDataExchange;
             default:
                 throw new ObjectNotSupportedException(VtigerCrmIntegration::NAME, $objectName);
         }

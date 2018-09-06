@@ -1,23 +1,29 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 31.8.18
- * Time: 12:45
+declare(strict_types=1);
+
+/*
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc.
+ *
+ * @link        http://mautic.com
+ * @created     ${DATE}
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Integration;
 
-
 use Mautic\PluginBundle\Entity\Integration;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Class VtigerSettingProvider
+ * @package MauticPlugin\MauticVtigerCrmBundle\Integration
+ */
 class VtigerSettingProvider
 {
-    /** @var IntegrationHelper  */
+    /** @var IntegrationHelper */
     private $integrationHelper;
 
     /** @var Integration */
@@ -32,15 +38,17 @@ class VtigerSettingProvider
      * @param IntegrationHelper  $helper
      * @param ContainerInterface $container
      */
-    public function __construct(IntegrationHelper $helper, ContainerInterface $container) {
+    public function __construct(IntegrationHelper $helper, ContainerInterface $container)
+    {
         $this->integrationHelper = $helper;
         $this->container = $container;
     }
 
     /**
-     * @return bool|Integration
+     * @return null|Integration
      */
-    public function getIntegrationEntity() {
+    public function getIntegrationEntity(): ?Integration
+    {
         if (is_null($this->integrationEntity)) {
             $this->integrationEntity = $this->integrationHelper
                 ->getIntegrationObject(VtigerCrmIntegration::NAME)
@@ -54,7 +62,8 @@ class VtigerSettingProvider
      * @return array
      * @throws VtigerPluginException
      */
-    public function getCredentials() {
+    public function getCredentials(): array
+    {
         if ($this->getIntegrationEntity() === null) {
             throw new VtigerPluginException('Plugin is not configured');
         }
@@ -69,32 +78,42 @@ class VtigerSettingProvider
     /**
      * @return array
      */
-    public function getFormOwners() {
+    public function getFormOwners(): array
+    {
         $owners = $this->container->get('mautic.vtiger_crm.repository.accounts')->findBy();
         $ownersArray = [];
         foreach ($owners as $owner) {
-            $ownersArray[$owner->getId()] = (string) $owner;
+            $ownersArray[$owner->getId()] = (string)$owner;
         }
+
         return $ownersArray;
     }
 
     /**
      * @return array
      */
-    public function getSettings() {
+    public function getSettings(): array
+    {
         return $this->integrationHelper->getIntegrationObject(VtigerCrmIntegration::NAME)
             ->getIntegrationSettings()
             ->getFeatureSettings();
     }
 
-    public function getSetting($settingName) {
+    /**
+     * @param $settingName
+     *
+     * @return array|string
+     */
+    public function getSetting($settingName)
+    {
         $settings = $this->getSettings();
         if (!array_key_exists($settingName, $settings)) {
             throw new \InvalidArgumentException(
                 sprintf('Setting "%s" does not exists, supported: %s',
                     $settingName, join(', ', array_keys($settings))
-                    ));
+                ));
         }
+
         return $settings[$settingName];
     }
 }

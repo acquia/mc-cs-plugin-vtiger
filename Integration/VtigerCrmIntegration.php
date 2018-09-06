@@ -182,8 +182,8 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ChoiceType::class,
             [
                 'choices' => [
-                    'Lead'     => 'mautic.plugin.vtiger.object.lead',
-                    'Contact'  => 'mautic.plugin.vtiger.object.contact',
+                    'Leads'     => 'mautic.plugin.vtiger.object.lead',
+                    'Contacts'  => 'mautic.plugin.vtiger.object.contact',
                     //'Account'  => 'mautic.plugin.vtiger.object.account',
                     'Activity' => 'mautic.plugin.vtiger.object.activity',
                 ],
@@ -245,6 +245,25 @@ class VtigerCrmIntegration extends BasicIntegration implements
                 ]
             );
         }
+
+//        $builder->add(
+//            'leadFields',
+//            'integration_fields',
+//            [
+//                'label'                => 'mautic.integration.leadfield_matches',
+//                'required'             => true,
+//                'mautic_fields'        => $this->getFormLeadFields(),
+//                'data'                 => $data,
+//                'integration_fields'   => $fields,
+//                'enable_data_priority' => $enableDataPriority,
+//                'integration'          => $integrationObject->getName(),
+//                'integration_object'   => $integrationObject,
+//                'limit'                => $limit,
+//                'page'                 => $page,
+//                'mapped'               => false,
+//                'error_bubbling'       => false,
+//            ]
+//        );
     }
 
     /**

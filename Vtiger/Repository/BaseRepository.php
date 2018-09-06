@@ -13,6 +13,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
 
 /**
  * Class BaseRepository
@@ -28,6 +29,7 @@ abstract class BaseRepository
         'Contacts' => Contact::class,
         'Accounts' => Account::class,
         'Events'   => Event::class,
+        'Leads'    => Lead::class
     ];
 
     /** @var Connection */

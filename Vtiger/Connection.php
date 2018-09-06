@@ -247,6 +247,37 @@ class Connection
         return $response;
     }
 
+    public function query(string $operation, array $payload = []) {
+        $query = sprintf("%s?operation=%s",
+            $this->getApiUrl(),
+            $operation);
+
+        if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
+            throw new SessionException('Not authenticated.');
+        } elseif ($this->isAuthenticateOnDemand()) {
+            $this->authenticate();
+        }
+
+        $query .= '&sessionName='.$this->sessionId;
+
+        if (count($payload)) {
+            if (isset($payload['query'])) {
+                $queryString = '&query=' . $payload['query'];
+                unset($payload['query']);
+            }
+            $query .= '&' . http_build_query($payload);
+            if (isset($queryString)) {
+                $query .= trim($queryString, ';') . ';';
+            }
+        }
+
+        $response = $this->httpClient->get($query, ['headers' => $this->requestHeaders]);
+
+        $response = $this->handleResponse($response, $query);
+
+        return $response;
+    }
+
     /**
      * @param string $operation
      * @param array  $payload

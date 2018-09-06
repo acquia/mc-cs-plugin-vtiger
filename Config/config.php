@@ -49,6 +49,12 @@ return [
                     'mautic.vtiger_crm.connection'
                 ]
             ],
+            'mautic.vtiger_crm.repository.leads' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository::class,
+                'arguments' => [
+                    'mautic.vtiger_crm.connection'
+                ]
+            ],
             'mautic.vtiger_crm.repository.accounts' => [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository::class,
                 'arguments' => [
@@ -70,12 +76,21 @@ return [
             ],
             'mautic.vtiger_crm.sync.data_exchange' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\DataExchange::class,
-                'arguments' => ['mautic.vtiger_crm.mapping.field_mapping', 'mautic.integrations.helper.sync_mapping_helper', 'mautic.vtiger_crm.sync.data_exchange_contacts'],
+                'arguments' => [
+                    'mautic.vtiger_crm.mapping.field_mapping',
+                    'mautic.integrations.helper.sync_mapping',
+                    'mautic.vtiger_crm.sync.data_exchange_contacts',
+                    'mautic.vtiger_crm.sync.data_exchange_leads'
+                ],
             ],
 
             'mautic.vtiger_crm.sync.data_exchange_contacts' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange::class,
                 'arguments' => ['mautic.vtiger_crm.repository.contacts', 'mautic.vtiger_crm.settings', 'mautic.lead.model.lead'],
+            ],
+            'mautic.vtiger_crm.sync.data_exchange_leads' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\LeadDataExchange::class,
+                'arguments' => ['mautic.vtiger_crm.repository.leads', 'mautic.vtiger_crm.settings', 'mautic.lead.model.lead'],
             ],
 
         ],
