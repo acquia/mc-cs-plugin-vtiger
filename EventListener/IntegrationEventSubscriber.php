@@ -37,12 +37,16 @@ final class IntegrationEventSubscriber implements EventSubscriberInterface
      */
     private $integrationObject;
 
-
+    /**
+     * IntegrationEventSubscriber constructor.
+     *
+     * @param DataExchange      $dataExchange
+     * @param IntegrationHelper $integrationHelper
+     */
     public function __construct(DataExchange $dataExchange, IntegrationHelper $integrationHelper)
     {
         $this->integrationObject = $integrationHelper->getIntegrationObject(VtigerCrmIntegration::NAME);
         $this->dataExchange = $dataExchange;
-        $this->integrationEntity = $this->integrationObject->getIntegrationEntity();
     }
 
     /**
@@ -55,6 +59,7 @@ final class IntegrationEventSubscriber implements EventSubscriberInterface
         ];
     }
 
+
     public function onSync(SyncEvent $syncEvent): void {
         if (!$syncEvent->shouldIntegrationSync(VtigerCrmIntegration::NAME)) {
             return;
@@ -64,34 +69,4 @@ final class IntegrationEventSubscriber implements EventSubscriberInterface
 
         $syncEvent->setSyncServices($this->dataExchange, $mappingManual);
     }
-
-    public function onSyncBak(SyncEvent $syncEvent): void
-    {
-        //var_dump($this->integrationHelper->getIntegrationObject('VtigerCrm')); die();
-        if (!$syncEvent->shouldIntegrationSync(VtigerCrmIntegration::NAME)) {
-            return;
-        }
-
-        $customerObjectMapping = new ObjectMappingDAO(MauticSyncDataExchange::CONTACT_OBJECT, Contact::NAME);
-
-        var_dump($this->getMappedFields());
-
-        foreach ($this->getMappedFields() as $magentoField => $mauticField) {
-            $customerObjectMapping->addFieldMapping(
-                $mauticField,
-                $magentoField,
-                $this->getFieldDirection($magentoField)
-            );
-        }
-
-        $mappingManual = new MappingManualDAO('VtigerCrm');
-        $mappingManual->addObjectMapping($customerObjectMapping);
-
-        $syncEvent->setSyncServices($this->dataExchange, $mappingManual);
-    }
-
-
-
-    
-
 }

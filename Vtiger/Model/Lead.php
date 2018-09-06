@@ -8,7 +8,7 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-class Contact extends BaseModel
+class Lead extends BaseModel
 {
     /**
      * @return string|null
@@ -20,9 +20,9 @@ class Contact extends BaseModel
     /**
      * @param null|string $userId
      *
-     * @return Contact
+     * @return Lead
      */
-    public function setAssignedUserId(?string $userId): Contact {
+    public function setAssignedUserId(?string $userId): Lead {
         $this->data['assigned_user_id'] = $userId;
         return $this;
     }

@@ -22,6 +22,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Model\Credentials;
 
 /**
@@ -51,6 +52,9 @@ class Connection
     /** @var Credentials */
     private $credentials;
 
+    /** @var VtigerSettingProvider  */
+    private $settings;
+
     /**
      * Connection constructor.
      *
@@ -59,16 +63,11 @@ class Connection
      *
      * @throws VtigerPluginException
      */
-    public function __construct(\GuzzleHttp\Client $client, IntegrationHelper $integrationsHelper)
+    public function __construct(\GuzzleHttp\Client $client, VtigerSettingProvider $settings)
     {
-        /** @var VtigerCrmIntegration $integrationEntity */
-        $integrationEntity = $integrationsHelper->getIntegrationObject('VtigerCrm');
+        $this->settings = $settings;
 
-        if ($integrationEntity === false) {
-            throw new VtigerPluginException('Plugin is not configured');
-        }
-
-        $credentialsCfg = $integrationEntity->getDecryptedApiKeys($integrationEntity->getIntegrationSettings());
+        $credentialsCfg = $this->settings->getCredentials();
 
         if (!isset($credentialsCfg['accessKey']) || !isset($credentialsCfg['username']) || !isset($credentialsCfg['url'])) {
             throw new VtigerPluginException('Plugin is not fully configured');
@@ -229,6 +228,37 @@ class Connection
         }
 
         $payload['sessionName'] = $this->sessionId;
+
+        if (count($payload)) {
+            if (isset($payload['query'])) {
+                $queryString = '&query=' . $payload['query'];
+                unset($payload['query']);
+            }
+            $query .= '&' . http_build_query($payload);
+            if (isset($queryString)) {
+                $query .= trim($queryString, ';') . ';';
+            }
+        }
+
+        $response = $this->httpClient->get($query, ['headers' => $this->requestHeaders]);
+
+        $response = $this->handleResponse($response, $query);
+
+        return $response;
+    }
+
+    public function query(string $operation, array $payload = []) {
+        $query = sprintf("%s?operation=%s",
+            $this->getApiUrl(),
+            $operation);
+
+        if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
+            throw new SessionException('Not authenticated.');
+        } elseif ($this->isAuthenticateOnDemand()) {
+            $this->authenticate();
+        }
+
+        $query .= '&sessionName='.$this->sessionId;
 
         if (count($payload)) {
             if (isset($payload['query'])) {
