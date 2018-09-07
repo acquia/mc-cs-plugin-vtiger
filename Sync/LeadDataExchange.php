@@ -36,17 +36,33 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
 {
     const OBJECT_NAME = 'Leads';
 
+    /**
+     * @var LeadRepository
+     */
     private $leadsRepository;
 
-    /** @var ValueNormalizer */
+    /**
+     * @var ValueNormalizer
+     */
     private $valueNormalizer;
 
-    /** @var LeadModel */
+    /**
+     * @var LeadModel
+     */
     private $model;
 
-    /** @var VtigerSettingProvider  */
+    /**
+     * @var VtigerSettingProvider
+     */
     private $settings;
 
+    /**
+     * LeadDataExchange constructor.
+     *
+     * @param LeadRepository        $leadsRepository
+     * @param VtigerSettingProvider $settingProvider
+     * @param LeadModel             $leadModel
+     */
     public function __construct(
         LeadRepository $leadsRepository,
         VtigerSettingProvider $settingProvider,
@@ -56,18 +72,6 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
         $this->valueNormalizer = new VtigerValueNormalizer();
         $this->model = $leadModel;
         $this->settings = $settingProvider;
-    }
-
-    /**
-     * Sync to integration
-     *
-     * @param RequestDAO $requestDAO
-     *
-     * @return ReportDAO
-     */
-    public function getSyncReport(RequestDAO $requestDAO)
-    {
-        // TODO: Implement getSyncReport() method.
     }
 
     /**
@@ -104,18 +108,30 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
         return $syncReport;
     }
 
-    public function executeSyncOrder(OrderDAO $syncOrderDAO)
-    {
-        throw new \Exception('This is unused method, use insert/update/delete from DataExchange instead.');
-    }
-
+    /**
+     * @param \DateTimeImmutable $fromDate
+     * @param array              $mappedFields
+     *
+     * @return array
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     */
     private function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
     {
-        $report = $this->leadsRepository->query('SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields) . ' FROM Leads WHERE modifiedtime > \'' . $fromDate->format('Y-m-d H:i:s') .'\'');
+        $fullReport = []; $iteration = 0;
+        // We must iterate while there is still some result left
+
+        do {
+            $report = $this->leadsRepository->query('SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields)
+                . ' FROM ' . self::OBJECT_NAME . ' WHERE modifiedtime>' . $fromDate->getTimestamp()
+                . ' LIMIT ' . ($iteration*100) . ',100');
+
+            $iteration++;
+
+            $fullReport = array_merge($fullReport, $report);
+        } while (count($report));
 
         return $report;
     }
-
     /**
      * @param array             $ids
      * @param ObjectChangeDAO[] $objects
@@ -146,7 +162,8 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
 
-            echo $objectName = BaseRepository::$moduleClassMapping[self::OBJECT_NAME];
+            $objectName = BaseRepository::$moduleClassMapping[self::OBJECT_NAME];
+            var_dump($objectName);
             die();
             $vtigerModel = new $objectName($objectData);
 

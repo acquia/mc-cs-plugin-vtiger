@@ -98,9 +98,18 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
      */
     private function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
     {
-        var_dump($fromDate);
+        $fullReport = []; $iteration = 0;
+        // We must iterate while there is still some result left
 
-        $report = $this->contactRepository->query('SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields) . ' FROM Contacts WHERE modifiedtime>' . $fromDate->getTimestamp());
+        do {
+            $report = $this->contactRepository->query('SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields)
+                . ' FROM Contacts WHERE modifiedtime>' . $fromDate->getTimestamp()
+                . ' LIMIT ' . ($iteration*100) . ',100');
+
+            $iteration++;
+
+            $fullReport = array_merge($fullReport, $report);
+        } while (count($report));
 
         return $report;
     }
