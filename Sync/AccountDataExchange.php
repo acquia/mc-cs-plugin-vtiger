@@ -151,7 +151,6 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
      */
     protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
     {
-        var_dump(__METHOD__); die();
         $fullReport = []; $iteration = 0;
         // We must iterate while there is still some result left
 
@@ -164,6 +163,6 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
             $fullReport = array_merge($fullReport, $report);
         } while (count($report));
 
-        return $report;
+        return $fullReport;
     }
 }

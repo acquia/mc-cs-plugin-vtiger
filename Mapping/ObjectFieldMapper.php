@@ -242,6 +242,8 @@ class ObjectFieldMapper
             $mappingManual->addObjectMapping($objectMapping);
         }
 
+        //var_dump($mappingManual->getObjectMapping('company','Accounts')); die();
+
         return $mappingManual;
     }
 

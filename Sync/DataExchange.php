@@ -199,25 +199,4 @@ class DataExchange implements SyncDataExchangeInterface
                 throw new ObjectNotSupportedException(VtigerCrmIntegration::NAME, $objectName);
         }
     }
-
-
-    /**
-     * @param UpdatedObjectMappingDAO[] $mappings
-     */
-    public function updateObjectMappings(array $mappings)
-    {
-        foreach ($mappings as $mapping) {
-            $this->mappingHelper->updateObjectMapping($mapping);
-        }
-    }
-
-    /**
-     * @param ObjectMapping[] $mappings
-     */
-    public function saveObjectMappings(array $mappings)
-    {
-        foreach ($mappings as $mapping) {
-            $this->mappingHelper->saveObjectMapping($mapping);
-        }
-    }
 }

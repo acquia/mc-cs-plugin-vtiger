@@ -13,6 +13,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 
 trait DataExchangeReportTrait
@@ -37,8 +38,15 @@ trait DataExchangeReportTrait
             $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new \DateTimeImmutable($object->getModifiedTime()->format('r')));
 
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
-                // Normalize the value from the API to what Mautic needs
-                $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getType(), $value);
+
+                if (!isset($objectFields[$field])) {
+                    // If the present value is not described it should be processed as string
+                    $normalizedValue = $this->valueNormalizer->normalizeForMautic(NormalizedValueDAO::STRING_TYPE, $value);
+                } else {
+                    // Normalize the value from the API to what Mautic needs
+                    $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getType(), $value);
+                }
+
 
                 $reportFieldDAO = new FieldDAO($field, $normalizedValue);
 

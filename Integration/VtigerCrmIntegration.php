@@ -184,9 +184,9 @@ class VtigerCrmIntegration extends BasicIntegration implements
                 'choices' => [
                     'Leads'     => 'mautic.plugin.vtiger.object.lead',
                     'Contacts'  => 'mautic.plugin.vtiger.object.contact',
-                    'Companies' => 'mautic.plugin.vtiger.object.company',
+                    'Accounts' => 'mautic.plugin.vtiger.object.company',
                     //'Account'  => 'mautic.plugin.vtiger.object.account',
-                    'Activity' => 'mautic.plugin.vtiger.object.activity',
+                    //'Activity' => 'mautic.plugin.vtiger.object.activity',
                 ],
                 'expanded'    => true,
                 'multiple'    => true,
@@ -201,11 +201,11 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ChoiceType::class,
             [
                 'choices' => [
-                    'lead'     => 'mautic.plugin.vtiger.object.lead',
-                    //'Contact'  => 'mautic.plugin.vtiger.object.contact',
+                    'lead'     => 'mautic.plugin.vtiger.object.contact',
+                    'AbstractLead'  => 'mautic.plugin.vtiger.object.abstract_lead',
                     //'Account'  => 'mautic.plugin.vtiger.object.account',
                     'company' => 'mautic.plugin.vtiger.object.account',
-                    'activity' => 'mautic.plugin.vtiger.object.activity',
+                    //'activity' => 'mautic.plugin.vtiger.object.activity',
                 ],
                 'expanded'    => true,
                 'multiple'    => true,

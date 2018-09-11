@@ -47,6 +47,7 @@ final class VtigerValueNormalizer implements ValueNormalizerInterface
             case 'email':
             case 'owner':
             case 'text':
+            case 'url':
                 $normalized = new NormalizedValueDAO($type, $value, (string) $value);
                 printf("normalizing unknown type '%s', '%s'=>'%s'\n", $type, $value, $normalized->getNormalizedValue());
                 return $normalized;
