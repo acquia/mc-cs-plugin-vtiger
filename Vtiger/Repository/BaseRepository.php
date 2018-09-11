@@ -11,13 +11,14 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\CompanyDetails;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
 
 /**
  * Class BaseRepository
- * 
  * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository
  */
 abstract class BaseRepository
@@ -28,8 +29,10 @@ abstract class BaseRepository
     public static $moduleClassMapping = [
         'Contacts' => Contact::class,
         'Accounts' => Account::class,
-        'Events'   => Event::class,
-        'Leads'    => Lead::class
+        'Events' => Event::class,
+        'Leads' => Lead::class,
+        'CompanyDetails' => CompanyDetails::class,
+        'Users' => User::class
     ];
 
     /** @var Connection */

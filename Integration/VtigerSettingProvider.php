@@ -80,7 +80,7 @@ class VtigerSettingProvider
      */
     public function getFormOwners(): array
     {
-        $owners = $this->container->get('mautic.vtiger_crm.repository.accounts')->findBy();
+        $owners = $this->container->get('mautic.vtiger_crm.repository.users')->findBy();
         $ownersArray = [];
         foreach ($owners as $owner) {
             $ownersArray[$owner->getId()] = (string)$owner;
@@ -107,7 +107,9 @@ class VtigerSettingProvider
     public function getSetting($settingName)
     {
         $settings = $this->getSettings();
+
         if (!array_key_exists($settingName, $settings)) {
+            // todo debug only @debug
             throw new \InvalidArgumentException(
                 sprintf('Setting "%s" does not exists, supported: %s',
                     $settingName, join(', ', array_keys($settings))

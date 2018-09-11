@@ -1,9 +1,14 @@
 <?php
-declare(strict_types=1);
+/**
+ * Created by PhpStorm.
+ * User: jan
+ * Date: 28.5.18
+ * Time: 18:30
+ */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-class Lead extends BaseModel
+class CompanyDetails extends BaseModel
 {
     /**
      * @return string|null
@@ -15,9 +20,9 @@ class Lead extends BaseModel
     /**
      * @param null|string $userId
      *
-     * @return Lead
+     * @return Contact
      */
-    public function setAssignedUserId(?string $userId): Lead {
+    public function setAssignedUserId(?string $userId): Contact {
         $this->data['assigned_user_id'] = $userId;
         return $this;
     }

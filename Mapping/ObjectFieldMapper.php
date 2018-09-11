@@ -35,6 +35,7 @@ class ObjectFieldMapper
     static $objectToSettings = [
         'Contacts' => 'leadFields',
         'Leads' => 'leadFields',
+        'Accounts' => 'companyFields'
     ];
 
     /**
@@ -43,8 +44,9 @@ class ObjectFieldMapper
      * @var array
      */
     static $vtiger2mauticObjectMapping = [
-        'Contacts' => 'Lead',
+        'Contacts' => 'lead',
         'Leads' => 'AbstractLead',
+        'Accounts' => 'company'
     ];
 
     /**
@@ -104,6 +106,11 @@ class ObjectFieldMapper
 
         $fields = $this->repositories[$objectName]->describe()->getFields();
 
+
+        if ($objectName=='Companies') {
+            var_dump($fields); die();
+        }
+
         $salesFields = [];
 
         /** @var ModuleFieldInfo $fieldInfo */
@@ -130,8 +137,7 @@ class ObjectFieldMapper
      */
     public function getMappedFields($objectName): array
     {
-        if (!isset(BaseRepository::$moduleClassMapping[$objectName])
-            || !isset(self::$objectToSettings[$objectName])) {
+        if (!isset(self::$objectToSettings[$objectName])) {
             throw new ObjectNotSupportedException(VtigerCrmIntegration::NAME, $objectName);
         }
 
@@ -236,8 +242,6 @@ class ObjectFieldMapper
             $mappingManual->addObjectMapping($objectMapping);
         }
 
-        var_dump($mappingManual);
-
         return $mappingManual;
     }
 
@@ -246,7 +250,7 @@ class ObjectFieldMapper
      */
     public function getVtigerSyncable(): array
     {
-        return $this->settings->getSetting('objects');
+        return $this->settings->getSetting('objects_to_pull');
     }
 
     /**
@@ -254,9 +258,7 @@ class ObjectFieldMapper
      */
     public function getSyncableObjects(): array
     {
-        var_dump($this->settings->getSettings());
-
-        return $this->settings->getSetting('objects_to_push');
+        return $this->settings->getSetting('objects');
     }
 
     /**

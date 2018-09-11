@@ -21,6 +21,7 @@ use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
@@ -29,28 +30,33 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 final class ContactDataExchange implements ObjectSyncDataExchangeInterface
 {
+    use DataExchangeOperationsTrait;
+
     const OBJECT_NAME = 'Contacts';
 
     /** @var ContactRepository */
-    private $contactRepository;
+    private $objectRepository;
 
     /** @var ValueNormalizer */
     private $valueNormalizer;
 
     /** @var LeadModel */
-    private $model;
+    private $mauticModel;
 
     /** @var VtigerSettingProvider  */
     private $settings;
+
+    /** @var int  */
+    const VTIGER_CONTACT_API_QUERY_LIMIT = 100;
 
     public function __construct(
         ContactRepository $contactRepository,
         VtigerSettingProvider $settingProvider,
         LeadModel $leadModel)
     {
-        $this->contactRepository = $contactRepository;
+        $this->objectRepository = $contactRepository;
         $this->valueNormalizer = new VtigerValueNormalizer();
-        $this->model = $leadModel;
+        $this->mauticModel = $leadModel;
         $this->settings = $settingProvider;
     }
 
@@ -65,7 +71,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
-        $objectFields = $this->contactRepository->describe()->getFields();
+        $objectFields = $this->objectRepository->describe()->getFields();
 
         $updated = $this->getReportPayload($fromDateTime, $mappedFields);
 
@@ -102,9 +108,9 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
         // We must iterate while there is still some result left
 
         do {
-            $report = $this->contactRepository->query('SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields)
+            $report = $this->objectRepository->query('SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields)
                 . ' FROM Contacts WHERE modifiedtime>' . $fromDate->getTimestamp()
-                . ' LIMIT ' . ($iteration*100) . ',100');
+                . ' LIMIT ' . ($iteration*self::VTIGER_CONTACT_API_QUERY_LIMIT) . ',' . self::VTIGER_CONTACT_API_QUERY_LIMIT);
 
             $iteration++;
 
@@ -120,7 +126,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
      *
      * @return UpdatedObjectMappingDAO[]
      */
-    public function update(array $ids, array $objects)
+    public function updateX(array $ids, array $objects)
     {
         DebugLogger::log(
             self::OBJECT_NAME,
@@ -146,12 +152,12 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
 
             $vtigerModel = new Contact($objectData);
 
-            if ($this->settings->getSetting('updateOwner')) {
+            if ($this->settings->getSetting('updateOwner') || !$vtigerModel->getAssignedUserId()) {
                 $vtigerModel->setAssignedUserId($this->settings->getSetting('owner'));
             }
 
             try {
-                $returnedModel = $this->contactRepository->update($vtigerModel);
+                $returnedModel = $this->objectRepository->update($vtigerModel);
 
                 // Integration name and ID are stored in the change's mappedObject/mappedObjectId
                 $updatedMappedObjects[] = new UpdatedObjectMappingDAO(
@@ -197,6 +203,15 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     {
         $modelName = BaseRepository::$moduleClassMapping[self::OBJECT_NAME];
 
+        DebugLogger::log(
+            self::OBJECT_NAME,
+            sprintf(
+                "Found %d leads to INSERT",
+                count($objects)
+            ),
+            __CLASS__ . ':' . __FUNCTION__
+        );
+
         $objectMappings = [];
         foreach ($objects as $object) {
             $fields = $object->getFields();
@@ -215,15 +230,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
             $contact->setAssignedUserId($this->settings->getSetting('owner'));
 
             try {
-                $response = $this->contactRepository->create($contact);
-
-                // Integration name and ID are stored in the change's mappedObject/mappedObjectId
-                $updatedMappedObjects[] = new UpdatedObjectMappingDAO(
-                    $object,
-                    $object->getObjectId(),
-                    $response->getId(),
-                    $response->getModifiedTime()
-                );
+                $response = $this->objectRepository->create($contact);
 
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
@@ -236,12 +243,13 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
                 );
 
                 $objectMapping = new ObjectMapping();
-                $objectMapping->setLastSyncDate($response->getModifiedTime())
-                    ->setIntegration($object->getIntegration())
+                $objectMapping
+                    ->setIntegration(VtigerCrmIntegration::NAME)
                     ->setIntegrationObjectName($object->getMappedObject())
-                    ->setIntegrationObjectId($object->getMappedObjectId())
-                    ->setInternalObjectName(MauticSyncDataExchange::OBJECT_CONTACT)
-                    ->setInternalObjectId($object->getMappedObjectId());
+                    ->setIntegrationObjectId($response->getId())
+                    ->setInternalObjectName($object->getObject())
+                    ->setInternalObjectId($object->getObjectId());
+
                 $objectMappings[] = $objectMapping;
             } catch (InvalidArgumentException $e) {
                 DebugLogger::log(

@@ -67,7 +67,7 @@ class ModuleInfo
             $this->fields[$fieldInfo->name] = new ModuleFieldInfo($fieldInfo);
         }
         $this->idPrefix = $data->idPrefix;
-        $this->allowDuplicates = $data->allowDuplicates;
+        $this->allowDuplicates = isset($data->allowDuplicates) ? $data->allowDuplicates : true;
         $this->labelFields = $data->labelFields;
     }
 

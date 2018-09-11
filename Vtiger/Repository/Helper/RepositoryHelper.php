@@ -8,13 +8,16 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper;
 
+use MauticPlugin\MauticVtigerCrmBundle\Sync\CompanyDetailsDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\CompanyDetails;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\SyncReport;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 
 /**
  * Trait RepositoryHelper
@@ -134,16 +137,15 @@ trait RepositoryHelper
 
 
     /**
+     * todo complete refactoring, object needs to be specified at one place only, not multiple
      * @return string
      */
     private function getModuleFromRepositoryName() {
         $className = get_class($this);
 
-        if (!preg_match("/.*\\\\([A-Z]{1}[a-z]+)Repository/", $className, $matches)) {
-            throw new \InvalidArgumentException('Repositories must conform to certain naming conventions. Failed to parse module name out of ' . $className);
-        }
-
-        return $matches[1] . 's';
+        $parts = explode('\\', $className);
+        $modelName = rtrim(str_replace('Repository', '', array_pop($parts)),'s') . "s";
+        return $modelName;
     }
 
     /**

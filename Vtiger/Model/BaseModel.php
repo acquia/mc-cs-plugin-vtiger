@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 28.5.18
- * Time: 18:30
- */
+declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 

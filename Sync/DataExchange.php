@@ -36,6 +36,13 @@ class DataExchange implements SyncDataExchangeInterface
     private $leadDataExchange;
 
     /**
+     * @var CompanyDetailsDataExchange
+     */
+    private $companyDataExchange;
+
+    /** @var AccountDataExchange */
+    private $accountDataExchange;
+    /**
      * @var MappingHelper
      */
     private $mappingHelper;
@@ -52,12 +59,17 @@ class DataExchange implements SyncDataExchangeInterface
         ObjectFieldMapper $fieldMapper,
         MappingHelper $mappingHelper,
         ContactDataExchange $contactDataExchange,
-        LeadDataExchange $leadDataExchange)
+        LeadDataExchange $leadDataExchange,
+        CompanyDetailsDataExchange $companyDetailsDataExchange,
+        AccountDataExchange $accountDataExchange
+    )
     {
         $this->fieldMapper = $fieldMapper;
         $this->contactDataExchange = $contactDataExchange;
         $this->leadDataExchange = $leadDataExchange;
         $this->mappingHelper = $mappingHelper;
+        $this->companyDataExchange = $companyDetailsDataExchange;
+        $this->accountDataExchange = $accountDataExchange;
     }
 
     /**
@@ -93,6 +105,8 @@ class DataExchange implements SyncDataExchangeInterface
         // Build a report of objects that have been modified
         $syncReport = new ReportDAO(VtigerCrmIntegration::NAME);
 
+        echo 'iteration: '; var_dump($requestDAO->getSyncIteration());
+
         if ($requestDAO->getSyncIteration() > 1) {
             // Prevent loop
             return $syncReport;
@@ -100,9 +114,6 @@ class DataExchange implements SyncDataExchangeInterface
 
         $requestedObjects = $requestDAO->getObjects();
 
-        var_dump('get sync report');
-
-        var_dump($requestedObjects);
 
         foreach ($requestedObjects as $requestedObject) {
             $objectName = $requestedObject->getObject();
@@ -122,6 +133,8 @@ class DataExchange implements SyncDataExchangeInterface
      */
     public function executeSyncOrder(OrderDAO $syncOrderDAO)
     {
+        $syncOrderDAO->getSyncDateTime();
+
         $identifiedObjects = $syncOrderDAO->getIdentifiedObjects();
 
         foreach ($identifiedObjects as $objectName => $updateObjects) {
@@ -138,7 +151,10 @@ class DataExchange implements SyncDataExchangeInterface
 
             $updatedObjectMappings = $dataExchange->update($identifiedObjectIds, $updateObjects);
 
-            $this->updateObjectMappings($updatedObjectMappings);
+            foreach ($updatedObjectMappings as $updateObject) {
+                $syncOrderDAO->updateLastSyncDate($updateObject);
+            }
+
         }
 
         $unidentifiedObjects = $syncOrderDAO->getUnidentifiedObjects();
@@ -154,10 +170,13 @@ class DataExchange implements SyncDataExchangeInterface
 
             $objectMappings = $dataExchange->insert($createObjects);
 
-            $this->saveObjectMappings($objectMappings);
+            foreach ($objectMappings as $objectMapping) {
+                $syncOrderDAO->addObjectMappingObject($objectMapping);
+            }
         }
-        // @todo add delete support
     }
+
+    // @todo add delete support
 
     /**
      * @param $objectName
@@ -172,6 +191,10 @@ class DataExchange implements SyncDataExchangeInterface
                 return $this->contactDataExchange;
             case 'Leads':
                 return $this->leadDataExchange;
+            case 'CompanyDetails':
+                return $this->companyDataExchange;
+            case 'Accounts':
+                return $this->accountDataExchange;
             default:
                 throw new ObjectNotSupportedException(VtigerCrmIntegration::NAME, $objectName);
         }

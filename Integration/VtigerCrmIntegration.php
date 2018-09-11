@@ -178,12 +178,13 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ]
         );
         $builder->add(
-            'objects',
+            'objects_to_pull',
             ChoiceType::class,
             [
                 'choices' => [
                     'Leads'     => 'mautic.plugin.vtiger.object.lead',
                     'Contacts'  => 'mautic.plugin.vtiger.object.contact',
+                    'Companies' => 'mautic.plugin.vtiger.object.company',
                     //'Account'  => 'mautic.plugin.vtiger.object.account',
                     'Activity' => 'mautic.plugin.vtiger.object.activity',
                 ],
@@ -196,14 +197,15 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ]
         );
         $builder->add(
-            'objects_to_push',
+            'objects',
             ChoiceType::class,
             [
                 'choices' => [
-                    'Lead'     => 'mautic.plugin.vtiger.object.lead',
+                    'lead'     => 'mautic.plugin.vtiger.object.lead',
                     //'Contact'  => 'mautic.plugin.vtiger.object.contact',
                     //'Account'  => 'mautic.plugin.vtiger.object.account',
-                    'Activity' => 'mautic.plugin.vtiger.object.activity',
+                    'company' => 'mautic.plugin.vtiger.object.account',
+                    'activity' => 'mautic.plugin.vtiger.object.activity',
                 ],
                 'expanded'    => true,
                 'multiple'    => true,
@@ -312,6 +314,14 @@ class VtigerCrmIntegration extends BasicIntegration implements
 
         $leadFields    = $this->fieldMapping->getObjectFields('Contacts');
 
+        unset($leadFields['assigned_user_id']);
+
         return $leadFields;
+    }
+
+    public function getFormCompanyFields($settings = [])
+    {
+        $fields = $this->fieldMapping->getObjectFields('Accounts');
+        return $fields;
     }
 }
