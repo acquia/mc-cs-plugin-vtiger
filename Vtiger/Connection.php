@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
 
 use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
+use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException;
@@ -243,6 +244,8 @@ class Connection
                 $query .= trim($queryString, ';') . ';';
             }
         }
+
+        DebugLogger::log(VtigerCrmIntegration::NAME,$query);
 
         $response = $this->httpClient->get($query, ['headers' => $this->requestHeaders]);
 

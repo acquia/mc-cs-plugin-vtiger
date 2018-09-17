@@ -60,8 +60,7 @@ trait DataExchangeOperationsTrait
             }
 
             var_dump($changedObject);
-            throw new \Exception('dddd');
-            die();
+
             try {
                 /** @var BaseModel $returnedModel */
                 $returnedModel = $this->objectRepository->update($vtigerModel);
@@ -115,6 +114,110 @@ trait DataExchangeOperationsTrait
         }
 
         return $updatedMappedObjects;
+    }
+
+
+    /**
+     * @param ObjectChangeDAO[] $objects
+     *
+     * @return ObjectMapping[]
+     */
+    public function insert(array $objects)
+    {
+        $modelName = BaseRepository::$moduleClassMapping[self::OBJECT_NAME];
+
+        DebugLogger::log(
+            self::OBJECT_NAME,
+            sprintf(
+                "Found %d leads to INSERT",
+                count($objects)
+            ),
+            __CLASS__ . ':' . __FUNCTION__
+        );
+
+        $objectMappings = [];
+        foreach ($objects as $object) {
+            $fields = $object->getFields();
+
+            $objectData = [];
+
+            foreach ($fields as $field) {
+                /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
+                $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
+            }
+            /** @var Contact $contact */
+            $contact = new $modelName($objectData);
+            if (!$this->settings->getSetting('owner')) {
+                throw new InvalidConfigurationException('You need to configure owner for new objects');
+            }
+            $contact->setAssignedUserId($this->settings->getSetting('owner'));
+
+            try {
+                $response = $this->objectRepository->create($contact);
+
+                DebugLogger::log(
+                    VtigerCrmIntegration::NAME,
+                    sprintf(
+                        "Created Contact ID %s from Lead %d",
+                        $response->getId(),
+                        $object->getMappedObjectId()
+                    ),
+                    __CLASS__.':'.__FUNCTION__
+                );
+
+                $objectMapping = new ObjectChangeDAO(
+                    $object->getIntegration(),
+                    $object->getObject(),
+                    $object->getObjectId(),
+                    $object->getMappedObject(),
+                    $response->getId()
+                );
+
+                $objectMapping->setChangeDateTime($response->getModifiedTime());
+
+                $objectMappings[] = $objectMapping;
+            } catch (InvalidArgumentException $e) {
+                DebugLogger::log(
+                    VtigerCrmIntegration::NAME,
+                    sprintf(
+                        "Failed to create %s with error '%s'",
+                        self::OBJECT_NAME,
+                        $e->getMessage()
+                    ),
+                    __CLASS__.':'.__FUNCTION__
+                );
+            }
+        }
+
+        return $objectMappings;
+    }
+
+    /**
+     * @param \DateTimeImmutable $fromDate
+     * @param array              $mappedFields
+     *
+     * @return array|mixed
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     */
+    private function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
+    {
+        $fullReport = []; $iteration = 0;
+        // We must iterate while there is still some result left
+
+        do {
+            $reportQuery = 'SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields)
+                . ' FROM ' . self::OBJECT_NAME . ' WHERE modifiedtime >= \'' . $fromDate->format('Y-m-d H:i:s') . '\''
+                . ' LIMIT ' . ($iteration*self::VTIGER_API_QUERY_LIMIT) . ',' . self::VTIGER_API_QUERY_LIMIT;
+
+
+            $report = $this->objectRepository->query($reportQuery);
+
+            $iteration++;
+
+            $fullReport = array_merge($fullReport, $report);
+        } while (count($report));
+
+        return $fullReport;
     }
 
 }

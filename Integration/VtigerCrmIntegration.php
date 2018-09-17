@@ -310,7 +310,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
     {
         if (!$this->isConfigured()) {
             return false;
-        }
+    }
 
         $leadFields    = $this->fieldMapping->getObjectFields('Contacts');
 

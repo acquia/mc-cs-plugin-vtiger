@@ -18,6 +18,7 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
+use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
@@ -38,7 +39,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     /** @var ContactRepository */
     private $objectRepository;
 
-    /** @var ValueNormalizer */
+    /** @var ValueNormalizerInterface */
     private $valueNormalizer;
 
     /** @var LeadModel */
@@ -48,15 +49,17 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     private $settings;
 
     /** @var int  */
-    const VTIGER_CONTACT_API_QUERY_LIMIT = 100;
+    const VTIGER_API_QUERY_LIMIT = 100;
 
     public function __construct(
         ContactRepository $contactRepository,
         VtigerSettingProvider $settingProvider,
-        LeadModel $leadModel)
+        LeadModel $leadModel,
+        ValueNormalizerInterface $valueNormalizer
+        )
     {
         $this->objectRepository = $contactRepository;
-        $this->valueNormalizer = new VtigerValueNormalizer();
+        $this->valueNormalizer = $valueNormalizer;
         $this->mauticModel = $leadModel;
         $this->settings = $settingProvider;
     }
@@ -74,7 +77,13 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
         $mappedFields = $requestedObject->getFields();
         $objectFields = $this->objectRepository->describe()->getFields();
 
+        $mappedFields = array_merge($mappedFields,[
+            'isconvertedfromlead', 'leadsource'
+        ]);
+
         $updated = $this->getReportPayload($fromDateTime, $mappedFields);
+
+        var_dump($updated);
 
         /** @var Contact $object */
         foreach ($updated as $object) {
@@ -94,34 +103,10 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
             $syncReport->addObject($objectDAO);
         }
 
+
         return $syncReport;
     }
 
-
-    /**
-     * @param \DateTimeImmutable $fromDate
-     * @param array              $mappedFields
-     *
-     * @return array|mixed
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
-     */
-    private function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
-    {
-        $fullReport = []; $iteration = 0;
-        // We must iterate while there is still some result left
-
-        do {
-            $report = $this->objectRepository->query('SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields)
-                . ' FROM Contacts WHERE modifiedtime>' . $fromDate->getTimestamp()
-                . ' LIMIT ' . ($iteration*self::VTIGER_CONTACT_API_QUERY_LIMIT) . ',' . self::VTIGER_CONTACT_API_QUERY_LIMIT);
-
-            $iteration++;
-
-            $fullReport = array_merge($fullReport, $report);
-        } while (count($report));
-
-        return $report;
-    }
 
     /**
      * @param array             $ids
@@ -196,95 +181,6 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
         return $updatedMappedObjects;
     }
 
-
-    /**
-     * @param ObjectChangeDAO[] $objects
-     *
-     * @return ObjectMapping[]
-     */
-    public function insert(array $objects)
-    {
-        var_dump($objects);
-        throw new \Exception('aaa');
-        die();
-        $modelName = BaseRepository::$moduleClassMapping[self::OBJECT_NAME];
-
-        DebugLogger::log(
-            self::OBJECT_NAME,
-            sprintf(
-                "Found %d leads to INSERT",
-                count($objects)
-            ),
-            __CLASS__ . ':' . __FUNCTION__
-        );
-
-        $objectMappings = [];
-        foreach ($objects as $object) {
-            $fields = $object->getFields();
-
-            $objectData = [];
-
-            foreach ($fields as $field) {
-                /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
-                $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
-            }
-            /** @var Contact $contact */
-            $contact = new $modelName($objectData);
-            if (!$this->settings->getSetting('owner')) {
-                throw new InvalidConfigurationException('You need to configure owner for new objects');
-            }
-            $contact->setAssignedUserId($this->settings->getSetting('owner'));
-
-            try {
-                $response = $this->objectRepository->create($contact);
-
-                DebugLogger::log(
-                    VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Created Contact ID %s from Lead %d",
-                        $response->getId(),
-                        $object->getMappedObjectId()
-                    ),
-                    __CLASS__.':'.__FUNCTION__
-                );
-
-//                $objectMapping = new ObjectMapping();
-//                $objectMapping
-//                    ->setIntegration(VtigerCrmIntegration::NAME)
-//                    ->setIntegrationObjectName($object->getMappedObject())
-//                    ->setIntegrationObjectId($response->getId())
-//                    ->setInternalObjectName($object->getObject())
-//                    ->setInternalObjectId($object->getObjectId());
-
-                var_dump($object); die();
-
-                $objectMapping = new ObjectChangeDAO(
-                    $object->getIntegration(),
-                    $object->getObject(),
-                    $object->getObjectId(),
-                    $object->getMappedObject(),
-                    $response->getId()
-                );
-
-                $objectMapping->setChangeDateTime($response->getModifiedTime());
-
-                $objectMappings[] = $objectMapping;
-            } catch (InvalidArgumentException $e) {
-                DebugLogger::log(
-                    VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Failed to create %s with error '%s'",
-                        self::OBJECT_NAME,
-                        $e->getMessage()
-                    ),
-                    __CLASS__.':'.__FUNCTION__
-                );
-            }
-        }
-
-        return $objectMappings;
-    }
-
     /**
      * @param array $objects
      *
@@ -296,6 +192,4 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
         // TODO: Implement delete() method.
         throw new \Exception('Not implemented');
     }
-
-
 }

@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 24.8.18
- * Time: 13:36
- */
+
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
@@ -107,8 +102,6 @@ class DataExchange implements SyncDataExchangeInterface
         // Build a report of objects that have been modified
         $syncReport = new ReportDAO(VtigerCrmIntegration::NAME);
 
-        echo 'iteration: '; var_dump($requestDAO->getSyncIteration());
-
         if ($requestDAO->getSyncIteration() > 1) {
             // Prevent loop
             return $syncReport;
@@ -138,6 +131,7 @@ class DataExchange implements SyncDataExchangeInterface
         $syncOrderDAO->getSyncDateTime();
 
         $identifiedObjects = $syncOrderDAO->getIdentifiedObjects();
+        $unidentifiedObjects = $syncOrderDAO->getUnidentifiedObjects();
 
         foreach ($identifiedObjects as $objectName => $updateObjects) {
             $updateCount = count($updateObjects);
@@ -145,26 +139,18 @@ class DataExchange implements SyncDataExchangeInterface
             if (0 === $updateCount) {
                 continue;
             }
-            $identifiedObjectIds = $syncOrderDAO->getIdentifiedObjectIds(
-                $objectName
-            );
 
-            var_dump($syncOrderDAO->getIdentifiedObjects()); die();
+            $identifiedObjectIds = $syncOrderDAO->getIdentifiedObjectIds();
             /** @var ObjectSyncDataExchangeInterface $dataExchange */
-            $dataExchange = $this->getDataExchangeService($this->getFieldMapper()->getMautic2VtigerObjectNameMapping($objectName));
+            $dataExchange = $this->getDataExchangeService($objectName);
 
-            $updatedObjectMappings = $dataExchange->update($identifiedObjectIds, $updateObjects);
+            $updatedObjectMappings = $dataExchange->update($identifiedObjectIds, $identifiedObjects[$objectName]);
 
             foreach ($updatedObjectMappings as $updateObject) {
                 $syncOrderDAO->updateLastSyncDate($updateObject);
             }
 
         }
-
-
-        $unidentifiedObjects = $syncOrderDAO->getUnidentifiedObjects();
-        var_dump($unidentifiedObjects); die();
-
 
         foreach ($unidentifiedObjects as $objectName => $createObjects) {
             $createCount = count($createObjects);
@@ -180,7 +166,6 @@ class DataExchange implements SyncDataExchangeInterface
 
             /** @var ObjectChangeDAO $objectMapping */
             foreach ($objectMappings as $objectMapping) {
-                var_dump($objectMapping); throw new \Exception('ccc');
                 $syncOrderDAO->addObjectMapping(
                     $objectMapping,
                     $objectMapping->getMappedObject(),
@@ -196,10 +181,10 @@ class DataExchange implements SyncDataExchangeInterface
     /**
      * @param $objectName
      *
-     * @return SyncDataExchangeInterface
+     * @return ObjectSyncDataExchangeInterface
      * @throws ObjectNotSupportedException
      */
-    private function getDataExchangeService($objectName)
+    private function getDataExchangeService($objectName): ObjectSyncDataExchangeInterface
     {
         switch ($objectName) {
             case 'Contacts':

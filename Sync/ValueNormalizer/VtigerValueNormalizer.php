@@ -13,6 +13,10 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer;
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\MauticVtigerTransformer;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\VtigerMauticTransformer;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ValidatorService;
 
 /**
  * Class ValueNormalizer
@@ -20,40 +24,23 @@ use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterfac
 final class VtigerValueNormalizer implements ValueNormalizerInterface
 {
     /**
-     * @param string $type
-     * @param mixed  $value
-     *
-     * @return NormalizedValueDAO
+     * @var VtigerMauticTransformer
      */
+    private $v2mTransformer;
+
+    /**
+     * @var MauticVtigerTransformer
+     */
+    private $m2vTransformer;
+
+    public function __construct(VtigerMauticTransformer $v2mTransformer, MauticVtigerTransformer $m2vTransformer) {
+        $this->v2mTransformer = $v2mTransformer;
+        $this->m2vTransformer = $m2vTransformer;
+    }
+
     public function normalizeForMautic(string $type, $value): NormalizedValueDAO
     {
-        switch ($type) {
-            case NormalizedValueDAO::STRING_TYPE:
-                return new NormalizedValueDAO($type, $value, (string) $value);
-            case NormalizedValueDAO::INT_TYPE:
-                return new NormalizedValueDAO($type, $value, (int) $value);
-            case NormalizedValueDAO::FLOAT_TYPE:
-                return new NormalizedValueDAO($type, $value, (float) $value);
-            case NormalizedValueDAO::DOUBLE_TYPE:
-                return new NormalizedValueDAO($type, $value, (double) $value);
-            case NormalizedValueDAO::DATETIME_TYPE:
-                return new NormalizedValueDAO($type, $value, new \DateTime($value));
-            case NormalizedValueDAO::BOOLEAN_TYPE:
-                return new NormalizedValueDAO($type, $value, (bool) $value);
-            case 'reference':
-            case 'phone':
-            case 'picklist':
-            case 'date':
-            case 'email':
-            case 'owner':
-            case 'text':
-            case 'url':
-                $normalized = new NormalizedValueDAO($type, $value, (string) $value);
-                printf("normalizing unknown type '%s', '%s'=>'%s'\n", $type, $value, $normalized->getNormalizedValue());
-                return $normalized;
-            default:
-                throw new \InvalidArgumentException('Variable type, '.$type.', not supported');
-        }
+        return $this->v2mTransformer->transform($type, $value);
     }
 
     /**
@@ -63,6 +50,6 @@ final class VtigerValueNormalizer implements ValueNormalizerInterface
      */
     public function normalizeForIntegration(NormalizedValueDAO $value)
     {
-        return $value->getNormalizedValue();
+        return $this->m2vTransformer->transform($value->getType(), $value);
     }
 }

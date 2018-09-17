@@ -1,9 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 24.8.18
- * Time: 13:50
+declare(strict_types=1);
+
+/*
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc.
+ *
+ * @link        https://www.mautic.com
+ *
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
@@ -21,9 +24,11 @@ use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
+use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
@@ -34,12 +39,15 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 class LeadDataExchange implements ObjectSyncDataExchangeInterface
 {
+    use DataExchangeOperationsTrait;
+
+
     const OBJECT_NAME = 'Leads';
 
     /**
      * @var LeadRepository
      */
-    private $leadsRepository;
+    private $objectRepository;
 
     /**
      * @var ValueNormalizer
@@ -56,6 +64,9 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
      */
     private $settings;
 
+    /** @var int  */
+    const VTIGER_API_QUERY_LIMIT = 100;
+
     /**
      * LeadDataExchange constructor.
      *
@@ -66,12 +77,13 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
     public function __construct(
         LeadRepository $leadsRepository,
         VtigerSettingProvider $settingProvider,
-        LeadModel $leadModel)
+        LeadModel $leadModel,
+        ValueNormalizerInterface $valueNormalizer)
     {
-        $this->leadsRepository = $leadsRepository;
-        $this->valueNormalizer = new VtigerValueNormalizer();
-        $this->model = $leadModel;
-        $this->settings = $settingProvider;
+        $this->objectRepository = $leadsRepository;
+        $this->valueNormalizer  = $valueNormalizer;
+        $this->model            = $leadModel;
+        $this->settings         = $settingProvider;
     }
 
     /**
@@ -81,11 +93,11 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
      * @return ReportDAO
      * @throws \Exception
      */
-    public function getObjectSyncReport(\MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject, ReportDAO &$syncReport)
+    public function getObjectSyncReport(\MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject, ReportDAO &$syncReport): ReportDAO
     {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
-        $objectFields = $this->leadsRepository->describe()->getFields();
+        $objectFields = $this->objectRepository->describe()->getFields();
 
         $updated = $this->getReportPayload($fromDateTime, $mappedFields);
 
@@ -106,182 +118,6 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
         }
 
         return $syncReport;
-    }
-
-    /**
-     * @param \DateTimeImmutable $fromDate
-     * @param array              $mappedFields
-     *
-     * @return array
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
-     */
-    private function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
-    {
-        $fullReport = []; $iteration = 0;
-        // We must iterate while there is still some result left
-
-        do {
-            $report = $this->leadsRepository->query('SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields)
-                . ' FROM ' . self::OBJECT_NAME . ' WHERE modifiedtime>' . $fromDate->getTimestamp()
-                . ' LIMIT ' . ($iteration*100) . ',100');
-
-            $iteration++;
-
-            $fullReport = array_merge($fullReport, $report);
-        } while (count($report));
-
-        return $report;
-    }
-    /**
-     * @param array             $ids
-     * @param ObjectChangeDAO[] $objects
-     *
-     * @return UpdatedObjectMappingDAO[]
-     */
-    public function update(array $ids, array $objects)
-    {
-        DebugLogger::log(
-            self::OBJECT_NAME,
-            sprintf(
-                "Found %d leads to update with ids %s",
-                count($objects),
-                implode(", ", $ids)
-            ),
-            __CLASS__ . ':' . __FUNCTION__
-        );
-
-        $updatedMappedObjects = [];
-        /** @var ObjectChangeDAO $changedObject */
-        foreach ($objects as $integrationObjectId => $changedObject) {
-            $fields = $changedObject->getFields();
-
-            $objectData = ['id'=>$integrationObjectId];
-
-            foreach ($fields as $field) {
-                /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
-                $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
-            }
-
-            $objectName = BaseRepository::$moduleClassMapping[self::OBJECT_NAME];
-            var_dump($objectName);
-            die();
-            $vtigerModel = new $objectName($objectData);
-
-            if ($this->settings->getSetting('updateOwner')) {
-                $vtigerModel->setAssignedUserId($this->settings->getSetting('owner'));
-            }
-
-            try {
-                $returnedModel = $this->leadsRepository->update($vtigerModel);
-
-                // Integration name and ID are stored in the change's mappedObject/mappedObjectId
-                $updatedMappedObjects[] = new UpdatedObjectMappingDAO(
-                    $changedObject,
-                    $changedObject->getObjectId(),
-                    $changedObject->getObject(),
-                    $returnedModel->getModifiedTime()
-                );
-
-                DebugLogger::log(
-                    VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Updated to %s ID %s",
-                        self::OBJECT_NAME,
-                        $integrationObjectId
-                    ),
-                    __CLASS__ . ':' . __FUNCTION__
-                );
-            } catch (InvalidArgumentException $e) {
-                DebugLogger::log(
-                    VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Update to %s ID %s failed: %s",
-                        self::OBJECT_NAME,
-                        $integrationObjectId,
-                        $e->getMessage()
-                    ),
-                    __CLASS__ . ':' . __FUNCTION__
-                );
-            }
-        }
-
-        return $updatedMappedObjects;
-    }
-
-
-    /**
-     * @param ObjectChangeDAO[] $objects
-     *
-     * @return ObjectMapping[]
-     */
-    public function insert(array $objects)
-    {
-        $modelName = BaseRepository::$moduleClassMapping[self::OBJECT_NAME];
-
-        $objectMappings = [];
-        foreach ($objects as $object) {
-            $fields = $object->getFields();
-
-            $objectData = [];
-
-            foreach ($fields as $field) {
-                /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
-                $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
-            }
-            /** @var Lead $lead */
-            $lead = new $modelName($objectData);
-            if (!$this->settings->getSetting('owner')) {
-                throw new InvalidConfigurationException('You need to configure owner for new objects');
-            }
-
-            $lead->setAssignedUserId($this->settings->getSetting('owner'));
-
-            try {
-                $response = $this->leadsRepository->create($lead);
-
-                $object->setObjectId($response->getId());
-                // Integration name and ID are stored in the change's mappedObject/mappedObjectId
-                DebugLogger::log(
-                    VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Created Contact ID %s from Lead %d",
-                        $response->getId(),
-                        $object->getMappedObjectId()
-                    ),
-                    __CLASS__.':'.__FUNCTION__
-                );
-
-
-                $objectMapping = new ObjectChangeDAO(
-                    $object->getIntegration(),
-                    $object->getObject(),
-                    $object->getObjectId(),
-                    $object->getMappedObject(),
-                    $response->getId()
-                );
-
-                $objectMapping->setChangeDateTime($response->getModifiedTime());
-//                $objectMapping->setLastSyncDate($response->getModifiedTime())
-//                    ->setIntegration($object->getIntegration())
-//                    ->setIntegrationObjectName($object->getMappedObject())
-//                    ->setIntegrationObjectId($object->getMappedObjectId())
-//                    ->setInternalObjectName($object->getObject())
-//                    ->setInternalObjectId($object->getObjectId());
-                $objectMappings[] = $objectMapping;
-            } catch (InvalidArgumentException $e) {
-                DebugLogger::log(
-                    VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Failed to create %s with error '%s'",
-                        self::OBJECT_NAME,
-                        $e->getMessage()
-                    ),
-                    __CLASS__.':'.__FUNCTION__
-                );
-            }
-        }
-
-        return $objectMappings;
     }
 
     /**

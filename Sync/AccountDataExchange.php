@@ -16,6 +16,7 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
+use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
@@ -37,7 +38,7 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
     /** @var AccountRepository */
     private $objectRepository;
 
-    /** @var ValueNormalizer */
+    /** @var ValueNormalizerInterface */
     private $valueNormalizer;
 
     /** @var LeadModel */
@@ -49,10 +50,11 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
     public function __construct(
         AccountRepository $accountRepository,
         VtigerSettingProvider $settingProvider,
-        CompanyModel $companyModel)
+        CompanyModel $companyModel,
+        ValueNormalizerInterface $valueNormalizer)
     {
         $this->objectRepository = $accountRepository;
-        $this->valueNormalizer = new VtigerValueNormalizer();
+        $this->valueNormalizer = $valueNormalizer;
         $this->model = $companyModel;
         $this->settings = $settingProvider;
     }
