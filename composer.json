@@ -23,7 +23,8 @@
     "mautic/mautic": "^2.14",
     "mautic/mautic-integrations-bundle": "dev-master",
     "php": "^7.1 || ^7.2",
-    "ext-mbstring": "*"
+    "ext-mbstring": "*",
+    "symfony/cache":
   },
   "minimum-stability": "dev"
 }

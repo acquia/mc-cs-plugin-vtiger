@@ -29,24 +29,22 @@ class ObjectFieldMapper
 {
     /**
      * Maps module to settings in integration configuration
-     *
      * @var array
      */
     static $objectToSettings = [
         'Contacts' => 'leadFields',
-        'Leads' => 'leadFields',
-        'Accounts' => 'companyFields'
+        'Leads'    => 'leadFields',
+        'Accounts' => 'companyFields',
     ];
 
     /**
      * Map mautic objects to Vtiger module objects
-     *
      * @var array
      */
     static $vtiger2mauticObjectMapping = [
         'Contacts' => 'lead',
-        'Leads' => 'AbstractLead',
-        'Accounts' => 'company'
+        'Leads'    => 'lead',
+        'Accounts' => 'company',
     ];
 
     /**
@@ -87,7 +85,7 @@ class ObjectFieldMapper
     )
     {
         $this->container = $container;
-        $this->settings = $settingProvider;
+        $this->settings  = $settingProvider;
     }
 
     /**
@@ -107,19 +105,15 @@ class ObjectFieldMapper
         $fields = $this->repositories[$objectName]->describe()->getFields();
 
 
-        if ($objectName=='Companies') {
-            var_dump($fields); die();
-        }
-
         $salesFields = [];
 
         /** @var ModuleFieldInfo $fieldInfo */
         foreach ($fields as $fieldInfo) {
-            $type = 'string';
+            $type                               = 'string';
             $salesFields[$fieldInfo->getName()] = [
-                'type' => $type,
-                'label' => $fieldInfo->getLabel(),
-                'required' => $fieldInfo->isMandatory(),
+                'type'        => $type,
+                'label'       => $fieldInfo->getLabel(),
+                'required'    => $fieldInfo->isMandatory(),
                 'optionLabel' => $fieldInfo->getLabel(),
             ];
         }
@@ -242,8 +236,6 @@ class ObjectFieldMapper
             $mappingManual->addObjectMapping($objectMapping);
         }
 
-        //var_dump($mappingManual->getObjectMapping('company','Accounts')); die();
-
         return $mappingManual;
     }
 
@@ -252,7 +244,7 @@ class ObjectFieldMapper
      */
     public function getVtigerSyncable(): array
     {
-        return $this->settings->getSetting('objects_to_pull');
+        return $this->settings->getSetting('objects');
     }
 
     /**
@@ -260,7 +252,7 @@ class ObjectFieldMapper
      */
     public function getSyncableObjects(): array
     {
-        return $this->settings->getSetting('objects');
+        return $this->settings->getSetting('objects_mautic');
     }
 
     /**
@@ -271,23 +263,25 @@ class ObjectFieldMapper
      */
     public function getMautic2VtigerObjectNameMapping($objectName): string
     {
-        if ($objectName=='Lead') {
-            return 'Contacts';
-        }
-
-        if (false === $key = in_array($objectName, self::$vtiger2mauticObjectMapping))  {
+        if (false === ($key = array_search($objectName, self::$vtiger2mauticObjectMapping))) {
             throw new ObjectNotSupportedException('Mautic', $objectName);
         }
 
-
-        return self::$vtiger2mauticObjectMapping[$key];
+        return $key;
     }
 
-    public function getVtiger2MauticObjectNameMapping($vtigerObjectName) {
+    public function getVtiger2MauticObjectNameMapping($vtigerObjectName)
+    {
         if (!isset(self::$vtiger2mauticObjectMapping[$vtigerObjectName])) {
             throw new ObjectNotSupportedException(VtigerCrmIntegration::NAME, $vtigerObjectName);
         }
 
         return self::$vtiger2mauticObjectMapping[$vtigerObjectName];
     }
+
+    public function getVtigerModelNameFromModuleName($moduleName)
+    {
+        return BaseRepository::$moduleClassMapping[$moduleName];
+    }
+
 }

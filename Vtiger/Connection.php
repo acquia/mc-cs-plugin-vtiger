@@ -24,6 +24,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Model\Credentials;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class Connection
@@ -179,12 +180,15 @@ class Connection
     /**
      * @return mixed
      */
-    public function getApiDomain()
+    public function getApiDomain(): string
     {
         return $this->apiDomain;
     }
 
-    public function getApiUrl()
+    /**
+     * @return string
+     */
+    public function getApiUrl(): string
     {
         return sprintf("%s/webservice.php",
             $this->getApiDomain());
@@ -247,6 +251,19 @@ class Connection
         return $response;
     }
 
+    /**
+     * @param string $operation
+     * @param array  $payload
+     *
+     * @return mixed|ResponseInterface
+     * @throws AccessDeniedException
+     * @throws AuthenticationException
+     * @throws DatabaseQueryException
+     * @throws InvalidArgumentException
+     * @throws InvalidRequestException
+     * @throws SessionException
+     * @throws VtigerPluginException
+     */
     public function query(string $operation, array $payload = []) {
         $query = sprintf("%s?operation=%s",
             $this->getApiUrl(),
@@ -334,10 +351,8 @@ class Connection
         $content = json_decode($content);
 
         if ($content === false || $content === null) {
-            //throw new VtigerPluginException('Incorrect endpoint response');
+            throw new VtigerPluginException('Incorrect endpoint response');
         }
-
-
 
         if ($content->success) {
             return $content->result;

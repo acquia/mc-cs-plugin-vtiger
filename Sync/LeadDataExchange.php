@@ -216,7 +216,6 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
      */
     public function insert(array $objects)
     {
-        var_dump('insert');
         $modelName = BaseRepository::$moduleClassMapping[self::OBJECT_NAME];
 
         $objectMappings = [];
@@ -252,13 +251,22 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
                     __CLASS__.':'.__FUNCTION__
                 );
 
-                $objectMapping = new ObjectMapping();
-                $objectMapping->setLastSyncDate($response->getModifiedTime())
-                    ->setIntegration($object->getIntegration())
-                    ->setIntegrationObjectName($object->getMappedObject())
-                    ->setIntegrationObjectId($object->getObjectId())
-                    ->setInternalObjectName(MauticSyncDataExchange::OBJECT_ABSTRACT_LEAD)
-                    ->setInternalObjectId($object->getMappedObjectId());
+
+                $objectMapping = new ObjectChangeDAO(
+                    $object->getIntegration(),
+                    $object->getObject(),
+                    $object->getObjectId(),
+                    $object->getMappedObject(),
+                    $response->getId()
+                );
+
+                $objectMapping->setChangeDateTime($response->getModifiedTime());
+//                $objectMapping->setLastSyncDate($response->getModifiedTime())
+//                    ->setIntegration($object->getIntegration())
+//                    ->setIntegrationObjectName($object->getMappedObject())
+//                    ->setIntegrationObjectId($object->getMappedObjectId())
+//                    ->setInternalObjectName($object->getObject())
+//                    ->setInternalObjectId($object->getObjectId());
                 $objectMappings[] = $objectMapping;
             } catch (InvalidArgumentException $e) {
                 DebugLogger::log(

@@ -26,6 +26,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalize
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
+use Recurr\Exception;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 final class ContactDataExchange implements ObjectSyncDataExchangeInterface
@@ -87,6 +88,8 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
 
                 $objectDAO->addField($reportFieldDAO);
             }
+
+            var_dump($objectDAO); die();
 
             $syncReport->addObject($objectDAO);
         }
@@ -201,6 +204,9 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
      */
     public function insert(array $objects)
     {
+        var_dump($objects);
+        throw new \Exception('aaa');
+        die();
         $modelName = BaseRepository::$moduleClassMapping[self::OBJECT_NAME];
 
         DebugLogger::log(
@@ -242,13 +248,25 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
                     __CLASS__.':'.__FUNCTION__
                 );
 
-                $objectMapping = new ObjectMapping();
-                $objectMapping
-                    ->setIntegration(VtigerCrmIntegration::NAME)
-                    ->setIntegrationObjectName($object->getMappedObject())
-                    ->setIntegrationObjectId($response->getId())
-                    ->setInternalObjectName($object->getObject())
-                    ->setInternalObjectId($object->getObjectId());
+//                $objectMapping = new ObjectMapping();
+//                $objectMapping
+//                    ->setIntegration(VtigerCrmIntegration::NAME)
+//                    ->setIntegrationObjectName($object->getMappedObject())
+//                    ->setIntegrationObjectId($response->getId())
+//                    ->setInternalObjectName($object->getObject())
+//                    ->setInternalObjectId($object->getObjectId());
+
+                var_dump($object); die();
+
+                $objectMapping = new ObjectChangeDAO(
+                    $object->getIntegration(),
+                    $object->getObject(),
+                    $object->getObjectId(),
+                    $object->getMappedObject(),
+                    $response->getId()
+                );
+
+                $objectMapping->setChangeDateTime($response->getModifiedTime());
 
                 $objectMappings[] = $objectMapping;
             } catch (InvalidArgumentException $e) {

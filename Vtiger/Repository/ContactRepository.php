@@ -27,9 +27,4 @@ class ContactRepository extends BaseRepository
 
         return $record;
     }
-
-    public function delete(ModuleInterface $module)
-    {
-        // TODO: Implement delete() method.
-    }
 }

@@ -8,12 +8,12 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
-use MauticPlugin\IntegrationsBundle\Sync\Mapping\MappingHelper;
+use MauticPlugin\IntegrationsBundle\Sync\Helper\MappingHelper;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
@@ -50,10 +50,12 @@ class DataExchange implements SyncDataExchangeInterface
     /**
      * DataExchange constructor.
      *
-     * @param ObjectFieldMapper   $fieldMapper
-     * @param MappingHelper       $mappingHelper
-     * @param ContactDataExchange $contactDataExchange
-     * @param LeadDataExchange    $leadDataExchange
+     * @param ObjectFieldMapper          $fieldMapper
+     * @param MappingHelper              $mappingHelper
+     * @param ContactDataExchange        $contactDataExchange
+     * @param LeadDataExchange           $leadDataExchange
+     * @param CompanyDetailsDataExchange $companyDetailsDataExchange
+     * @param AccountDataExchange        $accountDataExchange
      */
     public function __construct(
         ObjectFieldMapper $fieldMapper,
@@ -100,7 +102,7 @@ class DataExchange implements SyncDataExchangeInterface
      * @return ReportDAO
      * @throws ObjectNotSupportedException
      */
-    public function getSyncReport(RequestDAO $requestDAO)
+    public function getSyncReport(RequestDAO $requestDAO): ReportDAO
     {
         // Build a report of objects that have been modified
         $syncReport = new ReportDAO(VtigerCrmIntegration::NAME);
@@ -143,11 +145,13 @@ class DataExchange implements SyncDataExchangeInterface
             if (0 === $updateCount) {
                 continue;
             }
+            $identifiedObjectIds = $syncOrderDAO->getIdentifiedObjectIds(
+                $objectName
+            );
 
-            $identifiedObjectIds = $syncOrderDAO->getIdentifiedObjectIds($objectName);
-
+            var_dump($syncOrderDAO->getIdentifiedObjects()); die();
             /** @var ObjectSyncDataExchangeInterface $dataExchange */
-            $dataExchange = $this->getDataExchangeService($objectName);
+            $dataExchange = $this->getDataExchangeService($this->getFieldMapper()->getMautic2VtigerObjectNameMapping($objectName));
 
             $updatedObjectMappings = $dataExchange->update($identifiedObjectIds, $updateObjects);
 
@@ -157,7 +161,11 @@ class DataExchange implements SyncDataExchangeInterface
 
         }
 
+
         $unidentifiedObjects = $syncOrderDAO->getUnidentifiedObjects();
+        var_dump($unidentifiedObjects); die();
+
+
         foreach ($unidentifiedObjects as $objectName => $createObjects) {
             $createCount = count($createObjects);
 
@@ -170,8 +178,15 @@ class DataExchange implements SyncDataExchangeInterface
 
             $objectMappings = $dataExchange->insert($createObjects);
 
+            /** @var ObjectChangeDAO $objectMapping */
             foreach ($objectMappings as $objectMapping) {
-                $syncOrderDAO->addObjectMappingObject($objectMapping);
+                var_dump($objectMapping); throw new \Exception('ccc');
+                $syncOrderDAO->addObjectMapping(
+                    $objectMapping,
+                    $objectMapping->getMappedObject(),
+                    $objectMapping->getMappedObjectId(),
+                    $objectMapping->getChangeDateTime()
+                );
             }
         }
     }

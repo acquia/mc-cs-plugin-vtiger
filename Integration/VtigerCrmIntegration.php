@@ -23,6 +23,9 @@ use MauticPlugin\IntegrationsBundle\Integration\Interfaces\AuthenticationInterfa
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\BasicInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\DispatcherInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\EncryptionInterface;
+use MauticPlugin\IntegrationsBundle\Integration\Interfaces\SyncInterface;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
+use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\OwnerMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
@@ -40,7 +43,8 @@ class VtigerCrmIntegration extends BasicIntegration implements
     BasicInterface,
     AuthenticationInterface,
     DispatcherInterface,
-    EncryptionInterface
+    EncryptionInterface,
+    SyncInterface
 {
     use AuthenticationIntegration;
     use DispatcherIntegration;
@@ -178,14 +182,13 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ]
         );
         $builder->add(
-            'objects_to_pull',
+            'objects',
             ChoiceType::class,
             [
                 'choices' => [
                     'Leads'     => 'mautic.plugin.vtiger.object.lead',
                     'Contacts'  => 'mautic.plugin.vtiger.object.contact',
                     'Accounts' => 'mautic.plugin.vtiger.object.company',
-                    //'Account'  => 'mautic.plugin.vtiger.object.account',
                     //'Activity' => 'mautic.plugin.vtiger.object.activity',
                 ],
                 'expanded'    => true,
@@ -197,15 +200,12 @@ class VtigerCrmIntegration extends BasicIntegration implements
             ]
         );
         $builder->add(
-            'objects',
+            'objects_mautic',
             ChoiceType::class,
             [
                 'choices' => [
                     'lead'     => 'mautic.plugin.vtiger.object.contact',
-                    'AbstractLead'  => 'mautic.plugin.vtiger.object.abstract_lead',
-                    //'Account'  => 'mautic.plugin.vtiger.object.account',
                     'company' => 'mautic.plugin.vtiger.object.account',
-                    //'activity' => 'mautic.plugin.vtiger.object.activity',
                 ],
                 'expanded'    => true,
                 'multiple'    => true,
@@ -324,4 +324,22 @@ class VtigerCrmIntegration extends BasicIntegration implements
         $fields = $this->fieldMapping->getObjectFields('Accounts');
         return $fields;
     }
+
+    /**
+     * @return MappingManualDAO
+     */
+    public function getMappingManual(): MappingManualDAO
+    {
+        // TODO: Implement getMappingManual() method.
+    }
+
+    /**
+     * @return SyncDataExchangeInterface
+     */
+    public function getSyncDataExchange(): SyncDataExchangeInterface
+    {
+        // TODO: Implement getSyncDataExchange() method.
+    }
+
+
 }

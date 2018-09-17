@@ -52,7 +52,7 @@ class VtigerSettingProvider
         if (is_null($this->integrationEntity)) {
             $this->integrationEntity = $this->integrationHelper
                 ->getIntegrationObject(VtigerCrmIntegration::NAME)
-                ->getIntegrationEntity();
+                ->getIntegration();
         }
 
         return $this->integrationEntity;

@@ -18,17 +18,20 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\NoFieldException;
 class Account extends BaseModel
 {
     /**
-     * @return string
-     *
-     * @throws NoFieldException
+     * @return string|null
      */
-    public function getAccountName(): string
-    {
-        if (!isset($this->data['accountname'])) {
-            throw new NoFieldException('Field accountname is missing');
-        }
+    public function getAssignedUserId(): ?string {
+        return !isset($this->data['assigned_user_id']) ? null : $this->data['assigned_user_id'];
+    }
 
-        return $this->data['accountname'];
+    /**
+     * @param null|string $userId
+     *
+     * @return Contact
+     */
+    public function setAssignedUserId(?string $userId): Account {
+        $this->data['assigned_user_id'] = $userId;
+        return $this;
     }
 
     /**

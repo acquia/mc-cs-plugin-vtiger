@@ -16,6 +16,7 @@ use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 
 trait DataExchangeOperationsTrait
 {
@@ -43,14 +44,14 @@ trait DataExchangeOperationsTrait
         foreach ($objects as $integrationObjectId => $changedObject) {
             $fields = $changedObject->getFields();
 
-            $objectData = ['id'=>$integrationObjectId];
+            $objectData = ['id'=>$changedObject->getMappedObjectId()];
 
             foreach ($fields as $field) {
                 /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
 
-            $modelClass = 'MauticPlugin\\MauticVtigerCrmBundle\\Vtiger\\Model\\' . ucfirst($changedObject->getMappedObject());
+            $modelClass = BaseRepository::$moduleClassMapping[$changedObject->getMappedObject()];
 
             $vtigerModel = new $modelClass($objectData);
 
@@ -58,6 +59,9 @@ trait DataExchangeOperationsTrait
                 $vtigerModel->setAssignedUserId($this->settings->getSetting('owner'));
             }
 
+            var_dump($changedObject);
+            throw new \Exception('dddd');
+            die();
             try {
                 /** @var BaseModel $returnedModel */
                 $returnedModel = $this->objectRepository->update($vtigerModel);

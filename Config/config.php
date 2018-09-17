@@ -16,9 +16,10 @@ return [
     'author'      => 'Mautic',
     'services'    => [
         'events' => [
-            'mautic.vtiger_crm.subscriber' => [
-                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\IntegrationEventSubscriber::class,
+            'mautic.vtiger_crm.integration_sync' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\IntegrationSyncService::class,
                 'arguments' => ['mautic.vtiger_crm.sync.data_exchange', 'mautic.helper.integration'],
+                'tag'       => 'mautic.sync_integration'
             ],
         ],
         'forms'        => [
