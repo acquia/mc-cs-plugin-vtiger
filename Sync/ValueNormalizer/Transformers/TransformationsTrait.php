@@ -14,16 +14,37 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 
 trait TransformationsTrait
 {
-    public function transform($type, $value) {
+    private $transformations = [
+        NormalizedValueDAO::EMAIL_TYPE      => [
+            'func' => 'transformEmail',
+        ],
+        NormalizedValueDAO::STRING_TYPE     => [
+            'func' => 'transformString',
+        ],
+        NormalizedValueDAO::PHONE_TYPE      => [
+            'func' => 'transformPhone',
+        ],
+        NormalizedValueDAO::BOOLEAN_TYPE    => [
+            'func' => 'transformBoolean',
+        ],
+        TransformerInterface::PICKLIST_TYPE => [
+            'func' => 'transformPicklist',
+        ],
+    ];
+
+    public function transform($type, $value)
+    {
         if (!isset($this->transformations[$type])) {
-            throw new InvalidArgumentException(sprintf('Unknown type "%s", cannot transform.', $type));
+            throw new InvalidQueryArgumentException(sprintf('Unknown type "%s", cannot transform.', $type));
         }
 
         $transformationMethod = $this->transformations[$type]['func'];
-        $transformedValue = $this->$transformationMethod($value);
+        $transformedValue     = $this->$transformationMethod($value);
         printf("transforming '%s' of type %s to '%s'.\n", $value, $type, $transformedValue);
 
         if (
@@ -37,22 +58,41 @@ trait TransformationsTrait
         return new NormalizedValueDAO($type, $value, $transformedValue);
     }
 
-    protected function transformEmail($value) {
-        if (is_null($value) || strlen(trim($value))===0) {
+    protected function transformEmail($value)
+    {
+        if (is_null($value) || strlen(trim($value)) === 0) {
             return null;
         }
         $value = $this->transformString($value);
+
         return $value;
     }
 
-    protected function transformString($value) {
+    protected function transformString($value)
+    {
         if (is_null($value)) {
             return $value;
         }
-        return (string) $value;
+
+        return (string)$value;
     }
 
-    protected function transformPhone($value) {
+    protected function transformBoolean($value)
+    {
+        if (is_null($value)) {
+            return $value;
+        }
+
+        return intval((bool)$value);
+    }
+
+    protected function transformPhone($value)
+    {
+        return $this->transformString($value);
+    }
+
+    protected function transformPicklist($value)
+    {
         return $this->transformString($value);
     }
 }

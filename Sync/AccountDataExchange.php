@@ -17,7 +17,7 @@ use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
@@ -116,7 +116,7 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
                     ->setInternalObjectName(MauticSyncDataExchange::OBJECT_CONTACT)
                     ->setInternalObjectId($object->getMappedObjectId());
                 $objectMappings[] = $objectMapping;
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidQueryArgumentException $e) {
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
                     sprintf(

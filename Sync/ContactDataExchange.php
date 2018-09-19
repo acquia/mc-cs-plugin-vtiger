@@ -19,12 +19,13 @@ use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ContactValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 use Recurr\Exception;
@@ -48,6 +49,9 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     /** @var VtigerSettingProvider  */
     private $settings;
 
+    /** @var ContactValidator */
+    private $objectValidator;
+
     /** @var int  */
     const VTIGER_API_QUERY_LIMIT = 100;
 
@@ -55,35 +59,38 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
         ContactRepository $contactRepository,
         VtigerSettingProvider $settingProvider,
         LeadModel $leadModel,
-        ValueNormalizerInterface $valueNormalizer
-        )
+        ValueNormalizerInterface $valueNormalizer,
+        ContactValidator $objectValidator
+    )
     {
         $this->objectRepository = $contactRepository;
+        $this->objectValidator = $objectValidator;
         $this->valueNormalizer = $valueNormalizer;
         $this->mauticModel = $leadModel;
         $this->settings = $settingProvider;
     }
 
-    /**
-     * @param \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
-     * @param ReportDAO                                                        $syncReport
-     *
-     * @return ReportDAO|mixed
-     * @throws \Exception
-     */
-    public function getObjectSyncReport(\MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject, ReportDAO &$syncReport)
+    public function getObjectSyncReport(
+        \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
+        ReportDAO &$syncReport
+    )
     {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
         $objectFields = $this->objectRepository->describe()->getFields();
 
         $mappedFields = array_merge($mappedFields,[
-            'isconvertedfromlead', 'leadsource'
+            'isconvertedfromlead', 'leadsource', 'reference', 'source','contact_id'
         ]);
 
         $updated = $this->getReportPayload($fromDateTime, $mappedFields);
 
         var_dump($updated);
+        $deleted = $this->getDeleted($fromDateTime);
+
+        var_dump($deleted);
+
+        die();
 
         /** @var Contact $object */
         foreach ($updated as $object) {
@@ -98,7 +105,6 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
                 $objectDAO->addField($reportFieldDAO);
             }
 
-            var_dump($objectDAO); die();
 
             $syncReport->addObject($objectDAO);
         }
@@ -107,79 +113,6 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
         return $syncReport;
     }
 
-
-    /**
-     * @param array             $ids
-     * @param ObjectChangeDAO[] $objects
-     *
-     * @return UpdatedObjectMappingDAO[]
-     */
-    public function updateX(array $ids, array $objects)
-    {
-        DebugLogger::log(
-            self::OBJECT_NAME,
-            sprintf(
-                "Found %d leads to update with ids %s",
-                count($objects),
-                implode(", ", $ids)
-            ),
-            __CLASS__ . ':' . __FUNCTION__
-        );
-
-        $updatedMappedObjects = [];
-        /** @var ObjectChangeDAO $changedObject */
-        foreach ($objects as $integrationObjectId => $changedObject) {
-            $fields = $changedObject->getFields();
-
-            $objectData = ['id'=>$integrationObjectId];
-
-            foreach ($fields as $field) {
-                /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
-                $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
-            }
-
-            $vtigerModel = new Contact($objectData);
-
-            if ($this->settings->getSetting('updateOwner') || !$vtigerModel->getAssignedUserId()) {
-                $vtigerModel->setAssignedUserId($this->settings->getSetting('owner'));
-            }
-
-            try {
-                $returnedModel = $this->objectRepository->update($vtigerModel);
-
-                // Integration name and ID are stored in the change's mappedObject/mappedObjectId
-                $updatedMappedObjects[] = new UpdatedObjectMappingDAO(
-                    $changedObject,
-                    $changedObject->getObjectId(),
-                    $changedObject->getObject(),
-                    $returnedModel->getModifiedTime()
-                );
-
-                DebugLogger::log(
-                    VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Updated to %s ID %s",
-                        self::OBJECT_NAME,
-                        $integrationObjectId
-                    ),
-                    __CLASS__ . ':' . __FUNCTION__
-                );
-            } catch (InvalidArgumentException $e) {
-                DebugLogger::log(
-                    VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Update to %s ID %s failed: %s",
-                        self::OBJECT_NAME,
-                        $integrationObjectId,
-                        $e->getMessage()
-                    ),
-                    __CLASS__ . ':' . __FUNCTION__
-                );
-            }
-        }
-
-        return $updatedMappedObjects;
-    }
 
     /**
      * @param array $objects

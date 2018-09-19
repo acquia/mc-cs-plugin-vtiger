@@ -25,12 +25,13 @@ use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\LeadValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
@@ -78,23 +79,20 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
         LeadRepository $leadsRepository,
         VtigerSettingProvider $settingProvider,
         LeadModel $leadModel,
-        ValueNormalizerInterface $valueNormalizer)
+        ValueNormalizerInterface $valueNormalizer,
+        LeadValidator $objectValidator
+    )
     {
         $this->objectRepository = $leadsRepository;
+        $this->objectValidator = $objectValidator;
         $this->valueNormalizer  = $valueNormalizer;
         $this->model            = $leadModel;
         $this->settings         = $settingProvider;
     }
 
-    /**
-     * @param \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
-     * @param ReportDAO                                                        $syncReport
-     *
-     * @return ReportDAO
-     * @throws \Exception
-     */
     public function getObjectSyncReport(\MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject, ReportDAO &$syncReport): ReportDAO
     {
+
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
         $objectFields = $this->objectRepository->describe()->getFields();

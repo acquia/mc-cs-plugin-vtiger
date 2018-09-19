@@ -14,7 +14,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Mapping;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\ObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
@@ -92,12 +92,12 @@ class ObjectFieldMapper
      * @param $objectName
      *
      * @return array
-     * @throws InvalidArgumentException
+     * @throws InvalidQueryArgumentException
      */
     public function getObjectFields($objectName): array
     {
         if (!isset(BaseRepository::$moduleClassMapping[$objectName])) {
-            throw new InvalidArgumentException('Unknown object ' . $objectName);
+            throw new InvalidQueryArgumentException('Unknown object ' . $objectName);
         }
 
         $this->repositories[$objectName] = $this->container->get('mautic.vtiger_crm.repository.' . strtolower($objectName));

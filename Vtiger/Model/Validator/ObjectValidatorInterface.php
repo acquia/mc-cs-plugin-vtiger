@@ -6,22 +6,16 @@ declare(strict_types=1);
  * @author      Mautic, Inc. Jan Kozak <galvani78@gmail.com>
  *
  * @link        http://mautic.com
- * @created     17.9.18
+ * @created     19.9.18
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator;
 
 
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 
-class ValidatorService
+interface ObjectValidatorInterface
 {
-    public function validate(BaseModel $object) {
-
-        var_dump($object);
-        throw new InvalidObjectException('Object validation failed');
-    }
+    public function validate(BaseModel $object): void;
 }

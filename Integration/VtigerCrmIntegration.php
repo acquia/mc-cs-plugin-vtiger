@@ -26,25 +26,26 @@ use MauticPlugin\IntegrationsBundle\Integration\Interfaces\EncryptionInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\SyncInterface;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\OwnerMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class VtigerCrmIntegration
- *
  * @package MauticPlugin\MauticVtigerCrmBundle\Integration
  */
 class VtigerCrmIntegration extends BasicIntegration implements
     BasicInterface,
     AuthenticationInterface,
     DispatcherInterface,
-    EncryptionInterface,
-    SyncInterface
+    EncryptionInterface
 {
     use AuthenticationIntegration;
     use DispatcherIntegration;
@@ -75,6 +76,11 @@ class VtigerCrmIntegration extends BasicIntegration implements
      */
     private $settingsProvider;
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     const NAME = 'VtigerCrm';
 
     /**
@@ -91,14 +97,16 @@ class VtigerCrmIntegration extends BasicIntegration implements
         LeadModel $leadModel,
         TranslatorInterface $translator,
         ObjectFieldMapper $fieldMapping,
-        VtigerSettingProvider $settingsProvider
+        VtigerSettingProvider $settingsProvider,
+        ContainerInterface $container
     )
     {
-        $this->fieldModel = $fieldModel;
-        $this->leadModel = $leadModel;
-        $this->translator = $translator;
-        $this->fieldMapping = $fieldMapping;
+        $this->fieldModel       = $fieldModel;
+        $this->leadModel        = $leadModel;
+        $this->translator       = $translator;
+        $this->fieldMapping     = $fieldMapping;
         $this->settingsProvider = $settingsProvider;
+        $this->container        = $container;
     }
 
     /**
@@ -131,7 +139,8 @@ class VtigerCrmIntegration extends BasicIntegration implements
     /** @inheritdoc */
     public function getApiUrl(): string { return sprintf('%s/webservice.php', $this->keys['url']); }
 
-    public function appendToForm(FormBuilder $builder, array $data, string $formArea) {
+    public function appendToForm(FormBuilder $builder, array $data, string $formArea)
+    {
         if ($formArea !== 'features') {
             return;
         }
@@ -140,7 +149,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
             'updateOwner',
             ChoiceType::class,
             [
-                'choices' => [
+                'choices'     => [
                     'updateOwner' => 'mautic.plugin.vtiger.updateOwner',
                 ],
                 'expanded'    => true,
@@ -155,7 +164,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
             'updateBlanks',
             ChoiceType::class,
             [
-                'choices' => [
+                'choices'     => [
                     'updateBlanks' => 'mautic.integrations.blanks',
                 ],
                 'expanded'    => true,
@@ -170,7 +179,7 @@ class VtigerCrmIntegration extends BasicIntegration implements
             'updateDncByDate',
             ChoiceType::class,
             [
-                'choices' => [
+                'choices'     => [
                     'updateDncByDate' => 'mautic.integrations.update.dnc.by.date',
                 ],
                 'expanded'    => true,
@@ -185,9 +194,9 @@ class VtigerCrmIntegration extends BasicIntegration implements
             'objects',
             ChoiceType::class,
             [
-                'choices' => [
-                    'Leads'     => 'mautic.plugin.vtiger.object.lead',
-                    'Contacts'  => 'mautic.plugin.vtiger.object.contact',
+                'choices'     => [
+                    'Leads'    => 'mautic.plugin.vtiger.object.lead',
+                    'Contacts' => 'mautic.plugin.vtiger.object.contact',
                     'Accounts' => 'mautic.plugin.vtiger.object.company',
                     //'Activity' => 'mautic.plugin.vtiger.object.activity',
                 ],
@@ -203,8 +212,8 @@ class VtigerCrmIntegration extends BasicIntegration implements
             'objects_mautic',
             ChoiceType::class,
             [
-                'choices' => [
-                    'lead'     => 'mautic.plugin.vtiger.object.contact',
+                'choices'     => [
+                    'lead'    => 'mautic.plugin.vtiger.object.contact',
                     'company' => 'mautic.plugin.vtiger.object.account',
                 ],
                 'expanded'    => true,
@@ -240,42 +249,31 @@ class VtigerCrmIntegration extends BasicIntegration implements
                     'choices'    => $this->settingsProvider->getFormOwners(),
                     'label'      => 'mautic.plugin.vtiger.form.owner',
                     'label_attr' => [
-                        'class'       => 'control-label',
+                        'class' => 'control-label',
                     ],
                     'multiple'   => false,
                     'required'   => true,
                 ]
             );
         }
-
-//        $builder->add(
-//            'leadFields',
-//            'integration_fields',
-//            [
-//                'label'                => 'mautic.integration.leadfield_matches',
-//                'required'             => true,
-//                'mautic_fields'        => $this->getFormLeadFields(),
-//                'data'                 => $data,
-//                'integration_fields'   => $fields,
-//                'enable_data_priority' => $enableDataPriority,
-//                'integration'          => $integrationObject->getName(),
-//                'integration_object'   => $integrationObject,
-//                'limit'                => $limit,
-//                'page'                 => $page,
-//                'mapped'               => false,
-//                'error_bubbling'       => false,
-//            ]
-//        );
     }
 
     /**
-     *
-     *
+     * Checks whether credentials work
      * @return bool
      */
-    public function isAuthorized()
+    public function isAuthorized(): bool
     {
         if (!$this->isConfigured()) {
+            return false;
+        }
+
+        try {
+            /** @var Connection $connection */
+            $connection = $this->container->get('mautic.vtiger_crm.connection');
+            $connection->authenticate();
+        }
+        catch (AuthenticationException $e) {
             return false;
         }
 
@@ -285,10 +283,9 @@ class VtigerCrmIntegration extends BasicIntegration implements
 
     /**
      * Checks to see if the integration is configured by checking that required keys are populated.
-     *
      * @return bool
      */
-    public function isConfigured()
+    public function isConfigured(): bool
     {
         $credentialsCfg = $this->getDecryptedApiKeys($this->getIntegrationSettings());
 
@@ -303,43 +300,31 @@ class VtigerCrmIntegration extends BasicIntegration implements
      * @param array $settings
      *
      * @return array|mixed
-     *
      * @throws \Exception
      */
-    public function getFormLeadFields(array $settings = [])
+    public function getFormLeadFields(array $settings = []): array
     {
-        if (!$this->isConfigured()) {
+        if (!$this->isAuthorized()) {
             return false;
-    }
+        }
 
-        $leadFields    = $this->fieldMapping->getObjectFields('Contacts');
+        $leadFields = $this->fieldMapping->getObjectFields('Contacts');
 
         unset($leadFields['assigned_user_id']);
 
         return $leadFields;
     }
 
-    public function getFormCompanyFields($settings = [])
+    /**
+     * @param array $settings
+     *
+     * @return array
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     */
+    public function getFormCompanyFields($settings = []): array
     {
         $fields = $this->fieldMapping->getObjectFields('Accounts');
+
         return $fields;
     }
-
-    /**
-     * @return MappingManualDAO
-     */
-    public function getMappingManual(): MappingManualDAO
-    {
-        // TODO: Implement getMappingManual() method.
-    }
-
-    /**
-     * @return SyncDataExchangeInterface
-     */
-    public function getSyncDataExchange(): SyncDataExchangeInterface
-    {
-        // TODO: Implement getSyncDataExchange() method.
-    }
-
-
 }

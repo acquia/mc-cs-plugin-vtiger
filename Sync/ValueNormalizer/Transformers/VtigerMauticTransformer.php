@@ -14,22 +14,10 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 
 final class VtigerMauticTransformer implements TransformerInterface
 {
     use TransformationsTrait;
-
-    private $transformations = [
-        NormalizedValueDAO::EMAIL_TYPE => [
-            'func' => 'transformEmail'
-        ],
-        NormalizedValueDAO::STRING_TYPE => [
-            'func' => 'transformString'
-        ],
-        NormalizedValueDAO::PHONE_TYPE => [
-            'func' => 'transformPhone'
-        ]
-    ];
 }

@@ -16,11 +16,4 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 final class MauticVtigerTransformer implements TransformerInterface
 {
     use TransformationsTrait;
-
-    private $transformations = [
-        'email' => [
-            'func' => 'validateEmail',
-            'required' => true
-        ]
-    ];
 }

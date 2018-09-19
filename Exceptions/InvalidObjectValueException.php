@@ -13,14 +13,11 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Exceptions;
 
-use Exception;
-use Throwable;
-
-class InvalidObjectValueException extends Exception
+class InvalidObjectValueException extends VtigerPluginException
 {
     public function __construct(string $message, string $value, string $type)
     {
-        $message = sprintf("Failed to normalize value '%s' of type '%s'. %s", $value, $type, $message)
+        $message = sprintf("Failed to normalize value '%s' of type '%s'. %s", $value, $type, $message);
         parent::__construct($message);
     }
 }

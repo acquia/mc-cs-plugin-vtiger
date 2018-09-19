@@ -18,7 +18,7 @@ use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException;
@@ -215,7 +215,7 @@ class Connection
      * @throws AccessDeniedException
      * @throws AuthenticationException
      * @throws DatabaseQueryException
-     * @throws InvalidArgumentException
+     * @throws InvalidQueryArgumentException
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException
@@ -262,7 +262,7 @@ class Connection
      * @throws AccessDeniedException
      * @throws AuthenticationException
      * @throws DatabaseQueryException
-     * @throws InvalidArgumentException
+     * @throws InvalidQueryArgumentException
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException
@@ -306,7 +306,7 @@ class Connection
      * @throws AccessDeniedException
      * @throws AuthenticationException
      * @throws DatabaseQueryException
-     * @throws InvalidArgumentException
+     * @throws InvalidQueryArgumentException
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException
@@ -338,7 +338,7 @@ class Connection
      * @return mixed
      * @throws AccessDeniedException
      * @throws DatabaseQueryException
-     * @throws InvalidArgumentException
+     * @throws InvalidQueryArgumentException
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException
@@ -370,7 +370,7 @@ class Connection
             case "DATABASE_QUERY_ERROR":
                 throw new DatabaseQueryException($error, $apiUrl, $payload);
             case "MANDATORY_FIELDS_MISSING":
-                throw new InvalidArgumentException($content->error->message, $apiUrl, $payload);
+                throw new InvalidQueryArgumentException($content->error->message, $apiUrl, $payload);
         }
 
         throw new InvalidRequestException($error, $apiUrl, $payload);
@@ -381,7 +381,7 @@ class Connection
      * @throws AccessDeniedException
      * @throws AuthenticationException
      * @throws DatabaseQueryException
-     * @throws InvalidArgumentException
+     * @throws InvalidQueryArgumentException
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException

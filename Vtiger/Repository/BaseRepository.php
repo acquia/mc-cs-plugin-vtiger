@@ -9,6 +9,7 @@
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 
+use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\CompanyDetails;
@@ -25,6 +26,7 @@ abstract class BaseRepository
 {
     const SYNC_USER = 'user';   //  user: fetches all the updates done on records assigned to you.
     const SYNC_APPLICATION = 'application'; //  application: fetches all the updates done on records assigned to any user.
+    const CACHE_NAMESPACE = 'vtigercrm_repo';
 
     public static $moduleClassMapping = [
         'Contacts' => Contact::class,
@@ -38,13 +40,16 @@ abstract class BaseRepository
     /** @var Connection */
     protected $connection;
 
+    /** @var CacheProvider */
+    protected $cacheProvider;
     /**
      * BaseRepository constructor.
      *
      * @param Connection $connection
      */
-    public function __construct(Connection $connection)
+    public function __construct(Connection $connection, CacheProvider $cache)
     {
         $this->connection = $connection;
+        $this->cacheProvider = $cache;
     }
 }

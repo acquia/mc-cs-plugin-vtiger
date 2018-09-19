@@ -140,7 +140,7 @@ class DataExchange implements SyncDataExchangeInterface
                 continue;
             }
 
-            $identifiedObjectIds = $syncOrderDAO->getIdentifiedObjectIds();
+            $identifiedObjectIds = $syncOrderDAO->getIdentifiedObjectIds($objectName);
             /** @var ObjectSyncDataExchangeInterface $dataExchange */
             $dataExchange = $this->getDataExchangeService($objectName);
 
@@ -168,8 +168,8 @@ class DataExchange implements SyncDataExchangeInterface
             foreach ($objectMappings as $objectMapping) {
                 $syncOrderDAO->addObjectMapping(
                     $objectMapping,
-                    $objectMapping->getMappedObject(),
-                    $objectMapping->getMappedObjectId(),
+                    $objectMapping->getObject(),
+                    $objectMapping->getObjectId(),
                     $objectMapping->getChangeDateTime()
                 );
             }

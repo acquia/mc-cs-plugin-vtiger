@@ -8,6 +8,7 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper;
 
+use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\CompanyDetailsDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
@@ -18,6 +19,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\SyncReport;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
+use Monolog\Handler\IFTTTHandler;
 
 /**
  * Trait RepositoryHelper
@@ -92,17 +94,35 @@ trait RepositoryHelper
     }
 
     /**
-     * @return ModuleInfo
+     * @return mixed
+     *
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function describe()
     {
+        $cacheKey = BaseRepository::CACHE_NAMESPACE . "_" . $this->getModuleFromRepositoryName();
+
+        /** @var CacheProvider $cache */
+        $cache = $this->cacheProvider;
+
+        $cachedItem = $cache->getItem($cacheKey);
+        if($cachedItem->isHit()) {
+            return $cachedItem->get();
+        }
+
+        $cachedItem->tag(['vtigercrm','vtigercrm_repository']);
+        $cachedItem->expiresAfter(60*60*24*7);  // Expire after a week
+
         if (!isset($this->modulesInfo[$this->getModuleFromRepositoryName()])) {
             $this->modulesInfo[$this->getModuleFromRepositoryName()] = new ModuleInfo(
                 $this->connection->get('describe', ['elementType' => $this->getModuleFromRepositoryName()])
             );
         }
 
-        return $this->modulesInfo[$this->getModuleFromRepositoryName()];
+        $cachedItem->set($this->modulesInfo[$this->getModuleFromRepositoryName()]);
+        $cache->save($cachedItem);
+
+        return $cachedItem->get();
     }
 
     /**
@@ -140,7 +160,7 @@ trait RepositoryHelper
      * todo complete refactoring, object needs to be specified at one place only, not multiple
      * @return string
      */
-    private function getModuleFromRepositoryName() {
+    public function getModuleFromRepositoryName() {
         $className = get_class($this);
 
         $parts = explode('\\', $className);
@@ -188,8 +208,9 @@ trait RepositoryHelper
 
         /** @var Connection $this->connection */
         $response = $this->connection->query('sync', [
-            'modifiedTime' => intval($modifiedTime),
-            'elementType' => rtrim($moduleName,'s')
+            'modifiedTime' => (new \DateTime())->getTimestamp(),
+            'elementType' => rtrim($moduleName,'s').'s',
+            //'syncType' => 'user'
         ]);
 
         $report = new SyncReport($response, $moduleName);

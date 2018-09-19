@@ -13,7 +13,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
@@ -40,18 +40,19 @@ trait DataExchangeOperationsTrait
         );
 
         $updatedMappedObjects = [];
+
         /** @var ObjectChangeDAO $changedObject */
         foreach ($objects as $integrationObjectId => $changedObject) {
             $fields = $changedObject->getFields();
 
-            $objectData = ['id'=>$changedObject->getMappedObjectId()];
+            $objectData = ['id'=>$changedObject->getObjectId()];
 
             foreach ($fields as $field) {
                 /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
 
-            $modelClass = BaseRepository::$moduleClassMapping[$changedObject->getMappedObject()];
+            $modelClass = BaseRepository::$moduleClassMapping[$changedObject->getObject()];
 
             $vtigerModel = new $modelClass($objectData);
 
@@ -59,18 +60,18 @@ trait DataExchangeOperationsTrait
                 $vtigerModel->setAssignedUserId($this->settings->getSetting('owner'));
             }
 
-            var_dump($changedObject);
-
             try {
+                $this->objectValidator->validate($vtigerModel);
+
                 /** @var BaseModel $returnedModel */
                 $returnedModel = $this->objectRepository->update($vtigerModel);
 
                 $newChange = new ObjectChangeDAO(
                     VtigerCrmIntegration::NAME,
-                    $changedObject->getMappedObject(),
-                    $changedObject->getMappedObjectId(),
                     $changedObject->getObject(),
-                    $changedObject->getObjectId()
+                    $changedObject->getObjectId(),
+                    $changedObject->getMappedObject(),
+                    $changedObject->getMappedObjectId()
                 );
 
                 //$newChange->setChangeDateTime($returnedModel->getModifiedTime());
@@ -99,7 +100,7 @@ trait DataExchangeOperationsTrait
                     ),
                     __CLASS__ . ':' . __FUNCTION__
                 );
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidQueryArgumentException $e) {
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
                     sprintf(
@@ -112,6 +113,9 @@ trait DataExchangeOperationsTrait
                 );
             }
         }
+
+        var_dump($updatedMappedObjects);
+        die();
 
         return $updatedMappedObjects;
     }
@@ -168,15 +172,15 @@ trait DataExchangeOperationsTrait
                 $objectMapping = new ObjectChangeDAO(
                     $object->getIntegration(),
                     $object->getObject(),
-                    $object->getObjectId(),
+                    $response->getId(),
                     $object->getMappedObject(),
-                    $response->getId()
+                    $object->getMappedObjectId()
                 );
 
                 $objectMapping->setChangeDateTime($response->getModifiedTime());
 
                 $objectMappings[] = $objectMapping;
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidQueryArgumentException $e) {
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
                     sprintf(
@@ -188,6 +192,8 @@ trait DataExchangeOperationsTrait
                 );
             }
         }
+
+        var_dump($objectMapping); die();
 
         return $objectMappings;
     }
@@ -210,6 +216,33 @@ trait DataExchangeOperationsTrait
                 . ' LIMIT ' . ($iteration*self::VTIGER_API_QUERY_LIMIT) . ',' . self::VTIGER_API_QUERY_LIMIT;
 
 
+            $report = $this->objectRepository->query($reportQuery);
+
+            $iteration++;
+
+            $fullReport = array_merge($fullReport, $report);
+        } while (count($report));
+
+        return $fullReport;
+    }
+
+    /**
+     * @param \DateTimeImmutable $fromDate
+     * @param array              $mappedFields
+     *
+     * @return array|mixed
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     */
+    public function getDeleted(\DateTimeImmutable $fromDate)
+    {
+        $fullReport = []; $iteration = 0;
+        // We must iterate while there is still some result left
+
+        do {
+            $reportQuery = 'SELECT * FROM ' . self::OBJECT_NAME
+                . ' LIMIT ' . ($iteration*self::VTIGER_API_QUERY_LIMIT) . ',' . self::VTIGER_API_QUERY_LIMIT;
+
+            echo $reportQuery;
             $report = $this->objectRepository->query($reportQuery);
 
             $iteration++;

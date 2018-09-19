@@ -16,7 +16,7 @@ use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterfac
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\MauticVtigerTransformer;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\VtigerMauticTransformer;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ValidatorService;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ContactValidator;
 
 /**
  * Class ValueNormalizer
