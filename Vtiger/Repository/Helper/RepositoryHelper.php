@@ -9,17 +9,12 @@
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper;
 
 use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\CompanyDetailsDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\CompanyDetails;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\SyncReport;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
-use Monolog\Handler\IFTTTHandler;
 
 /**
  * Trait RepositoryHelper
@@ -31,6 +26,10 @@ trait RepositoryHelper
     /** @var array[ModuleInfo] */
     private $modulesInfo;
 
+    public function findBy($where = [], $columns = '*') {
+        return $this->findByInternal($where, $columns);
+    }
+
     /**
      * @todo this is useless you cannot use operators, needa complete rewrite
      *
@@ -39,7 +38,7 @@ trait RepositoryHelper
      *
      * @return array|Account[]
      */
-    public function findBy($where = [], $columns = '*')
+    protected function findByInternal($where = [], $columns = '*')
     {
         $moduleName = $this->getModuleFromRepositoryName();
         $className = self::$moduleClassMapping[$moduleName];
@@ -60,7 +59,6 @@ trait RepositoryHelper
         $query .= ";";
 
         $result = $this->connection->get('query', ['query' => $query]);
-
         $return = [];
 
         foreach ($result as $key=>$moduleObject) {
@@ -206,13 +204,17 @@ trait RepositoryHelper
     public function sync(int $modifiedTime, $syncType = BaseRepository::SYNC_APPLICATION) {
         $moduleName = $this->getModuleFromRepositoryName();
 
-        /** @var Connection $this->connection */
-        $response = $this->connection->query('sync', [
-            'modifiedTime' => (new \DateTime())->getTimestamp(),
+        $query = [
+            'modifiedtime' => (new \DateTime())->getTimestamp(),
             'elementType' => rtrim($moduleName,'s').'s',
             //'syncType' => 'user'
-        ]);
+        ];
 
+        var_dump($query);
+        /** @var Connection $this->connection */
+        $response = $this->connection->query('sync', $query);
+
+        var_dump($response);
         $report = new SyncReport($response, $moduleName);
 
         var_dump($report);

@@ -109,7 +109,6 @@ class DataExchange implements SyncDataExchangeInterface
 
         $requestedObjects = $requestDAO->getObjects();
 
-
         foreach ($requestedObjects as $requestedObject) {
             $objectName = $requestedObject->getObject();
 

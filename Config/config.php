@@ -61,7 +61,7 @@ return [
             ],
             'mautic.vtiger_crm.validator.contact'         => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ContactValidator::class,
-                'arguments' => ['mautic.vtiger_crm.repository.contacts'],
+                'arguments' => ['mautic.vtiger_crm.repository.contacts', 'mautic.vtiger_crm.repository.users'],
             ],
             'mautic.vtiger_crm.repository.contacts'       => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository::class,
@@ -72,7 +72,7 @@ return [
             ],
             'mautic.vtiger_crm.validator.lead'            => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\LeadValidator::class,
-                'arguments' => ['mautic.vtiger_crm.repository.leads'],
+                'arguments' => ['mautic.vtiger_crm.repository.leads', 'mautic.vtiger_crm.repository.users'],
             ],
 
             'mautic.vtiger_crm.repository.leads'           => [
@@ -136,11 +136,26 @@ return [
 
             'mautic.vtiger_crm.sync.data_exchange_contacts'        => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange::class,
-                'arguments' => ['mautic.vtiger_crm.repository.contacts', 'mautic.vtiger_crm.settings', 'mautic.lead.model.lead', 'mautic.vtiger_crm.value_normalizer', 'mautic.vtiger_crm.validator.contact'],
+                'arguments' => [
+                    'mautic.vtiger_crm.repository.contacts',
+                    'mautic.vtiger_crm.settings',
+                    'mautic.lead.model.lead',
+                    'mautic.vtiger_crm.value_normalizer',
+                    'mautic.vtiger_crm.validator.contact',
+                    'mautic.integrations.helper.sync_mapping',
+                    'mautic.vtiger_crm.mapping.field_mapping'
+                ],
             ],
             'mautic.vtiger_crm.sync.data_exchange_leads'           => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\LeadDataExchange::class,
-                'arguments' => ['mautic.vtiger_crm.repository.leads', 'mautic.vtiger_crm.settings', 'mautic.lead.model.lead', 'mautic.vtiger_crm.value_normalizer', 'mautic.vtiger_crm.validator.lead'],
+                'arguments' => [
+                    'mautic.vtiger_crm.repository.leads',
+                    'mautic.vtiger_crm.settings',
+                    'mautic.lead.model.lead',
+                    'mautic.vtiger_crm.value_normalizer',
+                    'mautic.vtiger_crm.validator.lead',
+                    'mautic.integrations.helper.sync_mapping'
+                ],
             ],
             'mautic.vtiger_crm.sync.data_exchange_company_details' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\CompanyDetailsDataExchange::class,

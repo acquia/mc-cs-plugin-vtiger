@@ -33,4 +33,25 @@ class UserRepository extends BaseRepository
     {
         // TODO: Implement delete() method.
     }
+
+    public function findBy($where = [], $columns = '*')
+    {
+        if (!count($where)) {
+            $columnsString = is_array($columns) ? join('|', $columns) : $columns;
+            $cacheKey = 'vtigercrm_users_' . sha1($columnsString);
+            $cacheItem = $this->cacheProvider->getItem($cacheKey);
+            if ($cacheItem->isHit()) {
+                return $cacheItem->get();
+            }
+            //  We will cache only queries for complete list of accounts
+            $result = $this->findByInternal($where, $columns);
+            $cacheItem->set($result);
+
+            $this->cacheProvider->save($cacheItem);
+        } else {
+            $result = $this->findByInternal($where, $columns);
+        }
+
+        return $result;
+    }
 }

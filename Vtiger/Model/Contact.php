@@ -26,4 +26,9 @@ class Contact extends BaseModel
         $this->data['assigned_user_id'] = $userId;
         return $this;
     }
+
+    public function isConvertedFromLead(): bool {
+        return (bool) $this->data['isconvertedfromlead'];
+    }
+
 }

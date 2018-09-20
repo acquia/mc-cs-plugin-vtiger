@@ -291,6 +291,7 @@ class Connection
             }
         }
 
+        DebugLogger::log(VtigerCrmIntegration::NAME, "Running vtiger query: " . $query);
         $response = $this->httpClient->get($query, ['headers' => $this->requestHeaders]);
 
         $response = $this->handleResponse($response, $query);

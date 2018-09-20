@@ -129,4 +129,14 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
         // TODO: Implement delete() method.
         throw new \Exception('Not implemented');
     }
+
+    /**
+     * @param array $objects
+     *
+     * @return array|mixed
+     */
+    public function insert(array $objects)
+    {
+        return [];  // We will not insert leads as we are not able to tell them
+    }
 }

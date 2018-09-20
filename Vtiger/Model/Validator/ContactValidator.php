@@ -23,17 +23,4 @@ class ContactValidator implements ObjectValidatorInterface
 {
     use ObjectValidatorTrait;
 
-    /**
-     * @param Contact $object
-     */
-    public function validate(BaseModel $object): void
-    {
-        if (!$object instanceof BaseRepository::$moduleClassMapping[$this->objectRepository->getModuleFromRepositoryName]) {
-            throw new \InvalidArgumentException('This validator supports only Contact object');
-        }
-
-        $description = $this->objectRepository->describe();
-        var_dump($description); die();
-    }
-
 }

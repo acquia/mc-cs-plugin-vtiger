@@ -16,6 +16,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 interface TransformerInterface
 {
     const PICKLIST_TYPE = 'picklist';
+    const REFERENCE_TYPE = 'reference';
 
     public function transform($type, $value);
 }

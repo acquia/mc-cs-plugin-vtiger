@@ -74,22 +74,7 @@ trait DataExchangeOperationsTrait
                     $changedObject->getMappedObjectId()
                 );
 
-                //$newChange->setChangeDateTime($returnedModel->getModifiedTime());
                 $updatedMappedObjects[] = $newChange;
-
-//                var_dump($changedObject);
-//                var_dump($updatedMappedObjects);
-//                die();
-
-
-//                var_dump($updatedMappedObjects); die();
-                // Integration name and ID are stored in the change's mappedObject/mappedObjectId
-//                $updatedMappedObjects[] = new UpdatedObjectMappingDAO(
-//                    $changedObject,
-//                    $changedObject->getObjectId(),
-//                    $changedObject->getObject(),
-//                    $returnedModel->getModifiedTime()
-//                );
 
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
@@ -114,9 +99,6 @@ trait DataExchangeOperationsTrait
             }
         }
 
-        var_dump($updatedMappedObjects);
-        die();
-
         return $updatedMappedObjects;
     }
 
@@ -133,7 +115,8 @@ trait DataExchangeOperationsTrait
         DebugLogger::log(
             self::OBJECT_NAME,
             sprintf(
-                "Found %d leads to INSERT",
+                "Found %d %s to INSERT",
+                $modelName,
                 count($objects)
             ),
             __CLASS__ . ':' . __FUNCTION__
@@ -149,21 +132,27 @@ trait DataExchangeOperationsTrait
                 /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
-            /** @var Contact $contact */
-            $contact = new $modelName($objectData);
+
+            /** @var Contact $object */
+            $object = new $modelName($objectData);
             if (!$this->settings->getSetting('owner')) {
                 throw new InvalidConfigurationException('You need to configure owner for new objects');
             }
-            $contact->setAssignedUserId($this->settings->getSetting('owner'));
+            $object->setAssignedUserId($this->settings->getSetting('owner'));
+
+            /** Perform validation */
+            $this->objectValidator->validate($object);
 
             try {
-                $response = $this->objectRepository->create($contact);
+                $response = $this->objectRepository->create($object);
 
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
                     sprintf(
-                        "Created Contact ID %s from Lead %d",
+                        "Created %s ID %s from %s %d",
+                        self::OBJECT_NAME,
                         $response->getId(),
+                        $object->getMappedObject(),
                         $object->getMappedObjectId()
                     ),
                     __CLASS__.':'.__FUNCTION__
@@ -192,8 +181,6 @@ trait DataExchangeOperationsTrait
                 );
             }
         }
-
-        var_dump($objectMapping); die();
 
         return $objectMappings;
     }
@@ -235,6 +222,9 @@ trait DataExchangeOperationsTrait
      */
     public function getDeleted(\DateTimeImmutable $fromDate)
     {
+        var_dump($this->objectRepository->sync((new \DateTime('-1 year'))->getTimestamp()));
+        die();
+
         $fullReport = []; $iteration = 0;
         // We must iterate while there is still some result left
 

@@ -35,6 +35,9 @@ trait TransformationsTrait
         TransformerInterface::PICKLIST_TYPE => [
             'func' => 'transformPicklist',
         ],
+        TransformerInterface::REFERENCE_TYPE => [
+            'func' => 'transformReference',
+        ],
     ];
 
     public function transform($type, $value)
@@ -93,6 +96,10 @@ trait TransformationsTrait
 
     protected function transformPicklist($value)
     {
+        return $this->transformString($value);
+    }
+
+    protected function transformReference($value) {
         return $this->transformString($value);
     }
 }
