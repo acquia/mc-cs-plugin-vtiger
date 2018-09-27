@@ -21,6 +21,10 @@ return [
                 'arguments' => ['mautic.vtiger_crm.sync.data_exchange', 'mautic.helper.integration'],
                 'tag'       => 'mautic.sync_integration',
             ],
+            'mautic.vtiger_crm.contact_timeline' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\MauticTimelineServiceSubscriber::class,
+                'arguments' => [],
+            ],
         ],
         'forms'        => [
         ],
@@ -165,6 +169,14 @@ return [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\AccountDataExchange::class,
                 'arguments' => ['mautic.vtiger_crm.repository.accounts', 'mautic.vtiger_crm.settings', 'mautic.lead.model.company', 'mautic.vtiger_crm.value_normalizer', 'mautic.vtiger_crm.validator.account'],
             ],
+            'mautic.vtiger_crm.lead_event_supplier' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Service\LeadEventSupplier::class,
+                'arguments' => ['mautic.lead.model.lead', 'mautic.vtiger_crm.settings']
+            ],
+            'mautic.vtiger_crm.sync.events_service' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService::class,
+                'arguments' => ['mautic.vtiger_crm.lead_event_supplier', 'mautic.vtiger_crm.repository.events', 'mautic.vtiger_crm.settings',]
+            ]
 
         ],
         'models'       => [

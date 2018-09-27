@@ -16,8 +16,6 @@ namespace MauticPlugin\MauticVtigerCrmBundle\EventListener;
 use Mautic\PluginBundle\Entity\Integration;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\IntegrationsBundle\Event\SyncEvent;
-use MauticPlugin\IntegrationsBundle\Integration\BasicIntegration;
-use MauticPlugin\IntegrationsBundle\Integration\Interfaces\BasicInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\SyncInterface;
 use MauticPlugin\IntegrationsBundle\IntegrationEvents;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
@@ -25,9 +23,8 @@ use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterf
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\DataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\DTO\Contact;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-final class IntegrationSyncService implements EventSubscriberInterface, SyncInterface
+final class IntegrationSyncService implements SyncInterface
 {
     /**
      * @var DataExchange
@@ -62,30 +59,6 @@ final class IntegrationSyncService implements EventSubscriberInterface, SyncInte
     {
         $this->integrationObject = $integrationHelper->getIntegrationObject(VtigerCrmIntegration::NAME);
         $this->dataExchange = $dataExchange;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [
-//            IntegrationEvents::ON_SYNC_TRIGGERED => ['onSync', 0],
-        ];
-    }
-
-
-    public function onSync(SyncEvent $syncEvent): void {
-        if (!$syncEvent->shouldIntegrationSync(VtigerCrmIntegration::NAME)) {
-            return;
-        }
-        throw new \Exception('Not implemented');
-
-//        $mappingManual =
-
-        //var_dump($mappingManual->getObjectMapping('lead','Contacts')); die();
-
-        $syncEvent->setSyncServices($this->dataExchange, $mappingManual);
     }
 
     /**

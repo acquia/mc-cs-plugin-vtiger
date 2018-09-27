@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
 
 use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
+use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException;
@@ -71,17 +72,15 @@ class Connection
 
         $credentialsCfg = $this->settings->getCredentials();
 
-        if (!isset($credentialsCfg['accessKey']) || !isset($credentialsCfg['username']) || !isset($credentialsCfg['url'])) {
-            throw new VtigerPluginException('Plugin is not fully configured');
+        if (isset($credentialsCfg['accessKey']) && isset($credentialsCfg['username']) && isset($credentialsCfg['url'])) {
+            $this->httpClient = $client;
+
+            $this->setCredentials((new Credentials())
+                ->setAccesskey($credentialsCfg['accessKey'])
+                ->setUsername($credentialsCfg['username']));
+
+            $this->apiDomain = $credentialsCfg['url'];
         }
-
-        $this->httpClient = $client;
-
-        $this->setCredentials((new Credentials())
-            ->setAccesskey($credentialsCfg['accessKey'])
-            ->setUsername($credentialsCfg['username']));
-
-        $this->apiDomain = $credentialsCfg['url'];
     }
 
     /**
@@ -222,6 +221,8 @@ class Connection
      */
     public function get(string $operation, array $payload = [])
     {
+        $this->isConfigured();
+
         $query = sprintf("%s?operation=%s",
             $this->getApiUrl(),
             $operation);
@@ -268,15 +269,17 @@ class Connection
      * @throws VtigerPluginException
      */
     public function query(string $operation, array $payload = []) {
-        $query = sprintf("%s?operation=%s",
-            $this->getApiUrl(),
-            $operation);
+        $this->isConfigured();
 
         if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
             throw new SessionException('Not authenticated.');
         } elseif ($this->isAuthenticateOnDemand()) {
             $this->authenticate();
         }
+
+        $query = sprintf("%s?operation=%s",
+            $this->getApiUrl(),
+            $operation);
 
         $query .= '&sessionName='.$this->sessionId;
 
@@ -314,6 +317,8 @@ class Connection
      */
     public function post(string $operation, array $payload)
     {
+        $this->isConfigured();
+
         $payloadFinal['operation'] = $operation;
 
         if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
@@ -397,9 +402,19 @@ class Connection
     public function __destruct()
     {
         try {
-            $this->logout();
+            if (!is_null($this->httpClient)) {
+                $this->logout();
+            }
         } catch (\Exception $e) {
 
+        }
+    }
+
+    private function isConfigured() {
+        $credentialsCfg = $this->settings->getCredentials();
+
+        if ((!isset($credentialsCfg['accessKey']) || !isset($credentialsCfg['username']) || !isset($credentialsCfg['url']))) {
+            throw new PluginNotConfiguredException(VtigerCrmIntegration::NAME . ' is not configured');
         }
     }
 }

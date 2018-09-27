@@ -1,4 +1,14 @@
 <?php
+declare(strict_types=1);
+
+/*
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc. Jan Kozak <galvani78@gmail.com>
+ *
+ * @link        http://mautic.com
+ * @created     7.9.18
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
 
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
@@ -13,6 +23,10 @@ use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterf
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 
+/**
+ * Class DataExchange
+ * @package MauticPlugin\MauticVtigerCrmBundle\Sync
+ */
 class DataExchange implements SyncDataExchangeInterface
 {
     /**
@@ -125,7 +139,7 @@ class DataExchange implements SyncDataExchangeInterface
      *
      * @throws ObjectNotSupportedException
      */
-    public function executeSyncOrder(OrderDAO $syncOrderDAO)
+    public function executeSyncOrder(OrderDAO $syncOrderDAO): void
     {
         $syncOrderDAO->getSyncDateTime();
 

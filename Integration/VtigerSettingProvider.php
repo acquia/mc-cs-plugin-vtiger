@@ -50,6 +50,10 @@ class VtigerSettingProvider
     public function getIntegrationEntity(): ?Integration
     {
         if (is_null($this->integrationEntity)) {
+            if (!$this->integrationHelper
+                ->getIntegrationObject(VtigerCrmIntegration::NAME)) {
+                return null;
+            }
             $this->integrationEntity = $this->integrationHelper
                 ->getIntegrationObject(VtigerCrmIntegration::NAME)
                 ->getIntegration();
@@ -60,12 +64,11 @@ class VtigerSettingProvider
 
     /**
      * @return array
-     * @throws VtigerPluginException
      */
     public function getCredentials(): array
     {
         if ($this->getIntegrationEntity() === null) {
-            throw new VtigerPluginException('Plugin is not configured');
+            return [];
         }
 
         $credentialsCfg = $this->integrationHelper->getIntegrationObject(VtigerCrmIntegration::NAME)->getDecryptedApiKeys(

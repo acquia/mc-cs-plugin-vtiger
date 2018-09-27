@@ -1,9 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 24.8.18
- * Time: 13:50
+declare(strict_types=1);
+
+/*
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc. Jan Kozak <galvani78@gmail.com>
+ *
+ * @link        http://mautic.com
+ * @created     7.9.18
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
@@ -15,19 +19,20 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
-use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeReportTrait;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\CompanyDetailsRepository;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
+/**
+ * Class AccountDataExchange
+ * @package MauticPlugin\MauticVtigerCrmBundle\Sync
+ */
 final class AccountDataExchange implements ObjectSyncDataExchangeInterface
 {
     use DataExchangeOperationsTrait;
@@ -47,6 +52,14 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
     /** @var VtigerSettingProvider  */
     private $settings;
 
+    /**
+     * AccountDataExchange constructor.
+     *
+     * @param AccountRepository        $accountRepository
+     * @param VtigerSettingProvider    $settingProvider
+     * @param CompanyModel             $companyModel
+     * @param ValueNormalizerInterface $valueNormalizer
+     */
     public function __construct(
         AccountRepository $accountRepository,
         VtigerSettingProvider $settingProvider,
@@ -64,7 +77,7 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
      *
      * @return ObjectMapping[]
      */
-    public function insert(array $objects)
+    public function insert(array $objects): array
     {
         $modelName = BaseRepository::$moduleClassMapping[self::OBJECT_NAME];
 

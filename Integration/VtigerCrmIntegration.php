@@ -304,8 +304,8 @@ class VtigerCrmIntegration extends BasicIntegration implements
      */
     public function getFormLeadFields(array $settings = []): array
     {
-        if (!$this->isAuthorized()) {
-            return false;
+        if (!$this->isConfigured()) {
+            return [];
         }
 
         $leadFields = $this->fieldMapping->getObjectFields('Contacts');

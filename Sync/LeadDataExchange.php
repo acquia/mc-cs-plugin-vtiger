@@ -3,45 +3,34 @@ declare(strict_types=1);
 
 /*
  * @copyright   2018 Mautic Inc. All rights reserved
- * @author      Mautic, Inc.
+ * @author      Mautic, Inc. Jan Kozak <galvani78@gmail.com>
  *
- * @link        https://www.mautic.com
- *
+ * @link        http://mautic.com
+ * @created     7.9.18
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use Mautic\LeadBundle\Model\LeadModel;
-use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
-use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
-use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
-use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
-use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\LeadValidator;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
-use phpDocumentor\Reflection\Types\Self_;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
+/**
+ * Class LeadDataExchange
+ * @package MauticPlugin\MauticVtigerCrmBundle\Sync
+ */
 class LeadDataExchange implements ObjectSyncDataExchangeInterface
 {
     use DataExchangeOperationsTrait;
-
 
     const OBJECT_NAME = 'Leads';
 
@@ -65,7 +54,7 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
      */
     private $settings;
 
-    /** @var int  */
+    /** @var int */
     const VTIGER_API_QUERY_LIMIT = 100;
 
     /**
@@ -84,13 +73,24 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
     )
     {
         $this->objectRepository = $leadsRepository;
-        $this->objectValidator = $objectValidator;
+        $this->objectValidator  = $objectValidator;
         $this->valueNormalizer  = $valueNormalizer;
         $this->model            = $leadModel;
         $this->settings         = $settingProvider;
     }
 
-    public function getObjectSyncReport(\MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject, ReportDAO &$syncReport): ReportDAO
+    /**
+     * @param \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
+     * @param ReportDAO                                                        $syncReport
+     *
+     * @return ReportDAO
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function getObjectSyncReport(
+        \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
+        ReportDAO &$syncReport
+    ): ReportDAO
     {
 
         $fromDateTime = $requestedObject->getFromDateTime();
