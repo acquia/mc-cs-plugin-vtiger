@@ -57,8 +57,8 @@ trait DataExchangeOperationsTrait
 
             $vtigerModel = new $modelClass($objectData);
 
-            if ($this->settings->getSetting('updateOwner') || !$vtigerModel->getAssignedUserId()) {
-                $vtigerModel->setAssignedUserId($this->settings->getSetting('owner'));
+            if ($this->settings->getSyncSetting('updateOwner') || !$vtigerModel->getAssignedUserId()) {
+                $vtigerModel->setAssignedUserId($this->settings->getSyncSetting('owner'));
             }
 
             try {
@@ -134,9 +134,9 @@ trait DataExchangeOperationsTrait
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
 
-            /** @var Contact $object */
+            /** @var Contact $objectModel */
             $objectModel = new $modelName($objectData);
-            if (!$this->settings->getSetting('owner')) {
+            if (!$this->settings->getSyncSetting('owner')) {
                 throw new InvalidConfigurationException('You need to configure owner for new objects');
             }
             $objectModel->setAssignedUserId($this->settings->getSetting('owner'));
