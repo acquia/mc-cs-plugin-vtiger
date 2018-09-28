@@ -15,14 +15,16 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Integration\Provider;
 use MauticPlugin\IntegrationsBundle\Integration\ConfigurationTrait;
 use MauticPlugin\IntegrationsBundle\Integration\DefaultConfigFormTrait;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormAuthInterface;
+use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormFeaturesInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormSyncInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigAuthType;
+use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigFeatureSettingsType;
 use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigSyncFeaturesType;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\BasicTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 
-class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterface, ConfigFormAuthInterface
+class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterface, ConfigFormAuthInterface, ConfigFormFeaturesInterface
 {
     use BasicTrait;
     use ConfigurationTrait;
@@ -62,6 +64,17 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
     public function getSyncConfigFormName(): ?string
     {
         return ConfigSyncFeaturesType::class;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSupportedFeatures(): array
+    {
+        return [
+            ConfigFormFeaturesInterface::FEATURE_SYNC          => 'mautic.integration.feature.sync',
+            ConfigFormFeaturesInterface::FEATURE_PUSH_ACTIVITY => 'mautic.integration.feature.push_activity',
+        ];
     }
 
     /**

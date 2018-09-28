@@ -29,7 +29,6 @@ return [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigSyncFeaturesType::class,
                 'arguments' => [
                     'mautic.vtiger_crm.repository.users',
-                    'mautic.lead.model.lead',
                 ]
             ]
         ],

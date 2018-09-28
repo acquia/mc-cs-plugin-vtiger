@@ -12,7 +12,7 @@
 namespace MauticPlugin\MauticVtigerCrmBundle\Form\Type;
 
 
-use Mautic\LeadBundle\Model\LeadModel;
+use MauticPlugin\IntegrationsBundle\Form\Type\ActivityListType;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -26,20 +26,13 @@ class ConfigSyncFeaturesType extends AbstractType
     private $userRepository;
 
     /**
-     * @var LeadModel
-     */
-    private $leadModel;
-
-    /**
      * ConfigSyncFeaturesType constructor.
      *
      * @param UserRepository $userRepository
-     * @param LeadModel      $leadModel
      */
-    public function __construct(UserRepository $userRepository, LeadModel $leadModel)
+    public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
-        $this->leadModel      = $leadModel;
     }
 
     /**
@@ -81,21 +74,6 @@ class ConfigSyncFeaturesType extends AbstractType
         );
 
         $builder->add(
-            'activityEvents',
-            ChoiceType::class,
-            [
-                'choices'    => $this->leadModel->getEngagementTypes(),
-                'label'      => 'mautic.salesforce.form.activity_included_events',
-                'label_attr' => [
-                    'class'       => 'control-label',
-                    'tooltip' => 'mautic.plugin.vtiger.form.activity.events.tooltip',
-                ],
-                'multiple'   => true,
-                'required'   => false,
-            ]
-        );
-
-        $builder->add(
             'owner',
             ChoiceType::class,
             [
@@ -107,6 +85,11 @@ class ConfigSyncFeaturesType extends AbstractType
                 'multiple'   => false,
                 'required'   => true,
             ]
+        );
+
+        $builder->add(
+            'activityEvents',
+            ActivityListType::class
         );
     }
 
