@@ -50,16 +50,28 @@ class VtigerSettingProvider
     public function getIntegrationEntity(): ?Integration
     {
         if (is_null($this->integrationEntity)) {
-            if (!$this->integrationHelper
-                ->getIntegrationObject(VtigerCrmIntegration::NAME)) {
+            if (!$this->getIntegrationObject()) {
                 return null;
             }
-            $this->integrationEntity = $this->integrationHelper
-                ->getIntegrationObject(VtigerCrmIntegration::NAME)
+            $this->integrationEntity = $this->getIntegrationObject()
                 ->getIntegration();
         }
 
         return $this->integrationEntity;
+    }
+
+    private function getIntegrationObject() {
+        if (is_null($this->integrationEntity)) {
+            if (!$this->integrationHelper
+                ->getIntegrationObject(VtigerCrmIntegration::NAME)) {
+                return null;
+            }
+            $this->integrationObject = $this->integrationHelper
+                ->getIntegrationObject(VtigerCrmIntegration::NAME);
+
+        }
+
+        return $this->integrationObject;
     }
 
     /**
@@ -71,8 +83,8 @@ class VtigerSettingProvider
             return [];
         }
 
-        $credentialsCfg = $this->integrationHelper->getIntegrationObject(VtigerCrmIntegration::NAME)->getDecryptedApiKeys(
-            $this->integrationHelper->getIntegrationObject(VtigerCrmIntegration::NAME)->getIntegrationSettings()
+        $credentialsCfg = $this->getIntegrationObject()->getDecryptedApiKeys(
+            $this->getIntegrationObject()->getIntegrationSettings()
         );
 
         return $credentialsCfg;

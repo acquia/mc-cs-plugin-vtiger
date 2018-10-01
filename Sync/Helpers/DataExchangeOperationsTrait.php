@@ -135,17 +135,17 @@ trait DataExchangeOperationsTrait
             }
 
             /** @var Contact $object */
-            $object = new $modelName($objectData);
+            $objectModel = new $modelName($objectData);
             if (!$this->settings->getSetting('owner')) {
                 throw new InvalidConfigurationException('You need to configure owner for new objects');
             }
-            $object->setAssignedUserId($this->settings->getSetting('owner'));
+            $objectModel->setAssignedUserId($this->settings->getSetting('owner'));
 
             /** Perform validation */
-            $this->objectValidator->validate($object);
+            $this->objectValidator->validate($objectModel);
 
             try {
-                $response = $this->objectRepository->create($object);
+                $response = $this->objectRepository->create($objectModel);
 
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,

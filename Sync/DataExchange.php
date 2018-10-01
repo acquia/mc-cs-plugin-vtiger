@@ -15,6 +15,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
@@ -57,6 +58,11 @@ class DataExchange implements SyncDataExchangeInterface
     private $mappingHelper;
 
     /**
+     * @var EventSyncService
+     */
+    private $eventSyncService;
+
+    /**
      * DataExchange constructor.
      *
      * @param ObjectFieldMapper          $fieldMapper
@@ -72,7 +78,8 @@ class DataExchange implements SyncDataExchangeInterface
         ContactDataExchange $contactDataExchange,
         LeadDataExchange $leadDataExchange,
         CompanyDetailsDataExchange $companyDetailsDataExchange,
-        AccountDataExchange $accountDataExchange
+        AccountDataExchange $accountDataExchange,
+        EventSyncService $eventSyncService
     )
     {
         $this->fieldMapper = $fieldMapper;
@@ -81,6 +88,7 @@ class DataExchange implements SyncDataExchangeInterface
         $this->mappingHelper = $mappingHelper;
         $this->companyDataExchange = $companyDetailsDataExchange;
         $this->accountDataExchange = $accountDataExchange;
+        $this->eventSyncService = $eventSyncService;
     }
 
     /**
@@ -130,6 +138,8 @@ class DataExchange implements SyncDataExchangeInterface
 
             $syncReport = $exchangeService->getObjectSyncReport($requestedObject, $syncReport);
         }
+
+        $this->eventSyncService->sync();
 
         return $syncReport;
     }

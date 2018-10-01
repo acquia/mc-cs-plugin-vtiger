@@ -78,4 +78,8 @@ abstract class BaseModel
     public function getModifiedTime() :?\DateTime {
         return $this->modifiedtime ? new \DateTime($this->modifiedtime) : null;
     }
+
+    public function set($identified, $value) {
+        $this->data[$identified] = $value;
+    }
 }

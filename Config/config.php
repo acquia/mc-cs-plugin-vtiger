@@ -135,6 +135,7 @@ return [
                     'mautic.vtiger_crm.sync.data_exchange_leads',
                     'mautic.vtiger_crm.sync.data_exchange_company_details',
                     'mautic.vtiger_crm.sync.data_exchange_accounts',
+                    'mautic.vtiger_crm.sync.events_service'
                 ],
             ],
 
@@ -171,7 +172,7 @@ return [
             ],
             'mautic.vtiger_crm.lead_event_supplier' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Service\LeadEventSupplier::class,
-                'arguments' => ['mautic.lead.model.lead', 'mautic.vtiger_crm.settings']
+                'arguments' => ['mautic.lead.model.lead', 'mautic.vtiger_crm.settings', 'doctrine.orm.entity_manager']
             ],
             'mautic.vtiger_crm.sync.events_service' => [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService::class,
