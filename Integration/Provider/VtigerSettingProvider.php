@@ -10,11 +10,14 @@ declare(strict_types=1);
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticVtigerCrmBundle\Integration;
+namespace MauticPlugin\MauticVtigerCrmBundle\Integration\Provider;
 
 use Mautic\PluginBundle\Entity\Integration;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
+use MauticPlugin\IntegrationsBundle\Exception\IntegrationNotFoundException;
+use MauticPlugin\IntegrationsBundle\Helper\IntegrationsHelper;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -23,55 +26,35 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class VtigerSettingProvider
 {
-    /** @var IntegrationHelper */
+    /** @var IntegrationsHelper */
     private $integrationHelper;
 
     /** @var Integration */
     private $integrationEntity;
 
-    /** @var ContainerInterface */
+    /** @var UserRepository */
     private $container;
 
-    /**
-     * VtigerSettingProvider constructor.
-     *
-     * @param IntegrationHelper  $helper
-     * @param ContainerInterface $container
-     */
-    public function __construct(IntegrationHelper $helper, ContainerInterface $container)
+    public function __construct(IntegrationsHelper $helper, ContainerInterface $container)
     {
         $this->integrationHelper = $helper;
-        $this->container = $container;
+        $this->container         = $container;
     }
 
     /**
-     * @return null|Integration
+     * @return Integration
      */
     public function getIntegrationEntity(): ?Integration
     {
         if (is_null($this->integrationEntity)) {
-            if (!$this->getIntegrationObject()) {
+            try {
+                $integrationObject       = $this->integrationHelper->getIntegration(VtigerCrmIntegration::NAME);
+                $this->integrationEntity = $integrationObject->getIntegrationConfiguration();
+            } catch (IntegrationNotFoundException $exception) {
                 return null;
             }
-            $this->integrationEntity = $this->getIntegrationObject()
-                ->getIntegration();
         }
-
         return $this->integrationEntity;
-    }
-
-    private function getIntegrationObject() {
-        if (is_null($this->integrationEntity)) {
-            if (!$this->integrationHelper
-                ->getIntegrationObject(VtigerCrmIntegration::NAME)) {
-                return null;
-            }
-            $this->integrationObject = $this->integrationHelper
-                ->getIntegrationObject(VtigerCrmIntegration::NAME);
-
-        }
-
-        return $this->integrationObject;
     }
 
     /**
@@ -82,13 +65,9 @@ class VtigerSettingProvider
         if ($this->getIntegrationEntity() === null) {
             return [];
         }
-
-        $credentialsCfg = $this->getIntegrationObject()->getDecryptedApiKeys(
-            $this->getIntegrationObject()->getIntegrationSettings()
-        );
-
-        return $credentialsCfg;
+        return $this->integrationEntity->getApiKeys();
     }
+
 
     /**
      * @return array
@@ -109,9 +88,10 @@ class VtigerSettingProvider
      */
     public function getSettings(): array
     {
-        return $this->integrationHelper->getIntegrationObject(VtigerCrmIntegration::NAME)
-            ->getIntegrationSettings()
-            ->getFeatureSettings();
+        if ($this->getIntegrationEntity() === null) {
+            return [];
+        }
+        return $this->integrationEntity->getFeatureSettings();
     }
 
     /**

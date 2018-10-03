@@ -15,7 +15,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Service;
 use Doctrine\ORM\EntityManager;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Model\LeadModel;
-use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Service\Transformer\EventTransformer;
 
 class LeadEventSupplier

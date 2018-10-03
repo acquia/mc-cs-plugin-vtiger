@@ -16,17 +16,17 @@ return [
     'author'      => 'Mautic',
     'services'    => [
         'events'       => [
-            'mautic.vtiger_crm.integration_sync' => [
-                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\IntegrationSyncService::class,
-                'arguments' => ['mautic.vtiger_crm.sync.data_exchange', 'mautic.helper.integration'],
-                'tag'       => 'mautic.sync_integration',
-            ],
-            'mautic.vtiger_crm.contact_timeline' => [
-                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\MauticTimelineServiceSubscriber::class,
-                'arguments' => [],
-            ],
         ],
         'forms'        => [
+            'mautic.vtiger_crm.form.config_auth' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigAuthType::class,
+            ],
+            'mautic.vtiger_crm.form.config_features' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigSyncFeaturesType::class,
+                'arguments' => [
+                    'mautic.vtiger_crm.repository.users',
+                ]
+            ]
         ],
         'helpers'      => [
         ],
@@ -35,10 +35,10 @@ return [
                 'class' => GuzzleHttp\Client::class,
             ],
             'mautic.vtiger_crm.settings'                  => [
-                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerSettingProvider::class,
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider::class,
                 'arguments' => [
-                    'mautic.helper.integration',
-                    'service_container',
+                    'mautic.integrations.helper',
+                    'service_container'
                 ],
             ],
             'mautic.vtiger_crm.connection'                => [
@@ -183,17 +183,26 @@ return [
         'models'       => [
         ],
         'integrations' => [
-            'mautic.integration.vtiger_crm' => [
+            'mautic.integration.vtiger_crm'      => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration::class,
-                'arguments' => [
-                    'mautic.lead.model.field',
-                    'mautic.lead.model.lead',
-                    'translator',
-                    'mautic.vtiger_crm.mapping.field_mapping',
-                    'mautic.vtiger_crm.settings',
-                    'service_container'
+                'tags'      => [
+                    'mautic.integration',
+                    'mautic.basic_integration'
                 ],
-                'tags'      => ['mautic.integration', 'mautic.basic_integration', 'mautic.dispatcher_integration', 'mautic.encryption_integration'],
+            ],
+            'mautic.integration.vtiger_crm.sync' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSyncProvider::class,
+                'tag'       => 'mautic.sync_integration',
+                'arguments' => [
+                    'mautic.vtiger_crm.sync.data_exchange',
+                ],
+            ],
+            'mautic.integration.vtiger_crm.config' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerConfigProvider::class,
+                'tag'       => 'mautic.config_integration',
+                'arguments' => [
+                    'mautic.vtiger_crm.mapping.field_mapping',
+                ],
             ],
         ],
     ],

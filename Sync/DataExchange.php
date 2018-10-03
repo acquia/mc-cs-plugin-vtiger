@@ -139,7 +139,8 @@ class DataExchange implements SyncDataExchangeInterface
             $syncReport = $exchangeService->getObjectSyncReport($requestedObject, $syncReport);
         }
 
-        $this->eventSyncService->sync();
+
+        //$this->eventSyncService->sync();
 
         return $syncReport;
     }
