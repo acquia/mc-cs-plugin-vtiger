@@ -57,17 +57,18 @@ final class EventSyncService
         $this->settingProvider   = $settingProvider;
     }
 
-    public function sync()
+    public function sync(\DateTimeInterface $dateFrom, \DateTimeInterface $dateTo)
     {
-        $mappedIds = $this->leadEventSupplier->getMappedLeadIds();
+        $mapping = $this->leadEventSupplier->getLeadsMapping();
 
-        $eventsToSynchronize = $this->getSyncReport($mappedIds);
+        $eventsToSynchronize = $this->getSyncReport($mapping, $this->settingProvider->getSetting('activityEvents'), $dateFrom, $dateTo);
 
         foreach ($eventsToSynchronize['up'] as $eventUnifiedData) {
+            var_dump($eventUnifiedData); die();
             $eventTime = new \DateTime();
             $eventTime->setTimestamp($eventUnifiedData['timestamp']);
             /** @var Event $event */
-            $event = EventFactory::createFromUnified($eventUnifiedData, $objectMapping->getIntegrationObjectId());
+            $event = EventFactory::createFromUnified($eventUnifiedData, $eventUnifiedData);
             $event->setDateTimeStart($eventTime);
             $event->setDateTimeEnd($eventTime);
             $event->setSubject($eventUnifiedData['message']);
@@ -78,18 +79,10 @@ final class EventSyncService
         }
     }
 
-    private function getSyncReport(array $leadIds, array $events = [], $dateFrom = null, $dateTo = null) {
-        $dateFrom = new \DateTime('-3 days');
-        $dateTo = new \DateTime();
-        $events = $this->leadEventSupplier->getLeadEvents($leadIds, $events, $dateFrom, $dateTo);
-        var_dump($events);
-        die();
-    }
+    private function getSyncReport($mappings, array $events = [], $dateFrom = null, $dateTo = null) {
+        $mauticEvents = $this->leadEventSupplier->getLeadEvents(array_keys($mappings), $events, $dateFrom, $dateTo);
 
-    private function getLeadSyncReport($leadId)
-    {
-        $mauticEvents = $this->leadEventSupplier->getLeadEvents($leadId);
-        $vtigerEvents = $this->eventRepository->findBy([]);
+        $vtigerEvents = $this->eventRepository->findByContactIds($mappings);
 
         $eventTypes = array_flip($this->leadEventSupplier->getTypes());
 
@@ -102,8 +95,7 @@ final class EventSyncService
                 continue;
             }
 
-
-            $vtigerCheck[$vtigerEvent->getDateTimeStart()->getTimestamp()][] = [
+            $vtigerCheck[$vtigerEvent->getContactId()][$vtigerEvent->getDateTimeStart()->getTimestamp()][] = [
                 'timestamp' => $vtigerEvent->getDateTimeStart()->getTimestamp(),
                 'message' => $vtigerEvent->getSubject(),
                 'event'   => $eventTypes[$vtigerEvent->getSubject()],

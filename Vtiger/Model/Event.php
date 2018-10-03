@@ -78,4 +78,8 @@ class Event extends BaseModel
         $this->set('taskpriority', $priority);
         return $this;
     }
+
+    public function getContactId(): ?string {
+        return $this->data['contact_id'] ?? null;
+    }
 }

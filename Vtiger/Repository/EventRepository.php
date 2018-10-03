@@ -29,9 +29,26 @@ class EventRepository extends BaseRepository
         return $record;
     }
 
-    public function getByContactId($contactId) {
+    public function findByContactId($contactId) {
         $this->findBy(['contact_id'=>(string) $contactId]);
     }
 
+    public function findByContactIds(array $contactIds): array {
+        $moduleName = $this->getModuleFromRepositoryName();
+        $className = self::$moduleClassMapping[$moduleName];
 
+        $query = "select * from " . $moduleName;
+        $query .= sprintf(" where contact_id in ('%s')", join("','", $contactIds));
+
+        $query .= ";";
+
+        $result = $this->connection->get('query', ['query' => $query]);
+        $return = [];
+
+        foreach ($result as $key=>$moduleObject) {
+            $return[] = new $className((array) $moduleObject);
+        }
+
+        return $return;
+    }
 }
