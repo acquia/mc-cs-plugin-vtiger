@@ -16,6 +16,12 @@ return [
     'author'      => 'Mautic',
     'services'    => [
         'events'       => [
+            'mautic.vtiger_crm.subscriber.sync' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\SyncSubscriber::class,
+                'arguments' => [
+                    'mautic.vtiger_crm.sync.events_service'
+                ],
+            ],
         ],
         'forms'        => [
             'mautic.vtiger_crm.form.config_auth' => [
