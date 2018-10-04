@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Mapping;
 
+use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\ObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
@@ -102,8 +103,12 @@ class ObjectFieldMapper
 
         $this->repositories[$objectName] = $this->container->get('mautic.vtiger_crm.repository.' . strtolower($objectName));
 
-        $fields = $this->repositories[$objectName]->describe()->getFields();
-
+        try {
+            $fields = $this->repositories[$objectName]->describe()->getFields();
+        }
+        catch (PluginNotConfiguredException $e) {
+            return [];
+        }
 
         $salesFields = [];
 

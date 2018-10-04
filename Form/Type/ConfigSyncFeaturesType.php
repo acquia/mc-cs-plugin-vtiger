@@ -11,7 +11,7 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Form\Type;
 
-
+use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\IntegrationsBundle\Form\Type\ActivityListType;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 use Symfony\Component\Form\AbstractType;
@@ -98,7 +98,12 @@ class ConfigSyncFeaturesType extends AbstractType
      */
     private function getFormOwners(): array
     {
-        $owners      = $this->userRepository->findBy();
+        try {
+            $owners = $this->userRepository->findBy();
+        }
+        catch (PluginNotConfiguredException $e) {
+            return [];
+        }
         $ownersArray = [];
         foreach ($owners as $owner) {
             $ownersArray[$owner->getId()] = (string) $owner;
