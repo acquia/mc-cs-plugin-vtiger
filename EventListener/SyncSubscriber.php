@@ -24,7 +24,7 @@ class SyncSubscriber implements EventSubscriberInterface
      */
     private $eventSyncService;
 
-    public function __construct(EventSyncService $eventSyncService, )
+    public function __construct(EventSyncService $eventSyncService)
     {
         $this->eventSyncService = $eventSyncService;
     }
@@ -47,6 +47,6 @@ class SyncSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->eventSyncService->sync()
+        //$this->eventSyncService->sync()
     }
 }
