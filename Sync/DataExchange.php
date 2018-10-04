@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -10,12 +11,10 @@ declare(strict_types=1);
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
@@ -25,15 +24,14 @@ use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 
 /**
- * Class DataExchange
- * @package MauticPlugin\MauticVtigerCrmBundle\Sync
+ * Class DataExchange.
  */
-class DataExchange implements SyncDataExchangeInterface
+final class DataExchange implements SyncDataExchangeInterface
 {
     /**
      * @var ObjectFieldMapper
      */
-    private $fieldMapper;
+    private $objectFieldMapper;
 
     /**
      * @var ContactDataExchange
@@ -48,9 +46,11 @@ class DataExchange implements SyncDataExchangeInterface
     /**
      * @var CompanyDetailsDataExchange
      */
-    private $companyDataExchange;
+    private $companyDetailsDataExchange;
 
-    /** @var AccountDataExchange */
+    /**
+     * @var AccountDataExchange
+     */
     private $accountDataExchange;
     /**
      * @var MappingHelper
@@ -73,22 +73,21 @@ class DataExchange implements SyncDataExchangeInterface
      * @param AccountDataExchange        $accountDataExchange
      */
     public function __construct(
-        ObjectFieldMapper $fieldMapper,
+        ObjectFieldMapper $objectFieldMapper,
         MappingHelper $mappingHelper,
         ContactDataExchange $contactDataExchange,
         LeadDataExchange $leadDataExchange,
         CompanyDetailsDataExchange $companyDetailsDataExchange,
         AccountDataExchange $accountDataExchange,
         EventSyncService $eventSyncService
-    )
-    {
-        $this->fieldMapper = $fieldMapper;
-        $this->contactDataExchange = $contactDataExchange;
-        $this->leadDataExchange = $leadDataExchange;
-        $this->mappingHelper = $mappingHelper;
-        $this->companyDataExchange = $companyDetailsDataExchange;
-        $this->accountDataExchange = $accountDataExchange;
-        $this->eventSyncService = $eventSyncService;
+    ) {
+        $this->objectFieldMapper          = $objectFieldMapper;
+        $this->contactDataExchange        = $contactDataExchange;
+        $this->leadDataExchange           = $leadDataExchange;
+        $this->mappingHelper              = $mappingHelper;
+        $this->companyDetailsDataExchange = $companyDetailsDataExchange;
+        $this->accountDataExchange        = $accountDataExchange;
+        $this->eventSyncService           = $eventSyncService;
     }
 
     /**
@@ -96,7 +95,7 @@ class DataExchange implements SyncDataExchangeInterface
      */
     public function getFieldMapper(): ObjectFieldMapper
     {
-        return $this->fieldMapper;
+        return $this->objectFieldMapper;
     }
 
     /**
@@ -104,19 +103,20 @@ class DataExchange implements SyncDataExchangeInterface
      *
      * @return DataExchange
      */
-    public function setFieldMapper(ObjectFieldMapper $fieldMapper): DataExchange
+    public function setFieldMapper(ObjectFieldMapper $objectFieldMapper): self
     {
-        $this->fieldMapper = $fieldMapper;
+        $this->objectFieldMapper = $objectFieldMapper;
 
         return $this;
     }
 
     /**
-     * Get Sync report from integration
+     * Get Sync report from integration.
      *
      * @param RequestDAO $requestDAO
      *
      * @return ReportDAO
+     *
      * @throws ObjectNotSupportedException
      */
     public function getSyncReport(RequestDAO $requestDAO): ReportDAO
@@ -139,7 +139,6 @@ class DataExchange implements SyncDataExchangeInterface
             $syncReport = $exchangeService->getObjectSyncReport($requestedObject, $syncReport);
         }
 
-
         //$this->eventSyncService->sync();
 
         return $syncReport;
@@ -154,7 +153,7 @@ class DataExchange implements SyncDataExchangeInterface
     {
         $syncOrderDAO->getSyncDateTime();
 
-        $identifiedObjects = $syncOrderDAO->getIdentifiedObjects();
+        $identifiedObjects   = $syncOrderDAO->getIdentifiedObjects();
         $unidentifiedObjects = $syncOrderDAO->getUnidentifiedObjects();
 
         foreach ($identifiedObjects as $objectName => $updateObjects) {
@@ -173,7 +172,6 @@ class DataExchange implements SyncDataExchangeInterface
             foreach ($updatedObjectMappings as $updateObject) {
                 $syncOrderDAO->updateLastSyncDate($updateObject);
             }
-
         }
 
         foreach ($unidentifiedObjects as $objectName => $createObjects) {
@@ -206,6 +204,7 @@ class DataExchange implements SyncDataExchangeInterface
      * @param $objectName
      *
      * @return ObjectSyncDataExchangeInterface
+     *
      * @throws ObjectNotSupportedException
      */
     private function getDataExchangeService($objectName): ObjectSyncDataExchangeInterface
@@ -216,7 +215,7 @@ class DataExchange implements SyncDataExchangeInterface
             case 'Leads':
                 return $this->leadDataExchange;
             case 'CompanyDetails':
-                return $this->companyDataExchange;
+                return $this->companyDetailsDataExchange;
             case 'Accounts':
                 return $this->accountDataExchange;
             default:

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
  * @author      Mautic inc.
@@ -12,16 +15,18 @@
 namespace MauticPlugin\MauticVtigerCrmBundle\Model;
 
 /**
- * Class Credentials represents credentials needed for authentication
- *
- * @package MauticPlugin\MauticVtigerCrmBundle\Model
+ * Class Credentials represents credentials needed for authentication.
  */
 class Credentials
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     private $username;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $accesskey;
 
     /**
@@ -34,11 +39,13 @@ class Credentials
 
     /**
      * @param string $username
+     *
      * @return Credentials
      */
-    public function setUsername(string $username): Credentials
+    public function setUsername(string $username): self
     {
         $this->username = $username;
+
         return $this;
     }
 
@@ -52,11 +59,13 @@ class Credentials
 
     /**
      * @param string $accesskey
+     *
      * @return Credentials
      */
-    public function setAccesskey(string $accesskey): Credentials
+    public function setAccesskey(string $accesskey): self
     {
         $this->accesskey = $accesskey;
+
         return $this;
     }
 }

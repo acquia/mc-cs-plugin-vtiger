@@ -18,9 +18,9 @@ use MauticPlugin\IntegrationsBundle\Integration\Interfaces\BasicInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\IntegrationInterface;
 
 /**
- * Class VtigerCrmIntegration
+ * Class VtigerCrmIntegration.
  */
-class VtigerCrmIntegration extends BasicIntegration implements BasicInterface, IntegrationInterface
+final class VtigerCrmIntegration extends BasicIntegration implements BasicInterface, IntegrationInterface
 {
     use BasicTrait;
 

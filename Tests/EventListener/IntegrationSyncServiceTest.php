@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -12,11 +13,11 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\EventListener;
 
-
 use MauticPlugin\MauticVtigerCrmBundle\EventListener\IntegrationSyncService;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
+use PHPUnit_Framework_TestCase;
 
-class IntegrationSyncServiceTest extends \PHPUnit_Framework_TestCase
+class IntegrationSyncServiceTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp(): void
     {
@@ -25,8 +26,8 @@ class IntegrationSyncServiceTest extends \PHPUnit_Framework_TestCase
         $this->integrationSyncService = new IntegrationSyncService($this->dataExchange, $this->integrationHelper);
     }
 
-    public function testGetName()
+    public function testGetName(): void
     {
-        $this->assertEquals(VtigerCrmIntegration::NAME, $this->integrationSyncService->getName());
+        $this->assertSame(VtigerCrmIntegration::NAME, $this->integrationSyncService->getName());
     }
 }

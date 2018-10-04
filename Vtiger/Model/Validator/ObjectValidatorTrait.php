@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -25,16 +26,24 @@ use Symfony\Component\Validator\Validation;
 
 trait ObjectValidatorTrait
 {
-    /** @var BaseRepository */
-    protected $objectRepository;
+    /**
+     * @var BaseRepository
+     */
+    protected $baseRepository;
 
-    /** @var UserRepository */
+    /**
+     * @var UserRepository
+     */
     private $userRepository;
 
-    /** @var \Symfony\Component\Validator\ValidatorInterface */
+    /**
+     * @var \Symfony\Component\Validator\ValidatorInterface
+     */
     private $validator;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $existingUsersIds = [];
 
     /**
@@ -43,9 +52,9 @@ trait ObjectValidatorTrait
      * @param BaseRepository      $objectRepository
      * @param UserRepository|null $userRepository
      */
-    public function __construct(BaseRepository $objectRepository, UserRepository $userRepository = null)
+    public function __construct(BaseRepository $baseRepository, ?UserRepository $userRepository = null)
     {
-        $this->objectRepository = $objectRepository;
+        $this->baseRepository   = $baseRepository;
         $this->userRepository   = $userRepository;
         $this->validator        = Validation::createValidator();    // Use symfony validator TODO inject
     }
@@ -56,11 +65,10 @@ trait ObjectValidatorTrait
      * @throws InvalidObject
      * @throws InvalidObjectException
      */
-    public function validate(BaseModel $object): void
+    public function validate(BaseModel $baseModel): void
     {
-        $this->validateObject($object);
+        $this->validateObject($baseModel);
     }
-
 
     /**
      * @param BaseModel $object
@@ -68,17 +76,16 @@ trait ObjectValidatorTrait
      * @throws InvalidObject
      * @throws InvalidObjectException
      */
-    protected function validateObject(BaseModel $object): void
+    protected function validateObject(BaseModel $baseModel): void
     {
-        if (!$object instanceof BaseRepository::$moduleClassMapping[$this->objectRepository->getModuleFromRepositoryName()]) {
+        if (!$baseModel instanceof BaseRepository::$moduleClassMapping[$this->baseRepository->getModuleFromRepositoryName()]) {
             throw new \InvalidArgumentException('This validator supports only object of type '
-                . $this->objectRepository->getModuleFromRepositoryName());
+                .$this->baseRepository->getModuleFromRepositoryName());
         }
 
-        $description = $this->objectRepository->describe()->getFields();
+        $description = $this->baseRepository->describe()->getFields();
 
-        foreach ($object->dehydrate() as $fieldName => $fieldValue) {
-
+        foreach ($baseModel->dehydrate() as $fieldName => $fieldValue) {
             $fieldDescription = $description[$fieldName];
             $this->validateField($fieldDescription, $fieldValue);
         }
@@ -91,16 +98,15 @@ trait ObjectValidatorTrait
      * @throws InvalidObject
      * @throws InvalidObjectException
      */
-    private function validateField(ModuleFieldInfo $fieldInfo, $fieldValue): void
+    private function validateField(ModuleFieldInfo $moduleFieldInfo, $fieldValue): void
     {
         $validators = [];
-        if (!$fieldInfo->isNullable() && $fieldInfo->isMandatory() && $fieldValue === null) {
+        if (!$moduleFieldInfo->isNullable() && $moduleFieldInfo->isMandatory() && null === $fieldValue) {
             $validators[] = new NotNull();
-
         }
 
         //  Validate by data type
-        $validators = array_merge($validators, $this->getValidatorsForType($fieldInfo->getTypeObject(), $fieldValue));
+        $validators = array_merge($validators, $this->getValidatorsForType($moduleFieldInfo->getTypeObject(), $fieldValue));
 
         if (!count($validators)) {
             return;
@@ -112,7 +118,7 @@ trait ObjectValidatorTrait
             return;
         }
 
-        throw new InvalidObject($violations, $fieldInfo, $fieldValue);
+        throw new InvalidObject($violations, $moduleFieldInfo, $fieldValue);
     }
 
     /**
@@ -120,6 +126,7 @@ trait ObjectValidatorTrait
      * @param $fieldValue
      *
      * @return array
+     *
      * @throws InvalidObjectException
      */
     private function getValidatorsForType($typeObject, $fieldValue): array
@@ -132,17 +139,19 @@ trait ObjectValidatorTrait
                 break;
             case 'email':
                 $validators[] = new Email();
+
                 break;
             case 'owner':
                 if (!count($this->existingUsersIds) || true) {
-                    $users               = $this->userRepository->findBy();
-                    $this->existingUsersIds = array_map(function($o) { return $o->id;}, $users);
+                    $users                  = $this->userRepository->findBy();
+                    $this->existingUsersIds = array_map(function ($o) { return $o->id; }, $users);
                 }
 
                 $validators[] = new Choice(['choices' => $this->existingUsersIds]);
+
                 break;
             default:
-                throw new InvalidObjectException('Unknown field type ' . print_r((array)$typeObject, true));
+                throw new InvalidObjectException('Unknown field type '.print_r((array) $typeObject, true));
         }
 
         return $validators;

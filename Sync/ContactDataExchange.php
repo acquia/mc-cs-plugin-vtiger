@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -12,18 +13,21 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
+use DateTimeImmutable;
+use Exception;
 use Mautic\LeadBundle\Model\LeadModel;
 use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO as MauticPluginObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Helper\MappingHelper;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
-use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
@@ -31,8 +35,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ContactValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 
 /**
- * Class ContactDataExchange
- * @package MauticPlugin\MauticVtigerCrmBundle\Sync
+ * Class ContactDataExchange.
  */
 final class ContactDataExchange implements ObjectSyncDataExchangeInterface
 {
@@ -42,29 +45,43 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
 
     const OBJECT_NAME = 'Contacts';
 
-    /** @var ContactRepository */
-    private $objectRepository;
-
-    /** @var ValueNormalizerInterface */
-    private $valueNormalizer;
-
-    /** @var LeadModel */
-    private $mauticModel;
-
-    /** @var VtigerSettingProvider */
-    private $settings;
-
-    /** @var ContactValidator */
-    private $objectValidator;
-
-    /** @var MappingHelper */
-    private $mappingHelper;
-
-    /** @var ObjectFieldMapper */
-    private $objectFieldMapper;
-
     /** @var int */
     const VTIGER_API_QUERY_LIMIT = 100;
+
+    /**
+     * @var ContactRepository
+     */
+    private $contactRepository;
+
+    /**
+     * @var ValueNormalizerInterface
+     */
+    private $valueNormalizer;
+
+    /**
+     * @var LeadModel
+     */
+    private $leadModel;
+
+    /**
+     * @var VtigerSettingProvider
+     */
+    private $vtigerSettingProvider;
+
+    /**
+     * @var ContactValidator
+     */
+    private $contactValidator;
+
+    /**
+     * @var MappingHelper
+     */
+    private $mappingHelper;
+
+    /**
+     * @var ObjectFieldMapper
+     */
+    private $objectFieldMapper;
 
     /**
      * ContactDataExchange constructor.
@@ -79,41 +96,38 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
      */
     public function __construct(
         ContactRepository $contactRepository,
-        VtigerSettingProvider $settingProvider,
+        VtigerSettingProvider $vtigerSettingProvider,
         LeadModel $leadModel,
         ValueNormalizerInterface $valueNormalizer,
-        ContactValidator $objectValidator,
+        ContactValidator $contactValidator,
         MappingHelper $mappingHelper,
         ObjectFieldMapper $objectFieldMapper
-    )
-    {
-        $this->objectRepository  = $contactRepository;
-        $this->objectValidator   = $objectValidator;
-        $this->valueNormalizer   = $valueNormalizer;
-        $this->mauticModel       = $leadModel;
-        $this->settings          = $settingProvider;
-        $this->mappingHelper     = $mappingHelper;
-        $this->objectFieldMapper = $objectFieldMapper;
+    ) {
+        $this->contactRepository              = $contactRepository;
+        $this->contactValidator               = $contactValidator;
+        $this->valueNormalizer                = $valueNormalizer;
+        $this->leadModel                      = $leadModel;
+        $this->vtigerSettingProvider          = $vtigerSettingProvider;
+        $this->mappingHelper                  = $mappingHelper;
+        $this->objectFieldMapper              = $objectFieldMapper;
     }
 
     /**
-     * @param \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
-     * @param ReportDAO                                                        $syncReport
+     * @param MauticPluginObjectDAO $requestedObject
+     * @param ReportDAO             $syncReport
      *
      * @return ReportDAO|mixed
+     *
      * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotFoundException
      * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getObjectSyncReport(
-        \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
-        ReportDAO &$syncReport
-    ): ReportDAO
+    public function getObjectSyncReport(MauticPluginObjectDAO $mauticPluginObjectDAO, ReportDAO $reportDAO): ReportDAO
     {
-        $fromDateTime = $requestedObject->getFromDateTime();
-        $mappedFields = $requestedObject->getFields();
-        $objectFields = $this->objectRepository->describe()->getFields();
+        $fromDateTime = $mauticPluginObjectDAO->getFromDateTime();
+        $mappedFields = $mauticPluginObjectDAO->getFields();
+        $objectFields = $this->contactRepository->describe()->getFields();
 
         $mappedFields = array_merge($mappedFields, [
             'isconvertedfromlead', 'leadsource', 'reference', 'source', 'contact_id',
@@ -125,9 +139,16 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
         /** @var Contact $contact */
         foreach ($updated as $key=>$contact) {
             if ($contact->isConvertedFromLead()) {
-                $objectDAO = new ObjectDAO(LeadDataExchange::OBJECT_NAME, $contact->getId(), $contact->getModifiedTime());
+                $objectDAO = new ObjectDAO(
+                    LeadDataExchange::OBJECT_NAME,
+                    $contact->getId(),
+                    $contact->getModifiedTime()
+                );
                 $objectDAO->addField(
-                    new FieldDAO('email', $this->valueNormalizer->normalizeForMautic(NormalizedValueDAO::EMAIL_TYPE, $contact->getEmail()))
+                    new FieldDAO('email', $this->valueNormalizer->normalizeForMautic(
+                        NormalizedValueDAO::EMAIL_TYPE,
+                        $contact->getEmail()
+                    ))
                 );
                 // beware this method also saves it :-(
                 $foundMapping = $this->mappingHelper->findMauticObject(
@@ -137,7 +158,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
                 );
                 // This lead has to be marked as deleted
                 if ($foundMapping) {
-                    DebugLogger::log(VtigerCrmIntegration::NAME, "Marking Lead #" . $contact->getId() . " as deleted");
+                    DebugLogger::log(VtigerCrmIntegration::NAME, 'Marking Lead #'.$contact->getId().' as deleted');
                     $objectChangeDAO = new ObjectChangeDAO(
                         VtigerCrmIntegration::NAME,
                         LeadDataExchange::OBJECT_NAME,
@@ -154,9 +175,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
                         ->setInternalObjectId($foundMapping->getObjectId())
                         ->setLastSyncDate($foundMapping->getChangeDateTime());
 
-                    $this->mappingHelper->saveObjectMappings([
-                        $mapping,
-                    ]);
+                    $this->mappingHelper->saveObjectMappings([$mapping]);
 
                     $deleted[] = $objectChangeDAO;
                     unset($updated[$key]);
@@ -168,26 +187,31 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
 
         /** @var Contact $object */
         foreach ($updated as $object) {
-            $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new \DateTimeImmutable($object->getModifiedTime()->format('r')));
+            $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new DateTimeImmutable(
+                $object->getModifiedTime()->format(
+                'r'
+            )
+            ));
 
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
                 // Normalize the value from the API to what Mautic needs
                 $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getType(), $value);
-                $reportFieldDAO = new FieldDAO($field, $normalizedValue);
+                $reportFieldDAO  = new FieldDAO($field, $normalizedValue);
 
                 $objectDAO->addField($reportFieldDAO);
             }
 
-            $syncReport->addObject($objectDAO);
+            $reportDAO->addObject($objectDAO);
         }
 
-        return $syncReport;
+        return $reportDAO;
     }
 
     /**
      * @param array $objects
      *
      * @return ObjectMapping[]
+     *
      * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectDeletedException
      */
     public function insert(array $objects): array
@@ -198,13 +222,9 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
         foreach ($objects as $object) {
             $objectDAO = new ObjectDAO($object->getMappedObject(), $object->getMappedObjectId());
 
-            $result = $this->mappingHelper->findIntegrationObject(
-                VtigerCrmIntegration::NAME,
-                'Leads',
-                $objectDAO
-            );
+            $result = $this->mappingHelper->findIntegrationObject(VtigerCrmIntegration::NAME, 'Leads', $objectDAO);
 
-            /** If we have a lead record we won't insert it */
+            /* If we have a lead record we won't insert it */
             if (null === $result->getObjectId()) {
                 $insertable[] = $object;
             } else {
@@ -219,11 +239,12 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
      * @param array $objects
      *
      * @return mixed|void
+     *
      * @throws \Exception
      */
     public function delete(array $objects)
     {
         // TODO: Implement delete() method.
-        throw new \Exception('Not implemented');
+        throw new Exception('Not implemented');
     }
 }

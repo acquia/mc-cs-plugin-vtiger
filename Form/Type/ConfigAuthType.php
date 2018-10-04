@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * @copyright   2018 Mautic Inc. All rights reserved
  * @author      Mautic, Inc.
@@ -10,7 +12,6 @@
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Form\Type;
-
 
 use MauticPlugin\IntegrationsBundle\Form\Type\NotBlankIfPublishedConstraintTrait;
 use Symfony\Component\Form\AbstractType;
@@ -24,12 +25,12 @@ class ConfigAuthType extends AbstractType
     use NotBlankIfPublishedConstraintTrait;
 
     /**
-     * @param FormBuilderInterface $builder
+     * @param FormBuilderInterface $formBuilder
      * @param array                $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $formBuilder, array $options): void
     {
-        $builder->add(
+        $formBuilder->add(
             'url',
             UrlType::class,
             [
@@ -43,7 +44,7 @@ class ConfigAuthType extends AbstractType
             ]
         );
 
-        $builder->add(
+        $formBuilder->add(
             'username',
             TextType::class,
             [
@@ -57,7 +58,7 @@ class ConfigAuthType extends AbstractType
             ]
         );
 
-        $builder->add(
+        $formBuilder->add(
             'accessKey',
             PasswordType::class,
             [

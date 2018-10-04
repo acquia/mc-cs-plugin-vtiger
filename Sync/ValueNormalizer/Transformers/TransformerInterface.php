@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -12,11 +13,10 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
-
 interface TransformerInterface
 {
-    const PICKLIST_TYPE = 'picklist';
+    const PICKLIST_TYPE  = 'picklist';
     const REFERENCE_TYPE = 'reference';
 
-    public function transform($type, $value);
+    public function transform($type, $value): void;
 }

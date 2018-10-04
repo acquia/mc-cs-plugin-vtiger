@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -9,6 +10,7 @@ declare(strict_types=1);
  * @created     ${DATE}
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
+
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer;
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
@@ -17,19 +19,19 @@ use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\MauticV
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\VtigerMauticTransformer;
 
 /**
- * Class ValueNormalizer
+ * Class ValueNormalizer.
  */
 final class VtigerValueNormalizer implements ValueNormalizerInterface
 {
     /**
      * @var VtigerMauticTransformer
      */
-    private $v2mTransformer;
+    private $vtigerMauticTransformer;
 
     /**
      * @var MauticVtigerTransformer
      */
-    private $m2vTransformer;
+    private $mauticVtigerTransformer;
 
     /**
      * VtigerValueNormalizer constructor.
@@ -37,9 +39,10 @@ final class VtigerValueNormalizer implements ValueNormalizerInterface
      * @param VtigerMauticTransformer $v2mTransformer
      * @param MauticVtigerTransformer $m2vTransformer
      */
-    public function __construct(VtigerMauticTransformer $v2mTransformer, MauticVtigerTransformer $m2vTransformer) {
-        $this->v2mTransformer = $v2mTransformer;
-        $this->m2vTransformer = $m2vTransformer;
+    public function __construct(VtigerMauticTransformer $vtigerMauticTransformer, MauticVtigerTransformer $mauticVtigerTransformer)
+    {
+        $this->vtigerMauticTransformer = $vtigerMauticTransformer;
+        $this->mauticVtigerTransformer = $mauticVtigerTransformer;
     }
 
     /**
@@ -47,23 +50,25 @@ final class VtigerValueNormalizer implements ValueNormalizerInterface
      * @param        $value
      *
      * @return NormalizedValueDAO
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function normalizeForMautic(string $type, $value): NormalizedValueDAO
     {
-        return $this->v2mTransformer->transform($type, $value);
+        return $this->vtigerMauticTransformer->transform($type, $value);
     }
 
     /**
      * @param NormalizedValueDAO $value
      *
      * @return NormalizedValueDAO|mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
-    public function normalizeForIntegration(NormalizedValueDAO $value)
+    public function normalizeForIntegration(NormalizedValueDAO $normalizedValueDAO)
     {
-        return $this->m2vTransformer->transform($value->getType(), $value);
+        return $this->mauticVtigerTransformer->transform($normalizedValueDAO->getType(), $normalizedValueDAO);
     }
 }

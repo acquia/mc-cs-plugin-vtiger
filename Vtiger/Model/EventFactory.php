@@ -1,28 +1,34 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 28.5.18
- * Time: 18:30
+
+declare(strict_types=1);
+
+/*
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc.
+ *
+ * @link        https://www.mautic.com
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-
 class EventFactory extends BaseModel
 {
-    public static function createFromUnified(array $unified, string $contactId = null) {
+    public static function createFromUnified(array $unified, ?string $contactId = null)
+    {
         $event = self::createEmptyPrefilled();
-        if (!is_null($contactId)) {
+        if (null !== $contactId) {
             $event->set('contact_id', $contactId);
         }
+
         return $event;
     }
 
-    public static function createEmptyPrefilled() {
+    public static function createEmptyPrefilled()
+    {
         $event = new Event();
-        $event->set('recurringtype','');
+        $event->set('recurringtype', '');
         $event->set('duration_hours', 0);
         $event->set('duration_minutes', 0);
         $event->set('eventstatus', 'Held');
@@ -33,6 +39,7 @@ class EventFactory extends BaseModel
         $event->set('visibility', 'Public');
         $event->set('notime', 0);
         $event->set('reminder_time', 0);
+
         return $event;
     }
 }

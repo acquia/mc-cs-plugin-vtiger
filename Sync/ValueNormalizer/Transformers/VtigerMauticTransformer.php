@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -11,11 +12,6 @@ declare(strict_types=1);
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
-
-
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 
 final class VtigerMauticTransformer implements TransformerInterface
 {

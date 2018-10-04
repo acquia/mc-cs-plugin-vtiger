@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -12,10 +13,9 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
-
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 
 trait TransformationsTrait
 {
@@ -47,15 +47,15 @@ trait TransformationsTrait
         }
 
         $transformationMethod = $this->transformations[$type]['func'];
-        $transformedValue     = $this->$transformationMethod($value);
+        $transformedValue     = $this->{$transformationMethod}($value);
         printf("transforming '%s' of type %s to '%s'.\n", $value, $type, $transformedValue);
 
         if (
-            is_null($transformedValue)
+            null === $transformedValue
             && isset($this->transformations['func']['required'])
             && $this->transformations['func']['required']
         ) {
-            throw new InvalidObjectValueException("Required property has null value", $transformedValue, $type);
+            throw new InvalidObjectValueException('Required property has null value', $transformedValue, $type);
         }
 
         return new NormalizedValueDAO($type, $value, $transformedValue);
@@ -63,30 +63,29 @@ trait TransformationsTrait
 
     protected function transformEmail($value)
     {
-        if (is_null($value) || strlen(trim($value)) === 0) {
+        if (null === $value || 0 === strlen(trim($value))) {
             return null;
         }
-        $value = $this->transformString($value);
 
-        return $value;
+        return $this->transformString($value);
     }
 
     protected function transformString($value)
     {
-        if (is_null($value)) {
+        if (null === $value) {
             return $value;
         }
 
-        return (string)$value;
+        return (string) $value;
     }
 
     protected function transformBoolean($value)
     {
-        if (is_null($value)) {
+        if (null === $value) {
             return $value;
         }
 
-        return intval((bool)$value);
+        return intval((bool) $value);
     }
 
     protected function transformPhone($value)
@@ -99,7 +98,8 @@ trait TransformationsTrait
         return $this->transformString($value);
     }
 
-    protected function transformReference($value) {
+    protected function transformReference($value)
+    {
         return $this->transformString($value);
     }
 }

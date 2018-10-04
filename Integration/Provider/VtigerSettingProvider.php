@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -12,8 +13,8 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Integration\Provider;
 
+use InvalidArgumentException;
 use Mautic\PluginBundle\Entity\Integration;
-use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\IntegrationsBundle\Exception\IntegrationNotFoundException;
 use MauticPlugin\IntegrationsBundle\Helper\IntegrationsHelper;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
@@ -21,24 +22,29 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class VtigerSettingProvider
- * @package MauticPlugin\MauticVtigerCrmBundle\Integration
+ * Class VtigerSettingProvider.
  */
 class VtigerSettingProvider
 {
-    /** @var IntegrationsHelper */
-    private $integrationHelper;
+    /**
+     * @var IntegrationsHelper
+     */
+    private $integrationsHelper;
 
-    /** @var Integration */
-    private $integrationEntity;
+    /**
+     * @var Integration
+     */
+    private $integration;
 
-    /** @var UserRepository */
-    private $container;
+    /**
+     * @var UserRepository
+     */
+    private $userRepository;
 
-    public function __construct(IntegrationsHelper $helper, ContainerInterface $container)
+    public function __construct(IntegrationsHelper $integrationsHelper, ContainerInterface $container)
     {
-        $this->integrationHelper = $helper;
-        $this->container         = $container;
+        $this->integrationsHelper     = $integrationsHelper;
+        $this->userRepository         = $container;
     }
 
     /**
@@ -46,15 +52,16 @@ class VtigerSettingProvider
      */
     public function getIntegrationEntity(): ?Integration
     {
-        if (is_null($this->integrationEntity)) {
+        if (null === $this->integration) {
             try {
-                $integrationObject       = $this->integrationHelper->getIntegration(VtigerCrmIntegration::NAME);
-                $this->integrationEntity = $integrationObject->getIntegrationConfiguration();
+                $integrationObject       = $this->integrationsHelper->getIntegration(VtigerCrmIntegration::NAME);
+                $this->integration       = $integrationObject->getIntegrationConfiguration();
             } catch (IntegrationNotFoundException $exception) {
                 return null;
             }
         }
-        return $this->integrationEntity;
+
+        return $this->integration;
     }
 
     /**
@@ -62,22 +69,22 @@ class VtigerSettingProvider
      */
     public function getCredentials(): array
     {
-        if ($this->getIntegrationEntity() === null) {
+        if (null === $this->getIntegrationEntity()) {
             return [];
         }
-        return $this->integrationEntity->getApiKeys();
-    }
 
+        return $this->integration->getApiKeys();
+    }
 
     /**
      * @return array
      */
     public function getFormOwners(): array
     {
-        $owners = $this->container->get('mautic.vtiger_crm.repository.users')->findBy();
+        $owners      = $this->userRepository->get('mautic.vtiger_crm.repository.users')->findBy();
         $ownersArray = [];
         foreach ($owners as $owner) {
-            $ownersArray[$owner->getId()] = (string)$owner;
+            $ownersArray[$owner->getId()] = (string) $owner;
         }
 
         return $ownersArray;
@@ -88,10 +95,11 @@ class VtigerSettingProvider
      */
     public function getSettings(): array
     {
-        if ($this->getIntegrationEntity() === null) {
+        if (null === $this->getIntegrationEntity()) {
             return [];
         }
-        return $this->integrationEntity->getFeatureSettings();
+
+        return $this->integration->getFeatureSettings();
     }
 
     /**
@@ -105,7 +113,7 @@ class VtigerSettingProvider
 
         if (!array_key_exists($settingName, $settings)) {
             // todo debug only @debug
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Setting "%s" does not exists, supported: %s',
                     $settingName, join(', ', array_keys($settings))
                 ));

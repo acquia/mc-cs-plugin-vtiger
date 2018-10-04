@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -12,6 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Service;
 
+use DateTime;
 use Doctrine\ORM\EntityManager;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Model\LeadModel;
@@ -27,34 +29,38 @@ class LeadEventSupplier
     /**
      * @var VtigerSettingProvider
      */
-    private $settingProvider;
+    private $vtigerSettingProvider;
 
-    /** @var EventTransformer */
+    /**
+     * @var EventTransformer
+     */
     private $eventTransformer;
     /**
      * @var EntityManager
      */
-    private $em;
+    private $entityManager;
 
     /**
      * LeadEventSupplier constructor.
      *
      * @param LeadModel $leadModel
      */
-    public function __construct(LeadModel $leadModel, VtigerSettingProvider $settingProvider, EntityManager $em)
+    public function __construct(LeadModel $leadModel, VtigerSettingProvider $vtigerSettingProvider, EntityManager $entityManager)
     {
-        $this->leadModel       = $leadModel;
-        $this->settingProvider = $settingProvider;
-        $this->em              = $em;
+        $this->leadModel                  = $leadModel;
+        $this->vtigerSettingProvider      = $vtigerSettingProvider;
+        $this->entityManager              = $entityManager;
     }
 
     public function getMappedLeadIds()
     {
-        $connection = $this->em->getConnection();
+        $connection = $this->entityManager->getConnection();
 
-        $statement = $connection->prepare("select group_concat(l.id) as ids from " . MAUTIC_TABLE_PREFIX . "sync_object_mapping map
-          inner join " . MAUTIC_TABLE_PREFIX . "leads l on map.internal_object_id = l.id 
-          where map.integration = 'VtigerCrm' and map.internal_object_name = 'lead' and map.is_deleted = 0");
+        $statement = $connection->prepare(
+            'select group_concat(l.id) as ids from '.MAUTIC_TABLE_PREFIX.'sync_object_mapping map
+          inner join '.MAUTIC_TABLE_PREFIX."leads l on map.internal_object_id = l.id 
+          where map.integration = 'VtigerCrm' and map.internal_object_name = 'lead' and map.is_deleted = 0"
+        );
 
         $statement->execute();
         $results = $statement->fetch();
@@ -66,12 +72,15 @@ class LeadEventSupplier
         return explode(',', $results['ids']);
     }
 
-    public function getLeadsMapping() {
-        $connection = $this->em->getConnection();
+    public function getLeadsMapping()
+    {
+        $connection = $this->entityManager->getConnection();
 
-        $statement = $connection->prepare("select map.internal_object_id, map.integration_object_id from " . MAUTIC_TABLE_PREFIX . "sync_object_mapping map
-          inner join " . MAUTIC_TABLE_PREFIX . "leads l on map.internal_object_id = l.id 
-          where map.integration = 'VtigerCrm' and map.internal_object_name = 'lead' and map.is_deleted = 0");
+        $statement = $connection->prepare(
+            'select map.internal_object_id, map.integration_object_id from '.MAUTIC_TABLE_PREFIX.'sync_object_mapping map
+          inner join '.MAUTIC_TABLE_PREFIX."leads l on map.internal_object_id = l.id 
+          where map.integration = 'VtigerCrm' and map.internal_object_name = 'lead' and map.is_deleted = 0"
+        );
 
         $statement->execute();
 
@@ -90,8 +99,12 @@ class LeadEventSupplier
      *
      * @return array
      */
-    public function getLeadEvents($leadIds, $eventsRequested = [], \DateTime $startDate = null, \DateTime $endDate = null)
-    {
+    public function getLeadEvents(
+        $leadIds,
+        $eventsRequested = [],
+        ?DateTime $startDate = null,
+        ?DateTime $endDate = null
+    ): array {
         $leadActivity = [];
 
         $filters = [
@@ -122,8 +135,14 @@ class LeadEventSupplier
                     if (
                         (isset($filters['dateFrom']) && ($filters['dateFrom'] > $event['timestamp'])) ||
                         (isset($filters['dateTo']) && ($event['timestamp'] > $filters['dateTo'])) ||
-                        (isset($filters['includeEvents']) && count($filters['includeEvents']) && !in_array($event['event'], $filters['includeEvents'])) ||
-                        (isset($filters['excludeEvents']) && count($filters['excludeEvents']) && in_array($event['event'], $filters['excludeEvents']))
+                        (isset($filters['includeEvents']) && count($filters['includeEvents']) && !in_array(
+                            $event['event'],
+                            $filters['includeEvents'], true
+                        )) ||
+                        (isset($filters['excludeEvents']) && count($filters['excludeEvents']) && in_array(
+                            $event['event'],
+                            $filters['excludeEvents'], true
+                        ))
                     ) {
                         continue;
                     }
@@ -138,7 +157,7 @@ class LeadEventSupplier
                 }
                 ++$page;
                 // Lots of entities will be loaded into memory while compiling these events so let's prevent memory overload by clearing the EM
-                $this->em->clear();
+                $this->entityManager->clear();
             }
         }
 

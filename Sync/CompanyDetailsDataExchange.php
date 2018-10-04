@@ -1,13 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 24.8.18
- * Time: 13:50
+
+declare(strict_types=1);
+
+/*
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc.
+ *
+ * @link        https://www.mautic.com
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
+use DateTimeImmutable;
+use Exception;
 use Mautic\LeadBundle\Model\CompanyModel;
 use Mautic\LeadBundle\Model\LeadModel;
 use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
@@ -15,14 +22,12 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
-use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
-use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeReportTrait;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\CompanyDetailsRepository;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -34,29 +39,36 @@ final class CompanyDetailsDataExchange implements ObjectSyncDataExchangeInterfac
 
     const OBJECT_NAME = 'CompanyDetails';
 
-    /** @var CompanyDetailsRepository */
-    private $objectRepository;
+    /**
+     * @var CompanyDetailsRepository
+     */
+    private $companyDetailsRepository;
 
-    /** @var ValueNormalizerInterface */
+    /**
+     * @var ValueNormalizerInterface
+     */
     private $valueNormalizer;
 
-    /** @var LeadModel */
-    private $model;
+    /**
+     * @var LeadModel
+     */
+    private $leadModel;
 
-    /** @var VtigerSettingProvider  */
-    private $settings;
+    /**
+     * @var VtigerSettingProvider
+     */
+    private $vtigerSettingProvider;
 
     public function __construct(
         CompanyDetailsRepository $companyDetailsRepository,
-        VtigerSettingProvider $settingProvider,
+        VtigerSettingProvider $vtigerSettingProvider,
         CompanyModel $companyModel,
         ValueNormalizerInterface $valueNormalizer
-    )
-    {
-        $this->objectRepository = $companyDetailsRepository;
-        $this->valueNormalizer = $valueNormalizer;
-        $this->model = $companyModel;
-        $this->settings = $settingProvider;
+    ) {
+        $this->companyDetailsRepository = $companyDetailsRepository;
+        $this->valueNormalizer          = $valueNormalizer;
+        $this->leadModel                = $companyModel;
+        $this->vtigerSettingProvider    = $vtigerSettingProvider;
     }
 
     /**
@@ -75,18 +87,18 @@ final class CompanyDetailsDataExchange implements ObjectSyncDataExchangeInterfac
             $objectData = [];
 
             foreach ($fields as $field) {
-                /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
+                /* @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
             /** @var Contact $model */
             $model = new $modelName($objectData);
-            if (!$this->settings->getSetting('owner')) {
+            if (!$this->vtigerSettingProvider->getSetting('owner')) {
                 throw new InvalidConfigurationException('You need to configure owner for new objects');
             }
-            $model->setAssignedUserId($this->settings->getSetting('owner'));
+            $model->setAssignedUserId($this->vtigerSettingProvider->getSetting('owner'));
 
             try {
-                $response = $this->objectRepository->create($model);
+                $response = $this->companyDetailsRepository->create($model);
 
                 // Integration name and ID are stored in the change's mappedObject/mappedObjectId
                 $updatedMappedObjects[] = new UpdatedObjectMappingDAO(
@@ -99,7 +111,7 @@ final class CompanyDetailsDataExchange implements ObjectSyncDataExchangeInterfac
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
                     sprintf(
-                        "Created %s ID %s from %s %d",
+                        'Created %s ID %s from %s %d',
                         self::OBJECT_NAME,
                         $response->getId(),
                         $object->getObject(),
@@ -119,11 +131,7 @@ final class CompanyDetailsDataExchange implements ObjectSyncDataExchangeInterfac
             } catch (InvalidQueryArgumentException $e) {
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Failed to create %s with error '%s'",
-                        self::OBJECT_NAME,
-                        $e->getMessage()
-                    ),
+                    sprintf("Failed to create %s with error '%s'", self::OBJECT_NAME, $e->getMessage()),
                     __CLASS__.':'.__FUNCTION__
                 );
             }
@@ -136,12 +144,13 @@ final class CompanyDetailsDataExchange implements ObjectSyncDataExchangeInterfac
      * @param array $objects
      *
      * @return mixed|void
+     *
      * @throws \Exception
      */
     public function delete(array $objects)
     {
         // TODO: Implement delete() method.
-        throw new \Exception('Not implemented');
+        throw new Exception('Not implemented');
     }
 
     /**
@@ -149,18 +158,20 @@ final class CompanyDetailsDataExchange implements ObjectSyncDataExchangeInterfac
      * @param array              $mappedFields
      *
      * @return array|mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
-    protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
+    protected function getReportPayload(DateTimeImmutable $fromDate, array $mappedFields)
     {
-        $fullReport = []; $iteration = 0;
+        $fullReport = [];
+        $iteration  = 0;
         // We must iterate while there is still some result left
 
         do {
-            $report = $this->objectRepository->query('SELECT * FROM ' . self::OBJECT_NAME
-                . ' LIMIT ' . ($iteration*100) . ',100');
+            $report = $this->companyDetailsRepository->query('SELECT * FROM '.self::OBJECT_NAME
+                .' LIMIT '.($iteration * 100).',100');
 
-            $iteration++;
+            ++$iteration;
 
             $fullReport = array_merge($fullReport, $report);
         } while (count($report));

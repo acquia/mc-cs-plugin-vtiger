@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @copyright   2018 Mautic Inc. All rights reserved
  * @author      Mautic, Inc. Jan Kozak <galvani78@gmail.com>
@@ -9,7 +12,6 @@
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
-
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO;
@@ -22,7 +24,7 @@ interface ObjectSyncDataExchangeInterface
      *
      * @return mixed
      */
-    public function getObjectSyncReport(ObjectDAO $requestedObject, ReportDAO &$syncReport);
+    public function getObjectSyncReport(ObjectDAO $objectDAO, ReportDAO $reportDAO);
 
     /**
      * @param array $ids

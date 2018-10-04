@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * @copyright   2018 Mautic Inc. All rights reserved
  * @author      Mautic, Inc.
@@ -11,7 +13,6 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Integration\Provider;
 
-
 use MauticPlugin\IntegrationsBundle\Integration\ConfigurationTrait;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\SyncInterface;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
@@ -19,7 +20,7 @@ use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterf
 use MauticPlugin\MauticVtigerCrmBundle\Integration\BasicTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\DataExchange;
 
-class VtigerSyncProvider implements SyncInterface
+final class VtigerSyncProvider implements SyncInterface
 {
     use BasicTrait;
     use ConfigurationTrait;
@@ -41,6 +42,7 @@ class VtigerSyncProvider implements SyncInterface
 
     /**
      * @return MappingManualDAO
+     *
      * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException
      */
     public function getMappingManual(): MappingManualDAO

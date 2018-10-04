@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * @copyright   2018 Mautic Inc. All rights reserved
  * @author      Mautic, Inc.
@@ -11,7 +13,7 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Form\Type;
 
-
+use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\IntegrationsBundle\Form\Type\ActivityListType;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 use Symfony\Component\Form\AbstractType;
@@ -39,9 +41,9 @@ class ConfigSyncFeaturesType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array                $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $formBuilder, array $options): void
     {
-        $builder->add(
+        $formBuilder->add(
             'updateOwner',
             ChoiceType::class,
             [
@@ -57,7 +59,7 @@ class ConfigSyncFeaturesType extends AbstractType
             ]
         );
 
-        $builder->add(
+        $formBuilder->add(
             'updateDncByDate',
             ChoiceType::class,
             [
@@ -73,7 +75,7 @@ class ConfigSyncFeaturesType extends AbstractType
             ]
         );
 
-        $builder->add(
+        $formBuilder->add(
             'owner',
             ChoiceType::class,
             [
@@ -87,10 +89,7 @@ class ConfigSyncFeaturesType extends AbstractType
             ]
         );
 
-        $builder->add(
-            'activityEvents',
-            ActivityListType::class
-        );
+        $formBuilder->add('activityEvents', ActivityListType::class);
     }
 
     /**
@@ -98,7 +97,11 @@ class ConfigSyncFeaturesType extends AbstractType
      */
     private function getFormOwners(): array
     {
-        $owners      = $this->userRepository->findBy();
+        try {
+            $owners = $this->userRepository->findBy();
+        } catch (PluginNotConfiguredException $e) {
+            return [];
+        }
         $ownersArray = [];
         foreach ($owners as $owner) {
             $ownersArray[$owner->getId()] = (string) $owner;
@@ -106,5 +109,4 @@ class ConfigSyncFeaturesType extends AbstractType
 
         return $ownersArray;
     }
-
 }
