@@ -23,10 +23,20 @@ class SyncSubscriber implements EventSubscriberInterface
      * @var EventSyncService
      */
     private $eventSyncService;
+    /**
+     * @var \DateTimeInterface|null
+     */
+    private $dateFrom;
+    /**
+     * @var \DateTimeInterface|null
+     */
+    private $dateTo;
 
-    public function __construct(EventSyncService $eventSyncService, )
+    public function __construct(EventSyncService $eventSyncService, \DateTimeInterface $dateFrom = null, \DateTimeInterface $dateTo = null)
     {
         $this->eventSyncService = $eventSyncService;
+        $this->dateFrom = $dateFrom;
+        $this->dateTo = $dateTo;
     }
 
     /**
@@ -47,6 +57,6 @@ class SyncSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->eventSyncService->sync()
+        //$this->eventSyncService->sync($this->dateFrom, $this->dateTo);
     }
 }
