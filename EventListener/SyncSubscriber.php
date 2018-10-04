@@ -32,7 +32,7 @@ class SyncSubscriber implements EventSubscriberInterface
     /**
      * @return array
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             SyncEvents::INTEGRATION_POST_EXECUTE => ['onPostExecuteOrder', 0],
@@ -42,7 +42,7 @@ class SyncSubscriber implements EventSubscriberInterface
     /**
      * @param SyncEvent $event
      */
-    public function onPostExecuteOrder(SyncEvent $event) {
+    public function onPostExecuteOrder(SyncEvent $event): void {
         if (!$event->isIntegration(VtigerCrmIntegration::NAME)) {
             return;
         }

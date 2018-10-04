@@ -14,9 +14,7 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Exceptions;
 
 use Exception;
-use Throwable;
 
 class InvalidObjectException extends Exception
 {
-
 }

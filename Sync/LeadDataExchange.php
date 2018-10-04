@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -12,10 +13,13 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
+use DateTimeImmutable;
+use Exception;
 use Mautic\LeadBundle\Model\LeadModel;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO as MauticPluginObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
@@ -25,19 +29,21 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\LeadValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
 
 /**
- * Class LeadDataExchange
- * @package MauticPlugin\MauticVtigerCrmBundle\Sync
+ * Class LeadDataExchange.
  */
-class LeadDataExchange implements ObjectSyncDataExchangeInterface
+final class LeadDataExchange implements ObjectSyncDataExchangeInterface
 {
     use DataExchangeOperationsTrait;
 
     const OBJECT_NAME = 'Leads';
 
+    /** @var int */
+    const VTIGER_API_QUERY_LIMIT = 100;
+
     /**
      * @var LeadRepository
      */
-    private $objectRepository;
+    private $leadRepository;
 
     /**
      * @var ValueNormalizer
@@ -47,15 +53,12 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
     /**
      * @var LeadModel
      */
-    private $model;
+    private $leadModel;
 
     /**
      * @var VtigerSettingProvider
      */
-    private $settings;
-
-    /** @var int */
-    const VTIGER_API_QUERY_LIMIT = 100;
+    private $vtigerSettingProvider;
 
     /**
      * LeadDataExchange constructor.
@@ -65,43 +68,43 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
      * @param LeadModel             $leadModel
      */
     public function __construct(
-        LeadRepository $leadsRepository,
-        VtigerSettingProvider $settingProvider,
+        LeadRepository $leadRepository,
+        VtigerSettingProvider $vtigerSettingProvider,
         LeadModel $leadModel,
         ValueNormalizerInterface $valueNormalizer,
-        LeadValidator $objectValidator
-    )
-    {
-        $this->objectRepository = $leadsRepository;
-        $this->objectValidator  = $objectValidator;
-        $this->valueNormalizer  = $valueNormalizer;
-        $this->model            = $leadModel;
-        $this->settings         = $settingProvider;
+        LeadValidator $leadValidator
+    ) {
+        $this->leadRepository                = $leadRepository;
+        $this->objectValidator               = $leadValidator;
+        $this->valueNormalizer               = $valueNormalizer;
+        $this->leadModel                     = $leadModel;
+        $this->vtigerSettingProvider         = $vtigerSettingProvider;
     }
 
     /**
-     * @param \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
-     * @param ReportDAO                                                        $syncReport
+     * @param MauticPluginObjectDAO $requestedObject
+     * @param ReportDAO             $syncReport
      *
      * @return ReportDAO
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getObjectSyncReport(
-        \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
-        ReportDAO &$syncReport
-    ): ReportDAO
+    public function getObjectSyncReport(MauticPluginObjectDAO $mauticPluginObjectDAO, ReportDAO $reportDAO): ReportDAO
     {
-
-        $fromDateTime = $requestedObject->getFromDateTime();
-        $mappedFields = $requestedObject->getFields();
-        $objectFields = $this->objectRepository->describe()->getFields();
+        $fromDateTime = $mauticPluginObjectDAO->getFromDateTime();
+        $mappedFields = $mauticPluginObjectDAO->getFields();
+        $objectFields = $this->leadRepository->describe()->getFields();
 
         $updated = $this->getReportPayload($fromDateTime, $mappedFields);
 
         /** @var Contact $object */
         foreach ($updated as $object) {
-            $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new \DateTimeImmutable($object->getModifiedTime()->format('r')));
+            $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new DateTimeImmutable(
+                $object->getModifiedTime()->format(
+                'r'
+            )
+            ));
 
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
                 // Normalize the value from the API to what Mautic needs
@@ -112,22 +115,23 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
                 $objectDAO->addField($reportFieldDAO);
             }
 
-            $syncReport->addObject($objectDAO);
+            $reportDAO->addObject($objectDAO);
         }
 
-        return $syncReport;
+        return $reportDAO;
     }
 
     /**
      * @param array $objects
      *
      * @return mixed|void
+     *
      * @throws \Exception
      */
     public function delete(array $objects)
     {
         // TODO: Implement delete() method.
-        throw new \Exception('Not implemented');
+        throw new Exception('Not implemented');
     }
 
     /**

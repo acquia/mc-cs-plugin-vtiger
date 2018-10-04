@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -14,16 +15,18 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Tests\Sync;
 
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
+use PHPUnit_Framework_TestCase;
 
-class ContactDataExchangeTest extends \PHPUnit_Framework_TestCase
+class ContactDataExchangeTest extends PHPUnit_Framework_TestCase
 {
-    /** @var PHPUnit_Framework_MockObject_MockObject|ContactRepository */
+    /**
+     * @var PHPUnit_Framework_MockObject_MockObject|ContactRepository
+     */
     private $contactRepository;
-
 
     private $settingsProvider;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -41,23 +44,20 @@ class ContactDataExchangeTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testGetObjectSyncReport()
+    public function testGetObjectSyncReport(): void
     {
-
     }
 
-    public function testInsert()
+    public function testInsert(): void
     {
-
     }
 
-
-    public function testDelete()
+    public function testDelete(): void
     {
-
     }
 
-    private function getDescribe() {
+    private function getDescribe()
+    {
         return [];
     }
 }

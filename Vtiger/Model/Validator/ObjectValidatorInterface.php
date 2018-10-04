@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -12,10 +13,9 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator;
 
-
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 
 interface ObjectValidatorInterface
 {
-    public function validate(BaseModel $object): void;
+    public function validate(BaseModel $baseModel): void;
 }

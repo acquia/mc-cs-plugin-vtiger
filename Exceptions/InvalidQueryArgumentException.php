@@ -1,12 +1,12 @@
 <?php
 
-namespace MauticPlugin\MauticVtigerCrmBundle\Exceptions;
+declare(strict_types=1);
 
-use Throwable;
+namespace MauticPlugin\MauticVtigerCrmBundle\Exceptions;
 
 class InvalidQueryArgumentException extends SessionException
 {
-    public function __construct(string $message = "", string $apiUrl = '', $payload = [])
+    public function __construct(string $message = '', string $apiUrl = '', $payload = [])
     {
         $message = sprintf("call to %s failed. with message '%s'. Payload %s",
             $apiUrl,

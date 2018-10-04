@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -9,6 +10,7 @@ declare(strict_types=1);
  * @created     7.9.18
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
+
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers;
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
@@ -31,13 +33,8 @@ trait DataExchangeOperationsTrait
     {
         DebugLogger::log(
             self::OBJECT_NAME,
-            sprintf(
-                "Found %d objects to update to integration with ids %s",
-
-                count($objects),
-                implode(", ", $ids)
-            ),
-            __CLASS__ . ':' . __FUNCTION__
+            sprintf('Found %d objects to update to integration with ids %s', count($objects), implode(', ', $ids)),
+            __CLASS__.':'.__FUNCTION__
         );
 
         $updatedMappedObjects = [];
@@ -49,7 +46,7 @@ trait DataExchangeOperationsTrait
             $objectData = ['id'=>$changedObject->getObjectId()];
 
             foreach ($fields as $field) {
-                /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
+                /* @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
 
@@ -79,30 +76,25 @@ trait DataExchangeOperationsTrait
 
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Updated to %s ID %s",
-                        self::OBJECT_NAME,
-                        $integrationObjectId
-                    ),
-                    __CLASS__ . ':' . __FUNCTION__
+                    sprintf('Updated to %s ID %s', self::OBJECT_NAME, $integrationObjectId),
+                    __CLASS__.':'.__FUNCTION__
                 );
             } catch (InvalidQueryArgumentException $e) {
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
                     sprintf(
-                        "Update to %s ID %s failed: %s",
+                        'Update to %s ID %s failed: %s',
                         self::OBJECT_NAME,
                         $integrationObjectId,
                         $e->getMessage()
                     ),
-                    __CLASS__ . ':' . __FUNCTION__
+                    __CLASS__.':'.__FUNCTION__
                 );
             }
         }
 
         return $updatedMappedObjects;
     }
-
 
     /**
      * @param ObjectChangeDAO[] $objects
@@ -115,12 +107,8 @@ trait DataExchangeOperationsTrait
 
         DebugLogger::log(
             self::OBJECT_NAME,
-            sprintf(
-                "Found %d %s to INSERT",
-                $modelName,
-                count($objects)
-            ),
-            __CLASS__ . ':' . __FUNCTION__
+            sprintf('Found %d %s to INSERT', $modelName, count($objects)),
+            __CLASS__.':'.__FUNCTION__
         );
 
         $objectMappings = [];
@@ -130,7 +118,7 @@ trait DataExchangeOperationsTrait
             $objectData = [];
 
             foreach ($fields as $field) {
-                /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
+                /* @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
 
@@ -141,7 +129,7 @@ trait DataExchangeOperationsTrait
             }
             $objectModel->setAssignedUserId($this->settings->getSetting('owner'));
 
-            /** Perform validation */
+            /* Perform validation */
             $this->objectValidator->validate($objectModel);
 
             try {
@@ -150,7 +138,7 @@ trait DataExchangeOperationsTrait
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
                     sprintf(
-                        "Created %s ID %s from %s %d",
+                        'Created %s ID %s from %s %d',
                         self::OBJECT_NAME,
                         $response->getId(),
                         $object->getMappedObject(),
@@ -173,11 +161,7 @@ trait DataExchangeOperationsTrait
             } catch (InvalidQueryArgumentException $e) {
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Failed to create %s with error '%s'",
-                        self::OBJECT_NAME,
-                        $e->getMessage()
-                    ),
+                    sprintf("Failed to create %s with error '%s'", self::OBJECT_NAME, $e->getMessage()),
                     __CLASS__.':'.__FUNCTION__
                 );
             }
@@ -191,22 +175,26 @@ trait DataExchangeOperationsTrait
      * @param array              $mappedFields
      *
      * @return array|mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
-    private function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
+    public function getDeleted(\DateTimeImmutable $fromDate)
     {
-        $fullReport = []; $iteration = 0;
+        var_dump($this->objectRepository->sync((new \DateTime('-1 year'))->getTimestamp()));
+        die();
+
+        $fullReport = [];
+        $iteration  = 0;
         // We must iterate while there is still some result left
 
         do {
-            $reportQuery = 'SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields)
-                . ' FROM ' . self::OBJECT_NAME . ' WHERE modifiedtime >= \'' . $fromDate->format('Y-m-d H:i:s') . '\''
-                . ' LIMIT ' . ($iteration*self::VTIGER_API_QUERY_LIMIT) . ',' . self::VTIGER_API_QUERY_LIMIT;
+            $reportQuery = 'SELECT * FROM '.self::OBJECT_NAME
+                .' LIMIT '.($iteration * self::VTIGER_API_QUERY_LIMIT).','.self::VTIGER_API_QUERY_LIMIT;
 
-
+            echo $reportQuery;
             $report = $this->objectRepository->query($reportQuery);
 
-            $iteration++;
+            ++$iteration;
 
             $fullReport = array_merge($fullReport, $report);
         } while (count($report));
@@ -219,29 +207,27 @@ trait DataExchangeOperationsTrait
      * @param array              $mappedFields
      *
      * @return array|mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
-    public function getDeleted(\DateTimeImmutable $fromDate)
+    private function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
     {
-        var_dump($this->objectRepository->sync((new \DateTime('-1 year'))->getTimestamp()));
-        die();
-
-        $fullReport = []; $iteration = 0;
+        $fullReport = [];
+        $iteration  = 0;
         // We must iterate while there is still some result left
 
         do {
-            $reportQuery = 'SELECT * FROM ' . self::OBJECT_NAME
-                . ' LIMIT ' . ($iteration*self::VTIGER_API_QUERY_LIMIT) . ',' . self::VTIGER_API_QUERY_LIMIT;
+            $reportQuery = 'SELECT id,modifiedtime,assigned_user_id,'.join(',', $mappedFields)
+                .' FROM '.self::OBJECT_NAME.' WHERE modifiedtime >= \''.$fromDate->format('Y-m-d H:i:s').'\''
+                .' LIMIT '.($iteration * self::VTIGER_API_QUERY_LIMIT).','.self::VTIGER_API_QUERY_LIMIT;
 
-            echo $reportQuery;
             $report = $this->objectRepository->query($reportQuery);
 
-            $iteration++;
+            ++$iteration;
 
             $fullReport = array_merge($fullReport, $report);
         } while (count($report));
 
         return $fullReport;
     }
-
 }

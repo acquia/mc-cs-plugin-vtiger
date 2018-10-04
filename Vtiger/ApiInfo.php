@@ -1,6 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
+
+use Psr\Http\Message\ResponseInterface;
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
@@ -12,10 +16,11 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
  * @author      Jan Kozak <galvani78@gmail.com>
  */
 
-
 class ApiInfo
 {
-    /** @var Connection */
+    /**
+     * @var Connection
+     */
     private $connection;
 
     /**
@@ -30,9 +35,11 @@ class ApiInfo
 
     /**
      * @return array
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
-    public function getListTypes() {
+    public function getListTypes(): array
+    {
         return $this->get('listtypes');
     }
 
@@ -40,22 +47,24 @@ class ApiInfo
      * @param $elementType
      *
      * @return mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
-    public function describe($elementType) {
+    public function describe($elementType)
+    {
         return $this->post('describe', ['elementType'=>$elementType]);
     }
 
     /**
      * @param $operation
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
-    private function get($operation)
+    private function get($operation): ResponseInterface
     {
-        $response = $this->connection->get($operation);
-        return $response;
+        return $this->connection->get($operation);
     }
 
     /**
@@ -63,12 +72,11 @@ class ApiInfo
      * @param $payload
      *
      * @return mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     private function post($operation, $payload)
     {
-        $response = $this->connection->post($operation, $payload);
-        return $response;
+        return $this->connection->post($operation, $payload);
     }
-
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * @copyright   2018 Mautic Inc. All rights reserved
  * @author      Mautic, Inc.
@@ -11,7 +13,6 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Integration\Provider;
 
-
 use MauticPlugin\IntegrationsBundle\Integration\ConfigurationTrait;
 use MauticPlugin\IntegrationsBundle\Integration\DefaultConfigFormTrait;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormAuthInterface;
@@ -19,12 +20,11 @@ use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormFeaturesInt
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormSyncInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigAuthType;
-use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigFeatureSettingsType;
 use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigSyncFeaturesType;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\BasicTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 
-class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterface, ConfigFormAuthInterface, ConfigFormFeaturesInterface
+final class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterface, ConfigFormAuthInterface, ConfigFormFeaturesInterface
 {
     use BasicTrait;
     use ConfigurationTrait;
@@ -33,7 +33,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
     /**
      * @var ObjectFieldMapper
      */
-    private $fieldMapping;
+    private $objectFieldMapper;
 
     /**
      * @var array
@@ -45,9 +45,9 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      *
      * @param ObjectFieldMapper $fieldMapping
      */
-    public function __construct(ObjectFieldMapper $fieldMapping)
+    public function __construct(ObjectFieldMapper $objectFieldMapper)
     {
-        $this->fieldMapping = $fieldMapping;
+        $this->objectFieldMapper = $objectFieldMapper;
     }
 
     /**
@@ -81,6 +81,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      * @param string $object
      *
      * @return array
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function getOptionalFieldsForMapping(string $object): array
@@ -103,6 +104,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      * @param string $object
      *
      * @return array
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function getRequiredFieldsForMapping(string $object): array
@@ -145,6 +147,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      * @param string $object
      *
      * @return mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     private function getFields(string $object): array
@@ -153,7 +156,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
             return $this->fields[$object];
         }
 
-        $this->fields[$object] = $this->fieldMapping->getObjectFields($object);
+        $this->fields[$object] = $this->objectFieldMapper->getObjectFields($object);
         unset($this->fields[$object]['assigned_user_id']);
 
         return $this->fields[$object];

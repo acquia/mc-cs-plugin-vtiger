@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * @copyright   2016 Mautic Contributors. All rights reserved
  * @author      Mautic
@@ -12,18 +14,14 @@
 namespace MauticPlugin\MauticVtigerCrmBundle;
 
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
-use Mautic\SmsBundle\DependencyInjection\Compiler\SmsTransportPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * Class MauticVtigerCrmBundle
- *
- * @package MauticPlugin\MauticVtigerCrmBundle
+ * Class MauticVtigerCrmBundle.
  */
 class MauticVtigerCrmBundle extends PluginBundleBase
 {
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $containerBuilder): void
     {
-
     }
 }

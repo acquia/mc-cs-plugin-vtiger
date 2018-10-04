@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -11,7 +12,6 @@ declare(strict_types=1);
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
-
 
 final class MauticVtigerTransformer implements TransformerInterface
 {

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -12,10 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator;
 
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
-
-class LeadValidator implements ObjectValidatorInterface
+final class LeadValidator implements ObjectValidatorInterface
 {
     use ObjectValidatorTrait;
-
 }

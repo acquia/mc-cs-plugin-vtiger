@@ -13,14 +13,21 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\NoFieldException;
-
 class Account extends BaseModel
 {
     /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getAccountName();
+    }
+
+    /**
      * @return string|null
      */
-    public function getAssignedUserId(): ?string {
+    public function getAssignedUserId(): ?string
+    {
         return !isset($this->data['assigned_user_id']) ? null : $this->data['assigned_user_id'];
     }
 
@@ -29,16 +36,10 @@ class Account extends BaseModel
      *
      * @return Contact
      */
-    public function setAssignedUserId(?string $userId): Account {
-        $this->data['assigned_user_id'] = $userId;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function setAssignedUserId(?string $userId): self
     {
-        return $this->getAccountName();
+        $this->data['assigned_user_id'] = $userId;
+
+        return $this;
     }
 }

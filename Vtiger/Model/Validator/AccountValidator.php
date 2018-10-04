@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -12,28 +13,25 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator;
 
-
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
+use InvalidArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 
-class AccountValidator implements ObjectValidatorInterface
+final class AccountValidator implements ObjectValidatorInterface
 {
     use ObjectValidatorTrait;
 
     /**
      * @param Account $object
      */
-    public function validate(BaseModel $object): void
+    public function validate(BaseModel $baseModel): void
     {
-        if (!$object instanceof BaseRepository::$moduleClassMapping[$this->objectRepository->getModuleFromRepositoryName]) {
-            throw new \InvalidArgumentException('This validator supports only Contact object');
+        if (!$baseModel instanceof BaseRepository::$moduleClassMapping[$this->objectRepository->getModuleFromRepositoryName]) {
+            throw new InvalidArgumentException('This validator supports only Contact object');
         }
 
         $description = $this->objectRepository->describe();
-        var_dump($description); die();
+        var_dump($description);
+        die();
     }
-
 }
