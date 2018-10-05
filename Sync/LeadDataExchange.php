@@ -35,11 +35,6 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
     const OBJECT_NAME = 'Leads';
 
     /**
-     * @var LeadRepository
-     */
-    private $objectRepository;
-
-    /**
      * @var ValueNormalizer
      */
     private $valueNormalizer;
@@ -60,9 +55,11 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
     /**
      * LeadDataExchange constructor.
      *
-     * @param LeadRepository        $leadsRepository
-     * @param VtigerSettingProvider $settingProvider
-     * @param LeadModel             $leadModel
+     * @param LeadRepository           $leadsRepository
+     * @param VtigerSettingProvider    $settingProvider
+     * @param LeadModel                $leadModel
+     * @param ValueNormalizerInterface $valueNormalizer
+     * @param LeadValidator            $objectValidator
      */
     public function __construct(
         LeadRepository $leadsRepository,
@@ -124,11 +121,7 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
      * @return mixed|void
      * @throws \Exception
      */
-    public function delete(array $objects)
-    {
-        // TODO: Implement delete() method.
-        throw new \Exception('Not implemented');
-    }
+    public function delete(array $objects) { throw new \Exception('Not implemented'); }
 
     /**
      * @param array $objects

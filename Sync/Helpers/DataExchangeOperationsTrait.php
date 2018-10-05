@@ -22,6 +22,16 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 trait DataExchangeOperationsTrait
 {
     /**
+     * @var BaseRepository
+     */
+    private $objectRepository;
+
+    /**
+     * @var ObjectValidatorInterface
+     */
+    private $objectValidator;
+
+    /**
      * @param array             $ids
      * @param ObjectChangeDAO[] $objects
      *

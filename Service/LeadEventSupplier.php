@@ -92,8 +92,6 @@ class LeadEventSupplier
      */
     public function getLeadEvents($leadIds, $eventsRequested = [], \DateTime $startDate = null, \DateTime $endDate = null)
     {
-        $leadActivity = [];
-
         $filters = [
             'search'        => '',
             'includeEvents' => $eventsRequested,
