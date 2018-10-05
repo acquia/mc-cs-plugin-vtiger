@@ -16,9 +16,11 @@ return [
     'author'      => 'Mautic',
     'services'    => [
         'events'       => [
-            'mautic.vtiger_crm.contact_timeline' => [
-                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\MauticTimelineServiceSubscriber::class,
-                'arguments' => [],
+            'mautic.vtiger_crm.subscriber.sync' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\SyncSubscriber::class,
+                'arguments' => [
+                    'mautic.vtiger_crm.sync.events_service',
+                ],
             ],
         ],
         'forms'        => [
