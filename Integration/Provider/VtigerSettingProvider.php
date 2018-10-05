@@ -16,33 +16,30 @@ use Mautic\PluginBundle\Entity\Integration;
 use MauticPlugin\IntegrationsBundle\Exception\IntegrationNotFoundException;
 use MauticPlugin\IntegrationsBundle\Helper\IntegrationsHelper;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 
 /**
  * Class VtigerSettingProvider
- * @package MauticPlugin\MauticVtigerCrmBundle\Integration
  */
 class VtigerSettingProvider
 {
-    /** @var IntegrationsHelper */
+    /**
+     * @var IntegrationsHelper
+     */
     private $integrationsHelper;
 
-    /** @var Integration */
+    /**
+     * @var Integration
+     */
     private $integrationEntity;
-
-    /** @var UserRepository */
-    private $userRepository;
 
     /**
      * VtigerSettingProvider constructor.
      *
      * @param IntegrationsHelper $helper
-     * @param UserRepository     $userRepository
      */
-    public function __construct(IntegrationsHelper $helper, UserRepository $userRepository)
+    public function __construct(IntegrationsHelper $helper)
     {
         $this->integrationsHelper = $helper;
-        $this->userRepository     = $userRepository;
     }
 
     /**
