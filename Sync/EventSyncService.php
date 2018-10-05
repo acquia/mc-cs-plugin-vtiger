@@ -12,15 +12,10 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use Mautic\CampaignBundle\Executioner\Scheduler\Mode\DateTime;
-use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Service\LeadEventSupplier;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\EventFactory;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\EventRepository;
@@ -57,84 +52,97 @@ final class EventSyncService
         $this->settingProvider   = $settingProvider;
     }
 
-    public function sync(\DateTimeInterface $dateFrom, \DateTimeInterface $dateTo)
+
+    /**
+     * @param \DateTimeInterface|null $dateFrom
+     * @param \DateTimeInterface|null $dateTo
+     */
+    public function sync(?\DateTimeInterface $dateFrom, ?\DateTimeInterface $dateTo)
     {
         $mapping = $this->leadEventSupplier->getLeadsMapping();
 
         $eventsToSynchronize = $this->getSyncReport($mapping, $this->settingProvider->getSetting('activityEvents'), $dateFrom, $dateTo);
 
-        foreach ($eventsToSynchronize['up'] as $eventUnifiedData) {
-            var_dump($eventUnifiedData); die();
-            $eventTime = new \DateTime();
-            $eventTime->setTimestamp($eventUnifiedData['timestamp']);
-            /** @var Event $event */
-            $event = EventFactory::createFromUnified($eventUnifiedData, $eventUnifiedData);
-            $event->setDateTimeStart($eventTime);
-            $event->setDateTimeEnd($eventTime);
-            $event->setSubject($eventUnifiedData['message']);
-            $event->setTaskPriority((string) $eventUnifiedData['priority']);
-            $event->setAssignedUserId($this->settingProvider->getSetting('owner'));
+        DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Uploading %d Events', count($eventsToSynchronize['up'])));
 
+        foreach ($eventsToSynchronize['up'] as $event) {
             $this->eventRepository->create($event);
         }
+
+        DebugLogger::log(VtigerCrmIntegration::NAME, 'Events have been uploaded');
     }
 
+    /**
+     * TODO refactor to compare two arrays at once, less iteration!
+     *
+     * @param       $mappings
+     * @param array $events
+     * @param null  $dateFrom
+     * @param null  $dateTo
+     *
+     * @return array
+     * @throws \Exception
+     */
     private function getSyncReport($mappings, array $events = [], $dateFrom = null, $dateTo = null) {
         $mauticEvents = $this->leadEventSupplier->getLeadEvents(array_keys($mappings), $events, $dateFrom, $dateTo);
 
         $vtigerEvents = $this->eventRepository->findByContactIds($mappings);
 
-        $eventTypes = array_flip($this->leadEventSupplier->getTypes());
+        $eventTypesFlipped = array_flip($this->leadEventSupplier->getTypes());
+        $eventTypes = $this->leadEventSupplier->getTypes();
 
         $result = ['up' => [], 'down' => []];
 
         $vtigerCheck = [];
         /** @var Event $vtigerEvent */
         foreach ($vtigerEvents as $vtigerEvent) {
-            if (!isset($eventTypes[$vtigerEvent->getSubject()])) {
+            if (!isset($eventTypesFlipped[$vtigerEvent->getSubject()])) {
                 continue;
             }
 
             $vtigerCheck[$vtigerEvent->getContactId()][$vtigerEvent->getDateTimeStart()->getTimestamp()][] = [
                 'timestamp' => $vtigerEvent->getDateTimeStart()->getTimestamp(),
                 'message' => $vtigerEvent->getSubject(),
-                'event'   => $eventTypes[$vtigerEvent->getSubject()],
+                'event'   => $eventTypesFlipped[$vtigerEvent->getSubject()],
                 'priority'  => $vtigerEvent->getTaskPriority(),
 
             ];
         }
 
-        $eventTypesFlipped = array_flip($eventTypes);
+        foreach ($mauticEvents as $mauticLeadId=>$leadEventsArray) {
+            $vtigerId = $mappings[$mauticLeadId] ?? false;
+            if (!$vtigerId) {   // Do not upload to not mapped contacts
+                continue;
+            }
+            foreach ($leadEventsArray as $eventTimeStamp=>$leadEvents) {
+                foreach ($leadEvents as $event) {
+                    $eventCheck = [
+                        'timestamp' => $eventTimeStamp,
+                        'message'   => $eventTypes[$event['event']],
+                        'event'     => $event['event'],
+                        'priority'  => $event['priority']
+                    ];
 
-        $mauticCheck = [];
-        foreach ($mauticEvents['events'] as $mauticEvent) {
-            $eventTimestamp  = $mauticEvent['timestamp']->getTimestamp();
-            $checkEvent      = [
-                'timestamp' => $eventTimestamp,
-                'message' => $eventTypesFlipped[$mauticEvent['event']],
-                'event'   => $mauticEvent['event'],
-                'priority'  => $mauticEvent['eventPriority']
-            ];
-            $mauticCheck[][] = $checkEvent;
-            if (isset($vtigerCheck[$eventTimestamp])) {
-                foreach ($vtigerCheck[$eventTimestamp] as $recordKey => $record) {
-                    if ($record === $checkEvent) {
-                        // This exists, we remove it from the check
-                        unset($vtigerCheck[$eventTimestamp][$recordKey]);
-                        continue(2);
+                    if (isset($vtigerCheck[$vtigerId][$eventTimeStamp]) && in_array($eventCheck, $vtigerCheck[$vtigerId][$eventTimeStamp])) {
+                        continue;
                     }
+
+                    $eventTime = new \DateTime();
+                    $eventTime->setTimestamp($eventTimeStamp);
+                    /** @var Event $event */
+                    $event = EventFactory::createEmptyPrefilled();
+                    $event->setContactId($vtigerId);
+                    $event->setDateTimeStart($eventTime);
+                    $event->setDateTimeEnd($eventTime);
+                    $event->setSubject($eventCheck['message']);
+                    $event->setTaskPriority((string)$eventCheck['priority']);
+                    $event->setAssignedUserId($this->settingProvider->getSetting('owner'));
+                    $result['up'][] = $event;
                 }
             }
-            $result['up'][] = $checkEvent;
+
         }
 
         return $result;
     }
-
-    public function getNewVtigerEvents(Contact $contact)
-    {
-
-    }
-
-
 }

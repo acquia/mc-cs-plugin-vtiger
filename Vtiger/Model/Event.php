@@ -82,4 +82,9 @@ class Event extends BaseModel
     public function getContactId(): ?string {
         return $this->data['contact_id'] ?? null;
     }
+
+    public function setContactId(?string $userId): Event {
+        $this->set('contact_id', $userId);
+        return $this;
+    }
 }

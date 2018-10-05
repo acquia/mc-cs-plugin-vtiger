@@ -129,7 +129,7 @@ class LeadEventSupplier
                     }
                     $checkEvent = [
                         'timestamp' => $event['timestamp']->getTimestamp(),
-                        'leadId'    => $event['event'],
+                        'leadId'    => $lead->getId(),
                         'event'     => $event['event'],
                         'priority'  => $event['eventPriority'],
                     ];

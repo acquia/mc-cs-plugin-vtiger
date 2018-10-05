@@ -12,14 +12,6 @@ use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 
 class EventFactory extends BaseModel
 {
-    public static function createFromUnified(array $unified, string $contactId = null) {
-        $event = self::createEmptyPrefilled();
-        if (!is_null($contactId)) {
-            $event->set('contact_id', $contactId);
-        }
-        return $event;
-    }
-
     public static function createEmptyPrefilled() {
         $event = new Event();
         $event->set('recurringtype','');

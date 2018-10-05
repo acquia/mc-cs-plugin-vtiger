@@ -17,22 +17,27 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 
+/**
+ * Trait TransformationsTrait
+ *
+ * @package MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers
+ */
 trait TransformationsTrait
 {
     private $transformations = [
-        NormalizedValueDAO::EMAIL_TYPE      => [
+        NormalizedValueDAO::EMAIL_TYPE       => [
             'func' => 'transformEmail',
         ],
-        NormalizedValueDAO::STRING_TYPE     => [
+        NormalizedValueDAO::STRING_TYPE      => [
             'func' => 'transformString',
         ],
-        NormalizedValueDAO::PHONE_TYPE      => [
+        NormalizedValueDAO::PHONE_TYPE       => [
             'func' => 'transformPhone',
         ],
-        NormalizedValueDAO::BOOLEAN_TYPE    => [
+        NormalizedValueDAO::BOOLEAN_TYPE     => [
             'func' => 'transformBoolean',
         ],
-        TransformerInterface::PICKLIST_TYPE => [
+        TransformerInterface::PICKLIST_TYPE  => [
             'func' => 'transformPicklist',
         ],
         TransformerInterface::REFERENCE_TYPE => [
@@ -40,7 +45,15 @@ trait TransformationsTrait
         ],
     ];
 
-    public function transform($type, $value)
+    /**
+     * @param $type
+     * @param $value
+     *
+     * @return NormalizedValueDAO
+     * @throws InvalidObjectValueException
+     * @throws InvalidQueryArgumentException
+     */
+    public function transform($type, $value): NormalizedValueDAO
     {
         if (!isset($this->transformations[$type])) {
             throw new InvalidQueryArgumentException(sprintf('Unknown type "%s", cannot transform.', $type));
@@ -48,7 +61,6 @@ trait TransformationsTrait
 
         $transformationMethod = $this->transformations[$type]['func'];
         $transformedValue     = $this->$transformationMethod($value);
-        printf("transforming '%s' of type %s to '%s'.\n", $value, $type, $transformedValue);
 
         if (
             is_null($transformedValue)
@@ -61,7 +73,12 @@ trait TransformationsTrait
         return new NormalizedValueDAO($type, $value, $transformedValue);
     }
 
-    protected function transformEmail($value)
+    /**
+     * @param $value
+     *
+     * @return null|string
+     */
+    protected function transformEmail($value): ?string
     {
         if (is_null($value) || strlen(trim($value)) === 0) {
             return null;
@@ -71,7 +88,12 @@ trait TransformationsTrait
         return $value;
     }
 
-    protected function transformString($value)
+    /**
+     * @param $value
+     *
+     * @return null|string
+     */
+    protected function transformString($value): ?string
     {
         if (is_null($value)) {
             return $value;
@@ -80,7 +102,12 @@ trait TransformationsTrait
         return (string)$value;
     }
 
-    protected function transformBoolean($value)
+    /**
+     * @param $value
+     *
+     * @return int|null
+     */
+    protected function transformBoolean($value): ?int
     {
         if (is_null($value)) {
             return $value;
@@ -89,17 +116,33 @@ trait TransformationsTrait
         return intval((bool)$value);
     }
 
-    protected function transformPhone($value)
+    /**
+     * @param $value
+     *
+     * @return null|string
+     */
+    protected function transformPhone($value): ?string
     {
         return $this->transformString($value);
     }
 
-    protected function transformPicklist($value)
+    /**
+     * @param $value
+     *
+     * @return null|string
+     */
+    protected function transformPicklist($value): ?string
     {
         return $this->transformString($value);
     }
 
-    protected function transformReference($value) {
+    /**
+     * @param $value
+     *
+     * @return null|string
+     */
+    protected function transformReference($value): ?string
+    {
         return $this->transformString($value);
     }
 }

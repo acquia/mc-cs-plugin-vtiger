@@ -57,6 +57,6 @@ class SyncSubscriber implements EventSubscriberInterface
             return;
         }
 
-        //$this->eventSyncService->sync($this->dateFrom, $this->dateTo);
+        $this->eventSyncService->sync($this->dateFrom, $this->dateTo);
     }
 }
