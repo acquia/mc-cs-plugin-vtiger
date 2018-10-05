@@ -235,7 +235,7 @@ class Connection
      * @param string $operation
      * @param array  $payload
      *
-     * @return ResponseInterface
+     * @return mixed
      *
      * @throws AccessDeniedException
      * @throws AuthenticationException
@@ -245,7 +245,7 @@ class Connection
      * @throws SessionException
      * @throws VtigerPluginException
      */
-    public function get(string $operation, array $payload = []): ResponseInterface
+    public function get(string $operation, array $payload = [])
     {
         $this->isConfigured();
 

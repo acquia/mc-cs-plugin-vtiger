@@ -19,8 +19,8 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO;
 interface ObjectSyncDataExchangeInterface
 {
     /**
-     * @param ObjectDAO $requestedObject
-     * @param ReportDAO $syncReport
+     * @param ObjectDAO $objectDAO
+     * @param ReportDAO $reportDAO
      *
      * @return mixed
      */

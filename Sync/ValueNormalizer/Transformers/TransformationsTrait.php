@@ -40,7 +40,7 @@ trait TransformationsTrait
         ],
     ];
 
-    public function transform($type, $value)
+    public function transform($type, $value): NormalizedValueDAO
     {
         if (!isset($this->transformations[$type])) {
             throw new InvalidQueryArgumentException(sprintf('Unknown type "%s", cannot transform.', $type));

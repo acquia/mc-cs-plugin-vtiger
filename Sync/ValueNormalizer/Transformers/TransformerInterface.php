@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+
 interface TransformerInterface
 {
     const PICKLIST_TYPE  = 'picklist';
     const REFERENCE_TYPE = 'reference';
 
-    public function transform($type, $value): void;
+    public function transform($type, $value): NormalizedValueDAO;
 }

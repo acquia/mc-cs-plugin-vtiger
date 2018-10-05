@@ -92,7 +92,7 @@ final class LeadDataExchange implements ObjectSyncDataExchangeInterface
      */
     public function getObjectSyncReport(
         RequestObjectDAO $requestedObject,
-        ReportDAO &$syncReport
+        ReportDAO $syncReport
     ): ReportDAO
     {
 
