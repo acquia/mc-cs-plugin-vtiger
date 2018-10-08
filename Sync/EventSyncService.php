@@ -148,7 +148,7 @@ final class EventSyncService
                     $event->setDateTimeEnd($eventTime);
                     $event->setSubject($eventCheck['message']);
                     $event->setTaskPriority((string)$eventCheck['priority']);
-                    $event->setAssignedUserId($this->settingProvider->getSetting('owner'));
+                    $event->setAssignedUserId($this->settingProvider->getSyncSetting('owner'));
                     $result['up'][] = $event;
                 }
             }

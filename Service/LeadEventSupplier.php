@@ -129,7 +129,7 @@ class LeadEventSupplier
                         'timestamp' => $event['timestamp']->getTimestamp(),
                         'leadId'    => $lead->getId(),
                         'event'     => $event['event'],
-                        'priority'  => $event['eventPriority'],
+                        'priority'  => $event['eventPriority'] ?? 0,
                     ];
 
                     $vtigerCheck[$leadId][$event['timestamp']->getTimestamp()][] = $checkEvent;

@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper;
 
+use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
@@ -139,6 +141,7 @@ trait RepositoryHelper
      */
     private function createUnified($module): BaseModel
     {
+        DebugLogger::log(VtigerCrmIntegration::NAME, 'Creating ' .  $this->getModuleFromRepositoryName());
         $response = $this->connection->post('create', ['element' => json_encode($module->dehydrate()), 'elementType' => $this->getModuleFromRepositoryName()]);
 
         $className = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
@@ -154,6 +157,7 @@ trait RepositoryHelper
      */
     public function update(BaseModel $module): BaseModel
     {
+        DebugLogger::log(VtigerCrmIntegration::NAME, 'Updating ' .  $this->getModuleFromRepositoryName() . ' ' . $module->getId());
         $response = $this->connection->post('update', ['element' => json_encode($module->dehydrate())]);
 
         $className = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];

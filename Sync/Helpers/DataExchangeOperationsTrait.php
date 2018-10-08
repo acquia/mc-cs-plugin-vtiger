@@ -151,9 +151,9 @@ trait DataExchangeOperationsTrait
             if (!$this->settings->getSyncSetting('owner')) {
                 throw new InvalidConfigurationException('You need to configure owner for new objects');
             }
-            $objectModel->setAssignedUserId($this->settings->getSetting('owner'));
+            $objectModel->setAssignedUserId($this->settings->getSyncSetting('owner'));
 
-            
+
             /** Perform validation */
             $this->objectValidator->validate($objectModel);
 
