@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Integration\Provider;
 
 use Mautic\PluginBundle\Entity\Integration;
 use MauticPlugin\IntegrationsBundle\Exception\IntegrationNotFoundException;
+use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\IntegrationsBundle\Helper\IntegrationsHelper;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 
@@ -81,6 +82,24 @@ class VtigerSettingProvider
         }
 
         return $this->integrationEntity->getFeatureSettings();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConfigured(): bool {
+        $credentialsCfg = $this->getCredentials();
+
+        return !((!isset($credentialsCfg['accessKey']) || !isset($credentialsCfg['username']) || !isset($credentialsCfg['url'])));
+    }
+
+    /**
+     * @throws PluginNotConfiguredException
+     */
+    public function exceptConfigured(): void {
+        if (!$this->isConfigured()) {
+            throw new PluginNotConfiguredException(VtigerCrmIntegration::NAME . ' is not configured');
+        }
     }
 
     /**

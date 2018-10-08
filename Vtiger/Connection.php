@@ -221,7 +221,7 @@ class Connection
      */
     public function get(string $operation, array $payload = [])
     {
-        $this->isConfigured();
+        $this->settings->exceptConfigured();
 
         $query = sprintf("%s?operation=%s",
             $this->getApiUrl(),
@@ -269,7 +269,7 @@ class Connection
      * @throws VtigerPluginException
      */
     public function query(string $operation, array $payload = []) {
-        $this->isConfigured();
+        $this->settings->exceptConfigured();
 
         if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
             throw new SessionException('Not authenticated.');
@@ -317,7 +317,7 @@ class Connection
      */
     public function post(string $operation, array $payload)
     {
-        $this->isConfigured();
+        $this->settings->exceptConfigured();
 
         $payloadFinal['operation'] = $operation;
 
@@ -407,14 +407,6 @@ class Connection
             }
         } catch (\Exception $e) {
 
-        }
-    }
-
-    private function isConfigured() {
-        $credentialsCfg = $this->settings->getCredentials();
-
-        if ((!isset($credentialsCfg['accessKey']) || !isset($credentialsCfg['username']) || !isset($credentialsCfg['url']))) {
-            throw new PluginNotConfiguredException(VtigerCrmIntegration::NAME . ' is not configured');
         }
     }
 }

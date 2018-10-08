@@ -61,7 +61,10 @@ final class EventSyncService
     {
         $mapping = $this->leadEventSupplier->getLeadsMapping();
 
-        $eventsToSynchronize = $this->getSyncReport($mapping, $this->settingProvider->getSetting('activityEvents'), $dateFrom, $dateTo);
+        $this->settingProvider->exceptConfigured();
+
+        $eventsToSynchronize = $this->getSyncReport($mapping, $this->settingProvider->getSyncSetting('activityEvents'), $dateFrom, $dateTo);
+
 
         DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Uploading %d Events', count($eventsToSynchronize['up'])));
 
