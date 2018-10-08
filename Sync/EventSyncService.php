@@ -64,6 +64,11 @@ final class EventSyncService
     public function sync(?\DateTimeInterface $dateFrom, ?\DateTimeInterface $dateTo)
     {
         $mapping = $this->leadEventSupplier->getLeadsMapping();
+        
+        if (!count($mapping)) {
+            DebugLogger::log(VtigerCrmIntegration::NAME, 'No mapped contacts to synchronize activities for.');;
+            return;
+        }
 
         $this->settingProvider->exceptConfigured();
 
