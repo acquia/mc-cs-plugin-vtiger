@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * @copyright   2018 Mautic, Inc. All rights reserved
- * @author      Mautic, Inc.
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc. Jan Kozak <galvani78@gmail.com>
  *
- * @link        https://mautic.com
- *
+ * @link        http://mautic.com
+ * @created     7.9.18
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
@@ -17,6 +19,11 @@ use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * Class SyncSubscriber
+ * 
+ * @package MauticPlugin\MauticVtigerCrmBundle\EventListener
+ */
 class SyncSubscriber implements EventSubscriberInterface
 {
     /**
@@ -42,7 +49,7 @@ class SyncSubscriber implements EventSubscriberInterface
     /**
      * @return array
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             SyncEvents::INTEGRATION_POST_EXECUTE => ['onPostExecuteOrder', 0],
@@ -52,7 +59,7 @@ class SyncSubscriber implements EventSubscriberInterface
     /**
      * @param SyncEvent $event
      */
-    public function onPostExecuteOrder(SyncEvent $event) {
+    public function onPostExecuteOrder(SyncEvent $event): void {
         if (!$event->isIntegration(VtigerCrmIntegration::NAME)) {
             return;
         }

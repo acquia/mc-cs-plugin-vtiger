@@ -1,27 +1,37 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 28.5.18
- * Time: 18:30
+declare(strict_types=1);
+
+/*
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc. Jan Kozak <galvani78@gmail.com>
+ *
+ * @link        http://mautic.com
+ * @created     7.9.18
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-
+/**
+ * Class EventFactory
+ *
+ * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model
+ */
 class EventFactory extends BaseModel
 {
-    public static function createEmptyPrefilled() {
+    /**
+     * @return Event
+     */
+    public static function createEmptyPrefilled(): Event {
         $event = new Event();
         $event->set('recurringtype','');
         $event->set('duration_hours', 0);
         $event->set('duration_minutes', 0);
         $event->set('eventstatus', 'Held');
-//        $event->set('sendnotification', 0);
         $event->set('activitytype', 'Mautic Event');
-//        $event->set('createdtime', $created = (new \DateTime())->getTimestamp());
-//        $event->set('modifiedtime', $created = (new \DateTime())->getTimestamp());
+/*      $event->set('createdtime', $created = (new \DateTime())->getTimestamp());
+        $event->set('modifiedtime', $created = (new \DateTime())->getTimestamp());
+        $event->set('sendnotification', 0);*/
         $event->set('visibility', 'Public');
         $event->set('notime', 0);
         $event->set('reminder_time', 0);
