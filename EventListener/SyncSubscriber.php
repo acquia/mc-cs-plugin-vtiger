@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class SyncSubscriber
- * 
+ *
  * @package MauticPlugin\MauticVtigerCrmBundle\EventListener
  */
 class SyncSubscriber implements EventSubscriberInterface

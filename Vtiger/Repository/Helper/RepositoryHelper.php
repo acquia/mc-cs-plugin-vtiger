@@ -1,9 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 11.7.18
- * Time: 10:41
+declare(strict_types=1);
+
+/*
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc. Jan Kozak <galvani78@gmail.com>
+ *
+ * @link        http://mautic.com
+ * @created     7.9.18
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper;
@@ -12,8 +16,12 @@ use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\SyncReport;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 
 /**
@@ -36,7 +44,7 @@ trait RepositoryHelper
      * @param array  $where
      * @param string $columns
      *
-     * @return array|Account[]
+     * @return array
      */
     protected function findByInternal($where = [], $columns = '*')
     {
@@ -74,7 +82,7 @@ trait RepositoryHelper
      * @param array  $where
      * @param string $columns
      *
-     * @return BaseModel|null
+     * @return BaseModel|null|Account|Contact|Event|Lead|User
      */
     public function findOneBy($where = [], $columns = '*')
     {
@@ -202,6 +210,7 @@ trait RepositoryHelper
      * ```sync(modifiedTime: Timestamp, elementType: String, syncType: String):SyncResult```
      */
     public function sync(int $modifiedTime, $syncType = BaseRepository::SYNC_APPLICATION) {
+        throw new \Exception('Remote API support for sync is not working, thus not implemented. If it starts working we should use it at least for deleted.');
         $moduleName = $this->getModuleFromRepositoryName();
 
         $query = [
@@ -210,15 +219,9 @@ trait RepositoryHelper
             //'syncType' => 'user'
         ];
 
-        var_dump($query);
         /** @var Connection $this->connection */
         $response = $this->connection->query('sync', $query);
 
-        var_dump($response);
         $report = new SyncReport($response, $moduleName);
-
-        var_dump($report);
-        var_dump($response);
-        die();
     }
 }
