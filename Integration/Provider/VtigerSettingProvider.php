@@ -13,32 +13,33 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Integration\Provider;
 
 use Mautic\PluginBundle\Entity\Integration;
-use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\IntegrationsBundle\Exception\IntegrationNotFoundException;
 use MauticPlugin\IntegrationsBundle\Helper\IntegrationsHelper;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class VtigerSettingProvider
- * @package MauticPlugin\MauticVtigerCrmBundle\Integration
  */
 class VtigerSettingProvider
 {
-    /** @var IntegrationsHelper */
-    private $integrationHelper;
+    /**
+     * @var IntegrationsHelper
+     */
+    private $integrationsHelper;
 
-    /** @var Integration */
+    /**
+     * @var Integration
+     */
     private $integrationEntity;
 
-    /** @var UserRepository */
-    private $container;
-
-    public function __construct(IntegrationsHelper $helper, ContainerInterface $container)
+    /**
+     * VtigerSettingProvider constructor.
+     *
+     * @param IntegrationsHelper $helper
+     */
+    public function __construct(IntegrationsHelper $helper)
     {
-        $this->integrationHelper = $helper;
-        $this->container         = $container;
+        $this->integrationsHelper = $helper;
     }
 
     /**
@@ -48,12 +49,13 @@ class VtigerSettingProvider
     {
         if (is_null($this->integrationEntity)) {
             try {
-                $integrationObject       = $this->integrationHelper->getIntegration(VtigerCrmIntegration::NAME);
+                $integrationObject       = $this->integrationsHelper->getIntegration(VtigerCrmIntegration::NAME);
                 $this->integrationEntity = $integrationObject->getIntegrationConfiguration();
             } catch (IntegrationNotFoundException $exception) {
                 return null;
             }
         }
+
         return $this->integrationEntity;
     }
 
@@ -65,22 +67,8 @@ class VtigerSettingProvider
         if ($this->getIntegrationEntity() === null) {
             return [];
         }
+
         return $this->integrationEntity->getApiKeys();
-    }
-
-
-    /**
-     * @return array
-     */
-    public function getFormOwners(): array
-    {
-        $owners = $this->container->get('mautic.vtiger_crm.repository.users')->findBy();
-        $ownersArray = [];
-        foreach ($owners as $owner) {
-            $ownersArray[$owner->getId()] = (string)$owner;
-        }
-
-        return $ownersArray;
     }
 
     /**
@@ -91,26 +79,50 @@ class VtigerSettingProvider
         if ($this->getIntegrationEntity() === null) {
             return [];
         }
+
         return $this->integrationEntity->getFeatureSettings();
     }
 
     /**
-     * @param $settingName
+     * Gets a setting from the ConfigSyncFeaturesType form
      *
-     * @return array|string
+     * @param string $settingName
+     *
+     * @return mixed
      */
-    public function getSetting($settingName)
+    public function getSyncSetting(string $settingName)
     {
-        $settings = $this->getSettings();
+        $settings = $this->getSettings()['sync']['integration'] ?? [];
 
         if (!array_key_exists($settingName, $settings)) {
             // todo debug only @debug
             throw new \InvalidArgumentException(
-                sprintf('Setting "%s" does not exists, supported: %s',
-                    $settingName, join(', ', array_keys($settings))
-                ));
+                sprintf(
+                    'Setting "%s" does not exists, supported: %s',
+                    $settingName,
+                    join(', ', array_keys($settings))
+                )
+            );
         }
 
         return $settings[$settingName];
+    }
+
+    /**
+     * @return array
+     */
+    public function getSyncObjects()
+    {
+        return isset($this->getSettings()['sync']['objects']) ? $this->getSettings()['sync']['objects'] : [];
+    }
+
+    /**
+     * @param string $object
+     *
+     * @return array
+     */
+    public function getFieldMappings(string $object): array
+    {
+        return isset($this->getSettings()['sync']['fieldMappings'][$object]) ? $this->getSettings()['sync']['fieldMappings'][$object] : [];
     }
 }
