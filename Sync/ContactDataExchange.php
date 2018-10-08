@@ -117,7 +117,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
         $objectFields = $this->objectRepository->describe()->getFields();
 
         $mappedFields = array_merge($mappedFields, [
-            'isconvertedfromlead', 'leadsource', 'reference', 'source', 'contact_id',
+            'isconvertedfromlead', 'leadsource', 'reference', 'source', 'contact_id', 'emailoptout'
         ]);
 
         $deleted = [];
@@ -213,6 +213,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
             }
         }
 
+        //  Update DNC information
         return $this->internalInsert($insertable);
     }
 

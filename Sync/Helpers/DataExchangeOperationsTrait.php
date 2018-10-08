@@ -153,6 +153,7 @@ trait DataExchangeOperationsTrait
             }
             $objectModel->setAssignedUserId($this->settings->getSetting('owner'));
 
+            
             /** Perform validation */
             $this->objectValidator->validate($objectModel);
 

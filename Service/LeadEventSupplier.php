@@ -93,8 +93,9 @@ class LeadEventSupplier
             $filters['dateTo']   = $endDate;
         }
 
+        $vtigerCheck = [];
+
         foreach ($leadIds as $leadId) {
-            $activity = [];
             $lead     = $this->leadModel->getEntity($leadId);
             $page     = 1;
             while (true) {
