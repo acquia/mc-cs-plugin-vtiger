@@ -13,16 +13,21 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\EventListener;
 
 
-use MauticPlugin\MauticVtigerCrmBundle\EventListener\IntegrationSyncService;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSyncProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 
-class IntegrationSyncServiceTest extends \PHPUnit_Framework_TestCase
+class VtigerSyncProviderTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var VtigerSyncProvider
+     */
+    private $integrationSyncService;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->integrationSyncService = new IntegrationSyncService($this->dataExchange, $this->integrationHelper);
+        $this->integrationSyncService = new VtigerSyncProvider($this->dataExchange);
     }
 
     public function testGetName()

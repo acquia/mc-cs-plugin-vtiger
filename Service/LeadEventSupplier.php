@@ -31,6 +31,7 @@ class LeadEventSupplier
 
     /** @var EventTransformer */
     private $eventTransformer;
+
     /**
      * @var EntityManager
      */
@@ -39,7 +40,8 @@ class LeadEventSupplier
     /**
      * LeadEventSupplier constructor.
      *
-     * @param LeadModel $leadModel
+     * @param LeadModel             $leadModel
+     * @param VtigerSettingProvider $settingProvider
      */
     public function __construct(LeadModel $leadModel, VtigerSettingProvider $settingProvider, EntityManager $em)
     {

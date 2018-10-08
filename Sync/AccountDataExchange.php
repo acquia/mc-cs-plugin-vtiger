@@ -93,10 +93,10 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
             }
             /** @var Contact $model */
             $model = new $modelName($objectData);
-            if (!$this->settings->getSetting('owner')) {
+            if (!$this->settings->getSyncSetting('owner')) {
                 throw new InvalidConfigurationException('You need to configure owner for new objects');
             }
-            $model->setAssignedUserId($this->settings->getSetting('owner'));
+            $model->setAssignedUserId($this->settings->getSyncSetting('owner'));
 
             try {
                 $response = $this->objectRepository->create($model);
