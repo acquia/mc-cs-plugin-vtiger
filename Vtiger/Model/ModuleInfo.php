@@ -1,9 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 28.5.18
- * Time: 18:30
+
+declare(strict_types=1);
+
+/*
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc.
+ *
+ * @link        https://www.mautic.com
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
@@ -29,25 +34,54 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
  */
 class ModuleInfo
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     private $label;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     private $name;
-    /** @var bool */
+
+    /**
+     * @var bool
+     */
     private $createable;
-    /** @var bool */
+
+    /**
+     * @var bool
+     */
     private $updateable;
-    /** @var bool */
+
+    /**
+     * @var bool
+     */
     private $deleteable;
-    /** @var bool */
+
+    /**
+     * @var bool
+     */
     private $retrieveable;
-    /** @var array */
+
+    /**
+     * @var array
+     */
     private $fields;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     private $idPrefix;
-    /** @var bool */
+
+    /**
+     * @var bool
+     */
     private $allowDuplicates;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     private $labelFields;
 
     /**
@@ -150,6 +184,4 @@ class ModuleInfo
     {
         return $this->labelFields;
     }
-
-
 }

@@ -1,20 +1,20 @@
 <?php
 
-namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
+declare(strict_types=1);
 
 /*
- * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc.
  *
- * @link        http://mautic.org
+ * @link        https://www.mautic.com
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- * @author      Jan Kozak <galvani78@gmail.com>
  */
+
+namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
 
 use GuzzleHttp\Psr7\Response;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
-use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException;

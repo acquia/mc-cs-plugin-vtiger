@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc.
  *
- * @link        http://mautic.org
+ * @link        https://www.mautic.com
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -172,7 +174,6 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.repository.company_details',
                     'mautic.vtiger_crm.settings',
-                    'mautic.lead.model.company',
                     'mautic.vtiger_crm.value_normalizer',
                 ],
             ],
@@ -188,7 +189,7 @@ return [
             ],
             'mautic.vtiger_crm.lead_event_supplier'                => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Service\LeadEventSupplier::class,
-                'arguments' => ['mautic.lead.model.lead', 'mautic.vtiger_crm.settings', 'doctrine.orm.entity_manager']
+                'arguments' => ['mautic.lead.model.lead', 'doctrine.orm.entity_manager']
             ],
             'mautic.vtiger_crm.sync.events_service'                => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService::class,

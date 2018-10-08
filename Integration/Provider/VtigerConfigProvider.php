@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * @copyright   2018 Mautic Inc. All rights reserved
  * @author      Mautic, Inc.
@@ -11,7 +13,6 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Integration\Provider;
 
-
 use MauticPlugin\IntegrationsBundle\Integration\ConfigurationTrait;
 use MauticPlugin\IntegrationsBundle\Integration\DefaultConfigFormTrait;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormAuthInterface;
@@ -19,7 +20,6 @@ use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormFeaturesInt
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormSyncInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigAuthType;
-use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigFeatureSettingsType;
 use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigSyncFeaturesType;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\BasicTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;

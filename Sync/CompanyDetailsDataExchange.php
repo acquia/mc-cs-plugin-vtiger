@@ -1,28 +1,29 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 24.8.18
- * Time: 13:50
+
+declare(strict_types=1);
+
+/*
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc.
+ *
+ * @link        https://www.mautic.com
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use Mautic\LeadBundle\Model\CompanyModel;
-use Mautic\LeadBundle\Model\LeadModel;
 use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
-use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeReportTrait;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\CompanyDetailsRepository;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -40,22 +41,17 @@ final class CompanyDetailsDataExchange implements ObjectSyncDataExchangeInterfac
     /** @var ValueNormalizerInterface */
     private $valueNormalizer;
 
-    /** @var LeadModel */
-    private $model;
-
     /** @var VtigerSettingProvider  */
     private $settings;
 
     public function __construct(
         CompanyDetailsRepository $companyDetailsRepository,
         VtigerSettingProvider $settingProvider,
-        CompanyModel $companyModel,
         ValueNormalizerInterface $valueNormalizer
     )
     {
         $this->objectRepository = $companyDetailsRepository;
         $this->valueNormalizer = $valueNormalizer;
-        $this->model = $companyModel;
         $this->settings = $settingProvider;
     }
 

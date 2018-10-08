@@ -1,22 +1,20 @@
 <?php
+
 declare(strict_types=1);
 
 /*
  * @copyright   2018 Mautic Inc. All rights reserved
- * @author      Mautic, Inc. Jan Kozak <galvani78@gmail.com>
+ * @author      Mautic, Inc.
  *
- * @link        http://mautic.com
- * @created     7.9.18
+ * @link        https://www.mautic.com
+ *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Service;
 
 use Doctrine\ORM\EntityManager;
-use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Model\LeadModel;
-use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
-use MauticPlugin\MauticVtigerCrmBundle\Service\Transformer\EventTransformer;
 
 class LeadEventSupplier
 {
@@ -24,13 +22,6 @@ class LeadEventSupplier
      * @var LeadModel
      */
     private $leadModel;
-    /**
-     * @var VtigerSettingProvider
-     */
-    private $settingProvider;
-
-    /** @var EventTransformer */
-    private $eventTransformer;
 
     /**
      * @var EntityManager
@@ -38,16 +29,13 @@ class LeadEventSupplier
     private $em;
 
     /**
-     * LeadEventSupplier constructor.
-     *
-     * @param LeadModel             $leadModel
-     * @param VtigerSettingProvider $settingProvider
+     * @param LeadModel     $leadModel
+     * @param EntityManager $em
      */
-    public function __construct(LeadModel $leadModel, VtigerSettingProvider $settingProvider, EntityManager $em)
+    public function __construct(LeadModel $leadModel, EntityManager $em)
     {
-        $this->leadModel       = $leadModel;
-        $this->settingProvider = $settingProvider;
-        $this->em              = $em;
+        $this->leadModel = $leadModel;
+        $this->em        = $em;
     }
 
     public function getMappedLeadIds()

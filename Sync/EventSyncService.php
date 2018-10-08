@@ -1,12 +1,13 @@
 <?php
+
 declare(strict_types=1);
 
 /*
  * @copyright   2018 Mautic Inc. All rights reserved
- * @author      Mautic, Inc. Jan Kozak <galvani78@gmail.com>
+ * @author      Mautic, Inc.
  *
- * @link        http://mautic.com
- * @created     7.9.18
+ * @link        https://www.mautic.com
+ *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
@@ -30,20 +31,21 @@ final class EventSyncService
      * @var LeadEventSupplier
      */
     private $leadEventSupplier;
+
     /**
      * @var EventRepository
      */
     private $eventRepository;
+
     /**
      * @var VtigerSettingProvider
      */
     private $settingProvider;
 
     /**
-     * EventSyncService constructor.
-     *
-     * @param LeadEventSupplier $leadEventSupplier
-     * @param EventRepository   $eventRepository
+     * @param LeadEventSupplier     $leadEventSupplier
+     * @param EventRepository       $eventRepository
+     * @param VtigerSettingProvider $settingProvider
      */
     public function __construct(LeadEventSupplier $leadEventSupplier, EventRepository $eventRepository, VtigerSettingProvider $settingProvider)
     {
@@ -56,6 +58,8 @@ final class EventSyncService
     /**
      * @param \DateTimeInterface|null $dateFrom
      * @param \DateTimeInterface|null $dateTo
+     *
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
     public function sync(?\DateTimeInterface $dateFrom, ?\DateTimeInterface $dateTo)
     {

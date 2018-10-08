@@ -1,9 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jan
- * Date: 28.5.18
- * Time: 18:38
+
+declare(strict_types=1);
+
+/*
+ * @copyright   2018 Mautic Inc. All rights reserved
+ * @author      Mautic, Inc.
+ *
+ * @link        https://www.mautic.com
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
@@ -27,21 +32,44 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
  */
 class ModuleFieldInfo
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     private $name;
-    /** @var string */
+
+    /**
+     * @var string
+     */
     private $label;
-    /** @var bool */
+
+    /**
+     * @var bool
+     */
     private $mandatory;
-    /** @var mixed */
+
+    /**
+     * @var mixed
+     */
     private $type;
-    /** @var bool */
+
+    /**
+     * @var bool
+     */
     private $isUnique;
-    /** @var bool */
+
+    /**
+     * @var bool
+     */
     private $nullable;
-    /** @var bool */
+
+    /**
+     * @var bool
+     */
     private $editable;
-    /** @var String */
+
+    /**
+     * @var String
+     */
     private $default;
 
     public function __construct(\stdClass $data)
@@ -133,5 +161,4 @@ class ModuleFieldInfo
     {
         return $this->default;
     }
-
 }

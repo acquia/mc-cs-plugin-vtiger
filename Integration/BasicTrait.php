@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * @copyright   2018 Mautic Inc. All rights reserved
  * @author      Mautic, Inc.
@@ -10,7 +12,6 @@
  */
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Integration;
-
 
 trait BasicTrait
 {
@@ -29,5 +30,4 @@ trait BasicTrait
     {
         return 'vTiger';
     }
-
 }
