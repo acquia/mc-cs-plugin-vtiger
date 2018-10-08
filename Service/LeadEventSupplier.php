@@ -38,7 +38,11 @@ class LeadEventSupplier
         $this->em        = $em;
     }
 
-    public function getMappedLeadIds()
+    /**
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getMappedLeadIds(): array
     {
         $connection = $this->em->getConnection();
 
@@ -56,6 +60,10 @@ class LeadEventSupplier
         return explode(',', $results['ids']);
     }
 
+    /**
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
+     */
     public function getLeadsMapping() {
         $connection = $this->em->getConnection();
 
@@ -74,9 +82,10 @@ class LeadEventSupplier
     }
 
     /**
+     * @param                $leadIds
+     * @param array          $eventsRequested
      * @param \DateTime|null $startDate
      * @param \DateTime|null $endDate
-     * @param                $leadId
      *
      * @return array
      */
@@ -134,6 +143,9 @@ class LeadEventSupplier
         return $vtigerCheck;
     }
 
+    /**
+     * @return array|null
+     */
     public function getTypes()
     {
         $types = $this->leadModel->getEngagementTypes();
