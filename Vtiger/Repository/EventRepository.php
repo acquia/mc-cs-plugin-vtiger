@@ -76,14 +76,18 @@ class EventRepository extends BaseRepository
         $query = "select * from " . $moduleName;
         $query .= sprintf(" where contact_id in ('%s')", join("','", $contactIds));
 
-        $query .= ";";
-
-        $result = $this->connection->get('query', ['query' => $query]);
         $return = [];
 
-        foreach ($result as $key=>$moduleObject) {
-            $return[] = new $className((array) $moduleObject);
-        }
+        $offset = 0; $limit = 100;
+
+        do {
+            $queryLimiter = sprintf("LIMIT %d,%d", $offset, $limit);
+            $result = $this->connection->get('query', ['query' => $query . " " . $queryLimiter]);
+            foreach ($result as $key=>$moduleObject) {
+                $return[] = new $className((array) $moduleObject);
+            }
+            $offset += $limit;
+        } while (count($result));
 
         return $return;
     }
