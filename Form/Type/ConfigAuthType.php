@@ -14,11 +14,13 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Form\Type;
 
 use MauticPlugin\IntegrationsBundle\Form\Type\NotBlankIfPublishedConstraintTrait;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerConfigProvider;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ConfigAuthType extends AbstractType
 {
@@ -28,8 +30,16 @@ class ConfigAuthType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array                $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $accessKey = null;
+
+        /** @var VtigerConfigProvider $configProvider */
+        $configProvider = $options['integration'];
+        if ($configProvider->getIntegrationConfiguration() && $configProvider->getIntegrationConfiguration()->getApiKeys()) {
+            $accessKey = $configProvider->getIntegrationConfiguration()->getApiKeys()['accessKey'] ?? null;
+        }
+
         $builder->add(
             'url',
             UrlType::class,
@@ -69,7 +79,18 @@ class ConfigAuthType extends AbstractType
                     'class' => 'form-control',
                 ],
                 'constraints' => [$this->getNotBlankConstraint()],
+                'empty_data' => $accessKey,
             ]
         );
+    }
+
+    /**
+     * @param OptionsResolver $resolver
+     */
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+           'integration' => null,
+        ]);
     }
 }
