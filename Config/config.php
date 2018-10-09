@@ -18,8 +18,14 @@ return [
     'author'      => 'Mautic',
     'services'    => [
         'events'       => [
-            'mautic.vtiger_crm.subscriber.sync' => [
-                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\SyncSubscriber::class,
+            'mautic.vtiger_crm.subscriber.events_sync' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\SyncEventsSubscriber::class,
+                'arguments' => [
+                    'mautic.vtiger_crm.sync.events_service',
+                ],
+            ],
+            'mautic.vtiger_crm.subscriber.dnc_sync' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\SyncDNCSubscriber::class,
                 'arguments' => [
                     'mautic.vtiger_crm.sync.events_service',
                 ],

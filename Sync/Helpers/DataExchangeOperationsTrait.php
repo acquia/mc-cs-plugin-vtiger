@@ -13,12 +13,14 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers;
 
+use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ObjectValidatorInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 
 trait DataExchangeOperationsTrait
@@ -146,7 +148,7 @@ trait DataExchangeOperationsTrait
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
 
-            /** @var Contact $objectModel */
+            /** @var BaseModel $objectModel */
             $objectModel = new $modelName($objectData);
             if (!$this->settings->getSyncSetting('owner')) {
                 throw new InvalidConfigurationException('You need to configure owner for new objects');

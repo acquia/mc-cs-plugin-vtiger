@@ -141,7 +141,6 @@ trait RepositoryHelper
      */
     private function createUnified($module): BaseModel
     {
-        DebugLogger::log(VtigerCrmIntegration::NAME, 'Creating ' .  $this->getModuleFromRepositoryName());
         $response = $this->connection->post('create', ['element' => json_encode($module->dehydrate()), 'elementType' => $this->getModuleFromRepositoryName()]);
 
         $className = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];

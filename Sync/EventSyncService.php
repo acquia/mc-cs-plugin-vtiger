@@ -77,7 +77,15 @@ final class EventSyncService
 
         DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Uploading %d Events', count($eventsToSynchronize['up'])));
 
+        $iter = 0;
         foreach ($eventsToSynchronize['up'] as $event) {
+            DebugLogger::log(VtigerCrmIntegration::NAME,
+                sprintf('Creating %s [%d%%] %d of %d ',
+                    'event',
+                    round(100 * (++$iter / count($eventsToSynchronize['up']))),
+                    $iter,
+                    count($eventsToSynchronize['up'])
+                ));
             $this->eventRepository->create($event);
         }
 
@@ -121,6 +129,7 @@ final class EventSyncService
             ];
         }
 
+        $found = 0;
         foreach ($mauticEvents as $mauticLeadId=>$leadEventsArray) {
             $vtigerId = $mappings[$mauticLeadId] ?? false;
             if (!$vtigerId) {   // Do not upload to not mapped contacts
@@ -136,6 +145,7 @@ final class EventSyncService
                     ];
 
                     if (isset($vtigerCheck[$vtigerId][$eventTimeStamp]) && in_array($eventCheck, $vtigerCheck[$vtigerId][$eventTimeStamp])) {
+                        $found++;
                         continue;
                     }
 
@@ -143,11 +153,11 @@ final class EventSyncService
                     $eventTime->setTimestamp($eventTimeStamp);
                     /** @var Event $event */
                     $event = EventFactory::createEmptyPrefilled();
-                    $event->setContactId($vtigerId);
+                    $event->setContactId((string) $vtigerId);
                     $event->setDateTimeStart($eventTime);
                     $event->setDateTimeEnd($eventTime);
                     $event->setSubject($eventCheck['message']);
-                    $event->setTaskPriority((string)$eventCheck['priority']);
+                    $event->setTaskPriority($eventCheck['priority']);
                     $event->setAssignedUserId($this->settingProvider->getSyncSetting('owner'));
                     $result['up'][] = $event;
                 }

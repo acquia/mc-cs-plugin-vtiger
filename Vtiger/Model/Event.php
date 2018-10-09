@@ -79,7 +79,7 @@ class Event extends BaseModel
         return $this;
     }
 
-    public function setTaskPriority(?string $priority): Event {
+    public function setTaskPriority(?int $priority): Event {
         $this->set('taskpriority', $priority);
         return $this;
     }

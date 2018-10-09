@@ -30,6 +30,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ContactValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class ContactDataExchange
@@ -63,6 +64,9 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
 
     /** @var ObjectFieldMapper */
     private $objectFieldMapper;
+
+    /** @var array  */
+    private $DNCUpdates = [];
 
     /** @var int */
     const VTIGER_API_QUERY_LIMIT = 100;
@@ -117,7 +121,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
         $objectFields = $this->objectRepository->describe()->getFields();
 
         $mappedFields = array_merge($mappedFields, [
-            'isconvertedfromlead', 'leadsource', 'reference', 'source', 'contact_id', 'emailoptout'
+            'isconvertedfromlead', 'leadsource', 'reference', 'source', 'contact_id', 'emailoptout','donotcall'
         ]);
 
         $deleted = [];
@@ -209,7 +213,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
             if (null === $result->getObjectId()) {
                 $insertable[] = $object;
             } else {
-                DebugLogger::log(VtigerCrmIntegration::NAME, "Lead is remotely Lead, it won't be inserted to Contacts");
+                DebugLogger::log(VtigerCrmIntegration::NAME, "Lead is remotely Leads module, it won't be inserted to Contacts");
             }
         }
 

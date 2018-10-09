@@ -24,37 +24,48 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @package MauticPlugin\MauticVtigerCrmBundle\EventListener
  */
-class SyncSubscriber implements EventSubscriberInterface
+class SyncDNCSubscriber implements EventSubscriberInterface
 {
     /**
      * @var EventSyncService
      */
     private $eventSyncService;
-    /**
-     * @var \DateTimeInterface|null
-     */
-    private $dateFrom;
-    /**
-     * @var \DateTimeInterface|null
-     */
-    private $dateTo;
 
-    public function __construct(EventSyncService $eventSyncService, \DateTimeInterface $dateFrom = null, \DateTimeInterface $dateTo = null)
+    public function __construct(EventSyncService $eventSyncService)
     {
         $this->eventSyncService = $eventSyncService;
-        $this->dateFrom = $dateFrom;
-        $this->dateTo = $dateTo;
     }
 
     /**
      * @return array
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEventsx(): array
     {
         return [
             SyncEvents::INTEGRATION_POST_EXECUTE => ['onPostExecuteOrder', 0],
         ];
     }
+
+    /**
+     * Returns an array of event names this subscriber wants to listen to.
+     * The array keys are event names and the value can be:
+     *  * The method name to call (priority defaults to 0)
+     *  * An array composed of the method name to call and the priority
+     *  * An array of arrays composed of the method names to call and respective
+     *    priorities, or 0 if unset
+     * For instance:
+     *  * array('eventName' => 'methodName')
+     *  * array('eventName' => array('methodName', $priority))
+     *  * array('eventName' => array(array('methodName1', $priority), array('methodName2')))
+     * @return array The event names to listen to
+     */
+    public static function getSubscribedEvents()
+    {
+        return [
+            SyncEvents::INTEGRATION_POST_EXECUTE => ['onPostExecuteOrder', 0],
+        ];
+    }
+
 
     /**
      * @param SyncEvent $event
@@ -64,6 +75,7 @@ class SyncSubscriber implements EventSubscriberInterface
             return;
         }
 
+        var_dump($event); die();
         $this->eventSyncService->sync($this->dateFrom, $this->dateTo);
     }
 }
