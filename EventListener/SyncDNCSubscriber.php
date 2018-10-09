@@ -75,7 +75,6 @@ class SyncDNCSubscriber implements EventSubscriberInterface
             return;
         }
 
-        var_dump($event); die();
-        $this->eventSyncService->sync($this->dateFrom, $this->dateTo);
+        //$this->eventSyncService->sync($this->dateFrom, $this->dateTo);
     }
 }
