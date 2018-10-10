@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
 
 use GuzzleHttp\Psr7\Response;
-use Mautic\PluginBundle\Helper\IntegrationHelper;
+use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException;
@@ -34,33 +34,45 @@ use Psr\Http\Message\ResponseInterface;
  */
 class Connection
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     private $apiDomain;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     private $requestHeaders = [
         'Accept' => 'application/json',
         'Content-type' => 'application/json',
     ];
 
-    /** @var \GuzzleHttp\Client */
+    /**
+     * @var \GuzzleHttp\Client
+     */
     private $httpClient;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $sessionId;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     private $authenticateOnDemand = true;
 
-    /** @var Credentials */
+    /**
+     * @var Credentials
+     */
     private $credentials;
 
-    /** @var VtigerSettingProvider  */
+    /**
+     * @var VtigerSettingProvider
+     */
     private $settings;
 
     /**
-     * Connection constructor.
-     *
      * @param \GuzzleHttp\Client    $client
      * @param VtigerSettingProvider $settings
      */
@@ -100,7 +112,6 @@ class Connection
 
         return $this;
     }
-
 
     /**
      * @param Credentials|null $credentials
@@ -178,15 +189,23 @@ class Connection
     }
 
     /**
-     * @return mixed
+     * @return string
+     *
+     * @throws PluginNotConfiguredException
      */
     public function getApiDomain(): string
     {
+        if (!$this->apiDomain) {
+            throw new PluginNotConfiguredException('No authentication credentials supplied');
+        }
+
         return $this->apiDomain;
     }
 
     /**
      * @return string
+     *
+     * @throws PluginNotConfiguredException
      */
     public function getApiUrl(): string
     {
