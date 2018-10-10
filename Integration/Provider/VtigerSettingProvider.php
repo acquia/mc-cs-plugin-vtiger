@@ -112,6 +112,7 @@ class VtigerSettingProvider
     {
         $settings = $this->getSettings()['sync']['integration'] ?? [];
 
+
         if (!array_key_exists($settingName, $settings)) {
             // todo debug only @debug
             throw new \InvalidArgumentException(

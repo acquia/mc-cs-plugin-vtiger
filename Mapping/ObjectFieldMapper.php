@@ -86,7 +86,7 @@ class ObjectFieldMapper
         $this->repositories[$objectName] = $this->container->get('mautic.vtiger_crm.repository.' . strtolower($objectName));
 
         try {
-            $fields = $this->repositories[$objectName]->describe()->getFields();
+            $fields = $this->repositories[$objectName]->getMappableFields();
         }
         catch (PluginNotConfiguredException $e) {
             return [];

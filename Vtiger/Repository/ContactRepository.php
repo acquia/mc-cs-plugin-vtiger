@@ -13,7 +13,10 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
+use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 /**
@@ -24,6 +27,25 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper
 class ContactRepository extends BaseRepository
 {
     use RepositoryHelper;
+
+    private $excludedFields = [
+        'leadsource', 'contact_id', 'donotcall', 'emailoptout', 'assigned_user_id', 'modifiedby', 'imagename', 'isconvertedfromlead',
+    ];
+
+    /**
+     * ContactRepository constructor.
+     *
+     * @param Connection    $connection
+     * @param CacheProvider $cache
+     *
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function __construct(Connection $connection, CacheProvider $cache) {
+        parent::__construct($connection, $cache);
+        foreach ($this->getEditableFields() as $field) {
+            $this->mappableFields[] = $field->getName();
+        }
+    }
 
     /**
      * @param Contact $module
@@ -39,13 +61,33 @@ class ContactRepository extends BaseRepository
      * @param string $id
      *
      * @return Contact
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function retrieve(string $id): Contact
     {
-        $record = $this->findOneBy(['id'=>$id]);
+        $record = $this->findOneBy(['id' => $id]);
 
         return $record;
+    }
+
+    /**
+     * @return array
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function getMappableFields(): array
+    {
+        $mappable = $this->getEditableFields();
+
+        /**
+         * @var int $key
+         * @var ModuleFieldInfo $field
+         */
+        foreach ($mappable as $key=>$field) {
+            if (in_array($field->getName(), $this->excludedFields)) {
+                unset($mappable[$key]);
+            }
+        }
+
+        return $mappable;
     }
 }

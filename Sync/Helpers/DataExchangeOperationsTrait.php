@@ -213,7 +213,7 @@ trait DataExchangeOperationsTrait
      * @return array|mixed
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
-    private function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
+    private function getReportPayload(\DateTimeInterface $fromDate, array $mappedFields)
     {
         $fullReport = []; $iteration = 0;
         // We must iterate while there is still some result left

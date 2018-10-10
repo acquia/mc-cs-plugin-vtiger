@@ -26,6 +26,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\EventFactory;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\SyncReport;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
@@ -106,7 +107,7 @@ trait RepositoryHelper
     }
 
     /**
-     * @return mixed
+     * @return ModuleInfo
      *
      * @throws \Psr\Cache\InvalidArgumentException
      */
@@ -234,5 +235,32 @@ trait RepositoryHelper
         $response = $this->connection->query('sync', $query);
 
         $report = new SyncReport($response, $moduleName);
+    }
+
+    /**
+     * @return array
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function getMappableFields(): array {
+        return $this->getEditableFields();
+    }
+
+    /**
+     * @return array
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function getEditableFields():array {
+        /** @var ModuleInfo $moduleFields */
+        $moduleFields = $this->describe()->getFields();
+
+        $fields = [];
+        /** @var ModuleFieldInfo $fieldInfo */
+        foreach ($moduleFields as $fieldInfo) {
+            if ($fieldInfo->isEditable()) {
+                $fields[] = $fieldInfo;
+            }
+        }
+
+        return $fields;
     }
 }

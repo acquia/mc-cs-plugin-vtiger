@@ -63,6 +63,14 @@ final class EventSyncService
      */
     public function sync(?\DateTimeInterface $dateFrom, ?\DateTimeInterface $dateTo)
     {
+        try {
+            if(!$this->settingProvider->getSyncSetting('push_activity')) {
+                return;
+            }
+        } catch (\InvalidArgumentException $e) {
+            return;
+        }
+
         $mapping = $this->leadEventSupplier->getLeadsMapping();
 
         if (!count($mapping)) {
