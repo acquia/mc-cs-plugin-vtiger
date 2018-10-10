@@ -1,4 +1,4 @@
-<?php /** @noinspection PhpParamsInspection */
+<?php
 
 declare(strict_types=1);
 
@@ -16,7 +16,6 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
 use GuzzleHttp\Psr7\Response;
 use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
@@ -43,7 +42,7 @@ class Connection
      * @var array
      */
     private $requestHeaders = [
-        'Accept' => 'application/json',
+        'Accept'       => 'application/json',
         'Content-type' => 'application/json',
     ];
 
@@ -56,11 +55,6 @@ class Connection
      * @var string
      */
     private $sessionId;
-
-    /**
-     * @var bool
-     */
-    private $authenticateOnDemand = true;
 
     /**
      * @var Credentials
@@ -78,151 +72,8 @@ class Connection
      */
     public function __construct(\GuzzleHttp\Client $client, VtigerSettingProvider $settings)
     {
-        $this->settings = $settings;
-
-        $credentialsCfg = $this->settings->getCredentials();
-
-        if (isset($credentialsCfg['accessKey']) && isset($credentialsCfg['username']) && isset($credentialsCfg['url'])) {
-            $this->httpClient = $client;
-
-            $this->setCredentials((new Credentials())
-                ->setAccesskey($credentialsCfg['accessKey'])
-                ->setUsername($credentialsCfg['username']));
-
-            $this->apiDomain = $credentialsCfg['url'];
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAuthenticateOnDemand(): bool
-    {
-        return $this->authenticateOnDemand;
-    }
-
-    /**
-     * @param bool $authenticateOnDemand
-     *
-     * @return Connection
-     */
-    public function setAuthenticateOnDemand(bool $authenticateOnDemand): Connection
-    {
-        $this->authenticateOnDemand = $authenticateOnDemand;
-
-        return $this;
-    }
-
-    /**
-     * @param Credentials|null $credentials
-     *
-     * @return Connection
-     * @throws AuthenticationException
-     */
-    public function authenticate(Credentials $credentials = null): Connection
-    {
-        try {
-            $credentials = $credentials ?: $this->credentials;
-
-            if (is_null($credentials)) {
-                throw new SessionException('No authentication credentials supplied');
-            }
-
-            $query = sprintf("%s?operation=%s",
-                $this->getApiUrl(),
-                'getchallenge');
-
-
-            $query .= '&' . http_build_query(['username' => $credentials->getUsername()]);
-
-            $response = $this->httpClient->get($query, ['headers' => $this->requestHeaders]);
-
-            /** @noinspection PhpParamsInspection */
-            $response = $this->handleResponse($response, $query);
-
-            $query = [
-                'operation' => 'login',
-                'username' => $credentials->getUsername(),
-                'accessKey' => md5($response->token . $credentials->getAccesskey()),
-            ];
-
-            $response = $this->httpClient->post($this->getApiUrl(), ['form_params' => $query]);
-
-            /** @noinspection PhpParamsInspection */
-            $loginResponse = $this->handleResponse($response, $this->getApiUrl(), $query);
-
-            $this->sessionId = $loginResponse->sessionName;
-        }
-        catch (\Exception $e) {
-            throw new AuthenticationException('Failed to authenticate. ' . $e->getMessage());
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAuthenticated(): bool
-    {
-        return !is_null($this->sessionId);
-    }
-
-    /**
-     * @return Credentials
-     */
-    public function getCredentials(): Credentials
-    {
-        return $this->credentials;
-    }
-
-    /**
-     * @param Credentials $credentials
-     *
-     * @return Connection
-     */
-    public function setCredentials(Credentials $credentials): Connection
-    {
-        $this->credentials = $credentials;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     *
-     * @throws PluginNotConfiguredException
-     */
-    public function getApiDomain(): string
-    {
-        if (!$this->apiDomain) {
-            throw new PluginNotConfiguredException('No authentication credentials supplied');
-        }
-
-        return $this->apiDomain;
-    }
-
-    /**
-     * @return string
-     *
-     * @throws PluginNotConfiguredException
-     */
-    public function getApiUrl(): string
-    {
-        return sprintf("%s/webservice.php",
-            $this->getApiDomain());
-    }
-
-    /**
-     * @param mixed $apiDomain
-     *
-     * @return Connection
-     */
-    public function setApiDomain($apiDomain)
-    {
-        $this->apiDomain = $apiDomain;
-
-        return $this;
+        $this->settings   = $settings;
+        $this->httpClient = $client;
     }
 
     /**
@@ -231,7 +82,6 @@ class Connection
      *
      * @return mixed|ResponseInterface
      * @throws AccessDeniedException
-     * @throws AuthenticationException
      * @throws DatabaseQueryException
      * @throws InvalidQueryArgumentException
      * @throws InvalidRequestException
@@ -243,15 +93,13 @@ class Connection
     {
         $this->settings->exceptConfigured();
 
+        if (!$this->isAuthenticated()) {
+            $this->authenticate();
+        }
+
         $query = sprintf("%s?operation=%s",
             $this->getApiUrl(),
             $operation);
-
-        if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
-            throw new SessionException('Not authenticated.');
-        } elseif ($this->isAuthenticateOnDemand()) {
-            $this->authenticate();
-        }
 
         $payload['sessionName'] = $this->sessionId;
 
@@ -281,7 +129,6 @@ class Connection
      *
      * @return mixed|ResponseInterface
      * @throws AccessDeniedException
-     * @throws AuthenticationException
      * @throws DatabaseQueryException
      * @throws InvalidQueryArgumentException
      * @throws InvalidRequestException
@@ -292,9 +139,7 @@ class Connection
     public function query(string $operation, array $payload = []) {
         $this->settings->exceptConfigured();
 
-        if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
-            throw new SessionException('Not authenticated.');
-        } elseif ($this->isAuthenticateOnDemand()) {
+        if (!$this->isAuthenticated()) {
             $this->authenticate();
         }
 
@@ -329,7 +174,6 @@ class Connection
      *
      * @return mixed
      * @throws AccessDeniedException
-     * @throws AuthenticationException
      * @throws DatabaseQueryException
      * @throws InvalidQueryArgumentException
      * @throws InvalidRequestException
@@ -343,9 +187,7 @@ class Connection
 
         $payloadFinal['operation'] = $operation;
 
-        if (!$this->isAuthenticated() && !$this->isAuthenticateOnDemand()) {
-            throw new SessionException('Not authenticated.');
-        } elseif ($this->isAuthenticateOnDemand()) {
+        if (!$this->isAuthenticated()) {
             $this->authenticate();
         }
 
@@ -407,13 +249,12 @@ class Connection
     /**
      * @return mixed|ResponseInterface
      * @throws AccessDeniedException
-     * @throws AuthenticationException
      * @throws DatabaseQueryException
      * @throws InvalidQueryArgumentException
      * @throws InvalidRequestException
+     * @throws PluginNotConfiguredException
      * @throws SessionException
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
     public function logout() {
         return $this->get('logout');
@@ -430,6 +271,97 @@ class Connection
             }
         } catch (\Exception $e) {
 
+        }
+    }
+
+    /**
+     * @return Connection
+     *
+     * @throws PluginNotConfiguredException
+     */
+    private function authenticate(): Connection
+    {
+        $this->setCredentials();
+
+        try {
+            $credentials = $this->credentials;
+
+            if (is_null($credentials)) {
+                throw new SessionException('No authentication credentials supplied');
+            }
+
+            $query = sprintf("%s?operation=%s",
+                             $this->getApiUrl(),
+                             'getchallenge');
+
+            $query .= '&' . http_build_query(['username' => $credentials->getUsername()]);
+
+            $response = $this->httpClient->get($query, ['headers' => $this->requestHeaders]);
+
+            /** @noinspection PhpParamsInspection */
+            $response = $this->handleResponse($response, $query);
+
+            $query = [
+                'operation' => 'login',
+                'username' => $credentials->getUsername(),
+                'accessKey' => md5($response->token . $credentials->getAccesskey()),
+            ];
+
+            $response = $this->httpClient->post($this->getApiUrl(), ['form_params' => $query]);
+
+            $loginResponse = $this->handleResponse($response, $this->getApiUrl(), $query);
+
+            $this->sessionId = $loginResponse->sessionName;
+        }
+        catch (\Exception $e) {
+            throw new PluginNotConfiguredException('Failed to authenticate. ' . $e->getMessage());
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     *
+     * @throws PluginNotConfiguredException
+     */
+    private function getApiDomain(): string
+    {
+        if (!$this->apiDomain) {
+            throw new PluginNotConfiguredException('No authentication credentials supplied');
+        }
+
+        return $this->apiDomain;
+    }
+
+    /**
+     * @return string
+     *
+     * @throws PluginNotConfiguredException
+     */
+    private function getApiUrl(): string
+    {
+        return sprintf("%s/webservice.php",
+                       $this->getApiDomain());
+    }
+
+    /**
+     * @return bool
+     */
+    private function isAuthenticated(): bool
+    {
+        return !is_null($this->sessionId);
+    }
+
+    private function setCredentials(): void
+    {
+        $credentialsCfg = $this->settings->getCredentials();
+
+        if (isset($credentialsCfg['accessKey'], $credentialsCfg['username'], $credentialsCfg['url'])) {
+
+            $this->credentials = new Credentials($credentialsCfg['accessKey'], $credentialsCfg['username']);
+
+            $this->apiDomain = $credentialsCfg['url'];
         }
     }
 }

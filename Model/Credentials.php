@@ -20,11 +20,21 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Model;
  */
 class Credentials
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     private $username;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $accesskey;
+
+    public function __construct(string $accesskey, string $username)
+    {
+        $this->accesskey = $accesskey;
+        $this->username  = $username;
+    }
 
     /**
      * @return string
@@ -35,30 +45,10 @@ class Credentials
     }
 
     /**
-     * @param string $username
-     * @return Credentials
-     */
-    public function setUsername(string $username): Credentials
-    {
-        $this->username = $username;
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getAccesskey(): string
     {
         return $this->accesskey;
-    }
-
-    /**
-     * @param string $accesskey
-     * @return Credentials
-     */
-    public function setAccesskey(string $accesskey): Credentials
-    {
-        $this->accesskey = $accesskey;
-        return $this;
     }
 }
