@@ -180,6 +180,9 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
                 $objectDAO->addField($reportFieldDAO);
             }
 
+
+            var_dump($object); die();
+
             $syncReport->addObject($objectDAO);
         }
 
