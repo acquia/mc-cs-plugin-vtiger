@@ -53,9 +53,6 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     /** @var LeadModel */
     private $mauticModel;
 
-    /** @var VtigerSettingProvider */
-    private $settings;
-
     /** @var ContactValidator */
     private $objectValidator;
 

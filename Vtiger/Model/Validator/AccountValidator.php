@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpDocSignatureInspection */
 
 declare(strict_types=1);
 
@@ -18,6 +18,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 
 class AccountValidator implements ObjectValidatorInterface
 {
@@ -28,7 +29,7 @@ class AccountValidator implements ObjectValidatorInterface
      */
     public function validate(BaseModel $object): void
     {
-        if (!$object instanceof BaseRepository::$moduleClassMapping[$this->objectRepository->getModuleFromRepositoryName]) {
+        if (!$object instanceof BaseRepository::$moduleClassMapping[$this->objectRepository->getModuleFromRepositoryName()]) {
             throw new \InvalidArgumentException('This validator supports only Contact object');
         }
 

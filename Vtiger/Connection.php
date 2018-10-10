@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpParamsInspection */
 
 declare(strict_types=1);
 
@@ -61,10 +61,8 @@ class Connection
     /**
      * Connection constructor.
      *
-     * @param \GuzzleHttp\Client $client
-     * @param IntegrationHelper  $integrationsHelper
-     *
-     * @throws VtigerPluginException
+     * @param \GuzzleHttp\Client    $client
+     * @param VtigerSettingProvider $settings
      */
     public function __construct(\GuzzleHttp\Client $client, VtigerSettingProvider $settings)
     {
@@ -128,6 +126,7 @@ class Connection
 
             $response = $this->httpClient->get($query, ['headers' => $this->requestHeaders]);
 
+            /** @noinspection PhpParamsInspection */
             $response = $this->handleResponse($response, $query);
 
             $query = [
@@ -138,6 +137,7 @@ class Connection
 
             $response = $this->httpClient->post($this->getApiUrl(), ['form_params' => $query]);
 
+            /** @noinspection PhpParamsInspection */
             $loginResponse = $this->handleResponse($response, $this->getApiUrl(), $query);
 
             $this->sessionId = $loginResponse->sessionName;
@@ -210,7 +210,7 @@ class Connection
      * @param string $operation
      * @param array  $payload
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return mixed|ResponseInterface
      * @throws AccessDeniedException
      * @throws AuthenticationException
      * @throws DatabaseQueryException
@@ -218,6 +218,7 @@ class Connection
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
     public function get(string $operation, array $payload = [])
     {
@@ -267,6 +268,7 @@ class Connection
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
     public function query(string $operation, array $payload = []) {
         $this->settings->exceptConfigured();
@@ -314,6 +316,7 @@ class Connection
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
     public function post(string $operation, array $payload)
     {
@@ -383,7 +386,7 @@ class Connection
     }
 
     /**
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return mixed|ResponseInterface
      * @throws AccessDeniedException
      * @throws AuthenticationException
      * @throws DatabaseQueryException
@@ -391,6 +394,7 @@ class Connection
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
     public function logout() {
         return $this->get('logout');

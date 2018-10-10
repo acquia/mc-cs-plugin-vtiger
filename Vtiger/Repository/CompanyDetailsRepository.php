@@ -38,6 +38,8 @@ class CompanyDetailsRepository extends BaseRepository
      * @param string $id
      *
      * @return Contact
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function retrieve(string $id): Contact
     {

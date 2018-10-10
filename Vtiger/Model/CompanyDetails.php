@@ -25,9 +25,9 @@ class CompanyDetails extends BaseModel
     /**
      * @param null|string $userId
      *
-     * @return Contact
+     * @return CompanyDetails
      */
-    public function setAssignedUserId(?string $userId): Contact {
+    public function setAssignedUserId(?string $userId): CompanyDetails {
         $this->data['assigned_user_id'] = $userId;
         return $this;
     }

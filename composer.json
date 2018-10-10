@@ -24,7 +24,8 @@
     "mautic/mautic-integrations-bundle": "dev-master",
     "php": "^7.1 || ^7.2",
     "ext-mbstring": "*",
-    "symfony/cache":
+    "symfony/cache": "*",
+    "ext-json": "*”"
   },
   "minimum-stability": "dev"
 }

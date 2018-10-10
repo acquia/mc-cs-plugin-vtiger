@@ -15,12 +15,16 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper;
 
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\CompanyDetails;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\EventFactory;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\SyncReport;
@@ -80,12 +84,11 @@ trait RepositoryHelper
     }
 
     /**
-     * todo same problem as above
-     *
      * @param array  $where
      * @param string $columns
      *
-     * @return BaseModel|null|Account|Contact|Event|Lead|User
+     * @return mixed|null
+     * @throws InvalidQueryArgumentException
      */
     public function findOneBy($where = [], $columns = '*')
     {
@@ -96,7 +99,7 @@ trait RepositoryHelper
         }
 
         if (count($findResult)>1) {
-            throw new InvalidRequestException('Invalid query. Query returned more than one result.');
+            throw new InvalidQueryArgumentException('Invalid query. Query returned more than one result.');
         }
 
         return array_shift($findResult);
@@ -137,7 +140,7 @@ trait RepositoryHelper
     /**
      * @param BaseModel $module
      *
-     * @return BaseModel
+     * @return BaseModel|Account|CompanyDetails|Contact|Event|EventFactory|Lead|User
      */
     private function createUnified($module): BaseModel
     {
@@ -182,7 +185,6 @@ trait RepositoryHelper
      * @param $query
      *
      * @return array
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function query($query) {
         $moduleName = $this->getModuleFromRepositoryName();
@@ -212,6 +214,11 @@ trait RepositoryHelper
     /**
      * @see
      * ```sync(modifiedTime: Timestamp, elementType: String, syncType: String):SyncResult```
+     *
+     * @param int    $modifiedTime
+     * @param string $syncType
+     *
+     * @throws \Exception
      */
     public function sync(int $modifiedTime, $syncType = BaseRepository::SYNC_APPLICATION) {
         throw new \Exception('Remote API support for sync is not working, thus not implemented. If it starts working we should use it at least for deleted.');

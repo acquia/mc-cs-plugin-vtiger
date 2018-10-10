@@ -39,6 +39,8 @@ class UserRepository extends BaseRepository
      * @param string $id
      *
      * @return User
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function retrieve(string $id): User
     {

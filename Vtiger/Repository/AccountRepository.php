@@ -39,6 +39,8 @@ class AccountRepository extends BaseRepository
      * @param string $id
      *
      * @return Account
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function retrieve(string $id): Account
     {
@@ -50,7 +52,8 @@ class AccountRepository extends BaseRepository
     /**
      * @param string $contactId
      *
-     * @return array|Account[]|mixed
+     * @return array
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function getByContactId(string $contactId):array {
         return $this->findBy(['contact_id' => $contactId]);

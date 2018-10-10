@@ -39,6 +39,8 @@ class LeadRepository extends BaseRepository
      * @param string $id
      *
      * @return Lead
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function retrieve(string $id): Lead
     {

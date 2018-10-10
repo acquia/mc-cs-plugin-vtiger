@@ -56,6 +56,7 @@ trait ObjectValidatorTrait
      *
      * @throws InvalidObject
      * @throws InvalidObjectException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function validate(BaseModel $object): void
     {
@@ -68,6 +69,7 @@ trait ObjectValidatorTrait
      *
      * @throws InvalidObject
      * @throws InvalidObjectException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     protected function validateObject(BaseModel $object): void
     {
@@ -91,6 +93,7 @@ trait ObjectValidatorTrait
      *
      * @throws InvalidObject
      * @throws InvalidObjectException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     private function validateField(ModuleFieldInfo $fieldInfo, $fieldValue): void
     {
@@ -122,6 +125,7 @@ trait ObjectValidatorTrait
      *
      * @return array
      * @throws InvalidObjectException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     private function getValidatorsForType($typeObject, $fieldValue): array
     {

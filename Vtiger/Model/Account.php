@@ -20,7 +20,7 @@ class Account extends BaseModel
      */
     public function getAssignedUserId(): ?string {
         return !isset($this->data['assigned_user_id']) ? null : $this->data['assigned_user_id'];
-    }
+    }/** @noinspection PhpDocSignatureInspection */
 
     /**
      * @param null|string $userId

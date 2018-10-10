@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 /**
@@ -40,6 +39,8 @@ class EventRepository extends BaseRepository
      * @param string $id
      *
      * @return Event
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function retrieve(string $id): Event
     {
@@ -54,7 +55,7 @@ class EventRepository extends BaseRepository
      * @return array|Event[]
      */
     public function findByContactId($contactId): array {
-        $this->findBy(['contact_id'=>(string) $contactId]);
+        return $this->findBy(['contact_id'=>(string) $contactId]);
     }
 
     /**
@@ -68,6 +69,7 @@ class EventRepository extends BaseRepository
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
     public function findByContactIds(array $contactIds): array {
         $moduleName = $this->getModuleFromRepositoryName();

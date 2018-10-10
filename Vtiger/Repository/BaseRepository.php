@@ -50,7 +50,8 @@ abstract class BaseRepository
     /**
      * BaseRepository constructor.
      *
-     * @param Connection $connection
+     * @param Connection    $connection
+     * @param CacheProvider $cache
      */
     public function __construct(Connection $connection, CacheProvider $cache)
     {

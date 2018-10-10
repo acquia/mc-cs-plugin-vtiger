@@ -24,7 +24,7 @@ class Event extends BaseModel
     }
 
     /**
-     * @return null|string
+     * @return null|int
      */
     public function getTaskPriority(): ?int {
         return isset($this->data['taskpriority']) ? (int) $this->data['taskpriority'] : null;

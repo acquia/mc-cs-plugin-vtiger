@@ -15,15 +15,18 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation;
 
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 class InvalidObject extends InvalidObjectException
 {
     /**
-     * @param array           $violations
-     * @param ModuleFieldInfo $fieldInfo
-     * @param                 $fieldValue
+     * InvalidObject constructor.
+     *
+     * @param ConstraintViolationListInterface $violations
+     * @param ModuleFieldInfo                  $fieldInfo
+     * @param                                  $fieldValue
      */
-    public function __construct(array $violations, ModuleFieldInfo $fieldInfo, $fieldValue) {
+    public function __construct(ConstraintViolationListInterface $violations, ModuleFieldInfo $fieldInfo, $fieldValue) {
         $violationsMessages = [];
         foreach ($violations as $violation) {
             $violationsMessages[] = $violation->getMessage;
