@@ -17,6 +17,7 @@ interface TransformerInterface
 {
     const PICKLIST_TYPE = 'picklist';
     const REFERENCE_TYPE = 'reference';
+    const DNC_TYPE = 'dnc';
 
     public function transform($type, $value);
 }

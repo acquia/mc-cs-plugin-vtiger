@@ -49,4 +49,22 @@ class Contact extends BaseModel
     public function getEmail(): string {
         return $this->data['email'];
     }
+
+    public function getEmailOptout(): bool {
+        return (bool) $this->data['emailoptout'];
+    }
+
+    public function setEmailOptout(bool $value): self {
+        $this->data['emailoptout'] = $value;
+        return $this;
+    }
+
+    public function getDoNotCall(): bool {
+        return (bool) $this->data['donotcall'];
+    }
+
+    public function setDoNotCall(bool $value): self {
+        $this->data['donotcall'] = $value;
+        return $this;
+    }
 }

@@ -43,6 +43,12 @@ trait TransformationsTrait
         TransformerInterface::REFERENCE_TYPE => [
             'func' => 'transformReference',
         ],
+        TransformerInterface::DNC_TYPE => [
+            'func' => 'transformDNC',
+        ],
+        NormalizedValueDAO::INT_TYPE => [
+            'func' => 'transformInt'
+        ]
     ];
 
     /**
@@ -144,5 +150,9 @@ trait TransformationsTrait
     protected function transformReference($value): ?string
     {
         return $this->transformString($value);
+    }
+
+    protected function transformInt($value): ?int {
+        return intval($value);
     }
 }
