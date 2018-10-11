@@ -42,9 +42,6 @@ class ContactRepository extends BaseRepository
      */
     public function __construct(Connection $connection, CacheProvider $cache) {
         parent::__construct($connection, $cache);
-        foreach ($this->getEditableFields() as $field) {
-            $this->mappableFields[] = $field->getName();
-        }
     }
 
     /**
