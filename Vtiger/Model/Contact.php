@@ -50,19 +50,35 @@ class Contact extends BaseModel
         return $this->data['email'];
     }
 
+    /**
+     * @return bool
+     */
     public function getEmailOptout(): bool {
         return (bool) $this->data['emailoptout'];
     }
 
+    /**
+     * @param bool $value
+     *
+     * @return Contact
+     */
     public function setEmailOptout(bool $value): self {
         $this->data['emailoptout'] = $value;
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function getDoNotCall(): bool {
         return (bool) $this->data['donotcall'];
     }
 
+    /**
+     * @param bool $value
+     *
+     * @return Contact
+     */
     public function setDoNotCall(bool $value): self {
         $this->data['donotcall'] = $value;
         return $this;
