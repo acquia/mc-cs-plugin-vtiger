@@ -14,13 +14,16 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\CachedItemNotFoundException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\CompanyDetails;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
 
 /**
  * Class BaseRepository
@@ -48,14 +51,61 @@ abstract class BaseRepository
     protected $cacheProvider;
 
     /**
-     * BaseRepository constructor.
+     * @var FieldCache
+     */
+    private $fieldCache;
+
+    /**
+     * @todo get rid of $cacheProvider here - write classes for each cache like $fieldCache
      *
      * @param Connection    $connection
-     * @param CacheProvider $cache
+     * @param CacheProvider $cacheProvider
+     * @param FieldCache    $fieldCache
      */
-    public function __construct(Connection $connection, CacheProvider $cache)
+    public function __construct(Connection $connection, CacheProvider $cacheProvider, FieldCache $fieldCache)
     {
-        $this->connection = $connection;
-        $this->cacheProvider = $cache;
+        $this->connection    = $connection;
+        $this->cacheProvider = $cacheProvider;
+        $this->fieldCache    = $fieldCache;
+    }
+
+    /**
+     * @return ModuleInfo
+     *
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
+     */
+    public function describe(): ModuleInfo
+    {
+        $key = $this->getModuleFromRepositoryName();
+        try {
+            return $this->fieldCache->getModuleInfo($key);
+        } catch (CachedItemNotFoundException $e) {
+        }
+
+        $moduleInfo = new ModuleInfo(
+            $this->connection->get('describe', ['elementType' => $key])
+        );
+        $this->fieldCache->setModuleInfo($moduleInfo, $key);
+
+        return $moduleInfo;
+    }
+
+    /**
+     * todo complete refactoring, object needs to be specified at one place only, not multiple
+     * @return string
+     */
+    protected function getModuleFromRepositoryName(): string
+    {
+        $className = get_class($this);
+
+        $parts = explode('\\', $className);
+
+        return rtrim(str_replace('Repository', '', array_pop($parts)), 's').'s';
     }
 }

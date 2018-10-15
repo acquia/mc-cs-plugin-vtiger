@@ -21,6 +21,8 @@ use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\LeadDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -131,6 +133,11 @@ class ObjectFieldMapper
                     $fieldMapping['syncDirection']
                 );
             }
+
+            if (in_array($vtigerObject,[ContactDataExchange::OBJECT_NAME, LeadDataExchange::OBJECT_NAME])) {
+                $objectMapping->addFieldMapping('mautic_internal_dnc_email','emailoptout', ObjectMappingDAO::SYNC_BIDIRECTIONALLY,true);
+            }
+
 
             $mappingManual->addObjectMapping($objectMapping);
         }

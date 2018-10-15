@@ -27,6 +27,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\TransformerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ContactValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
@@ -179,6 +180,19 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
 
                 $objectDAO->addField($reportFieldDAO);
             }
+
+            $objectDAO->addField(
+                new FieldDAO(
+                    'mautic_internal_dnc_email',
+                    $this->valueNormalizer->normalizeForMautic(TransformerInterface::DNC_TYPE, $object->getEmailOptout())
+                )
+            );
+            $objectDAO->addField(
+                new FieldDAO(
+                    'mautic_internal_dnc_sms',
+                    $this->valueNormalizer->normalizeForMautic(TransformerInterface::DNC_TYPE, $object->getEmailOptout())
+                )
+            );
 
             $syncReport->addObject($objectDAO);
         }

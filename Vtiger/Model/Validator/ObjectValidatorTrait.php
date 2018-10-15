@@ -147,6 +147,10 @@ trait ObjectValidatorTrait
 
                 $validators[] = new Choice(['choices' => $this->existingUsersIds]);
                 break;
+            case "reference":
+                break;
+            case "boolean":
+                break;
             default:
                 throw new InvalidObjectException('Unknown field type ' . print_r((array)$typeObject, true));
         }

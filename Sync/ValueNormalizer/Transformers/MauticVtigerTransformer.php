@@ -16,4 +16,9 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 final class MauticVtigerTransformer implements TransformerInterface
 {
     use TransformationsTrait;
+
+    protected function transformDNC($vtigerValue) {
+        return $vtigerValue ? DoNotContact::UNSUBSCRIBED : DoNotContact::IS_CONTACTABLE;
+    }
+
 }

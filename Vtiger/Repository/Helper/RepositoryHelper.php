@@ -14,9 +14,7 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper;
 
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
-use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
@@ -39,9 +37,6 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
  */
 trait RepositoryHelper
 {
-    /** @var array[ModuleInfo] */
-    private $modulesInfo;
-
     public function findBy($where = [], $columns = '*') {
         return $this->findByInternal($where, $columns);
     }
@@ -107,38 +102,6 @@ trait RepositoryHelper
     }
 
     /**
-     * @return ModuleInfo
-     *
-     * @throws \Psr\Cache\InvalidArgumentException
-     */
-    public function describe()
-    {
-        $cacheKey = BaseRepository::CACHE_NAMESPACE . "_" . $this->getModuleFromRepositoryName();
-
-        /** @var CacheProvider $cache */
-        $cache = $this->cacheProvider;
-
-        $cachedItem = $cache->getItem($cacheKey);
-        if($cachedItem->isHit()) {
-            return $cachedItem->get();
-        }
-
-        $cachedItem->tag(['vtigercrm','vtigercrm_repository']);
-        $cachedItem->expiresAfter(60*60*24*7);  // Expire after a week
-
-        if (!isset($this->modulesInfo[$this->getModuleFromRepositoryName()])) {
-            $this->modulesInfo[$this->getModuleFromRepositoryName()] = new ModuleInfo(
-                $this->connection->get('describe', ['elementType' => $this->getModuleFromRepositoryName()])
-            );
-        }
-
-        $cachedItem->set($this->modulesInfo[$this->getModuleFromRepositoryName()]);
-        $cache->save($cachedItem);
-
-        return $cachedItem->get();
-    }
-
-    /**
      * @param BaseModel $module
      *
      * @return BaseModel|Account|CompanyDetails|Contact|Event|EventFactory|Lead|User
@@ -167,19 +130,6 @@ trait RepositoryHelper
         $createdModule = new $className((array)$response);
 
         return $createdModule;
-    }
-
-
-    /**
-     * todo complete refactoring, object needs to be specified at one place only, not multiple
-     * @return string
-     */
-    public function getModuleFromRepositoryName() {
-        $className = get_class($this);
-
-        $parts = explode('\\', $className);
-        $modelName = rtrim(str_replace('Repository', '', array_pop($parts)),'s') . "s";
-        return $modelName;
     }
 
     /**
