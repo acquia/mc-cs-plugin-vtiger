@@ -30,6 +30,12 @@ return [
                     'mautic.vtiger_crm.sync.events_service',
                 ],
             ],
+            'mautic.vtiger_crm.subscriber.config_form_load' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\ConfigFormLoadSubscriber::class,
+                'arguments' => [
+                    'mautic.vtiger_crm.cache.field_cache',
+                ],
+            ],
         ],
         'forms'        => [
             'mautic.vtiger_crm.form.config_auth' => [
@@ -85,6 +91,7 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
                     'mautic.cache.provider',
+                    'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],
             'mautic.vtiger_crm.validator.lead'            => [
@@ -97,12 +104,20 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
                     'mautic.cache.provider',
+                    'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],
             'mautic.vtiger_crm.repository.company_details' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\CompanyDetailsRepository::class,
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
+                    'mautic.cache.provider',
+                    'mautic.vtiger_crm.cache.field_cache',
+                ],
+            ],
+            'mautic.vtiger_crm.cache.field_cache' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache::class,
+                'arguments' => [
                     'mautic.cache.provider',
                 ],
             ],
@@ -116,6 +131,7 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
                     'mautic.cache.provider',
+                    'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],
             'mautic.vtiger_crm.repository.events'     => [
@@ -123,6 +139,7 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
                     'mautic.cache.provider',
+                    'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],
             'mautic.vtiger_crm.repository.users'      => [
@@ -130,6 +147,7 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
                     'mautic.cache.provider',
+                    'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],
             'mautic.vtiger_crm.mapping.field_mapping' => [
