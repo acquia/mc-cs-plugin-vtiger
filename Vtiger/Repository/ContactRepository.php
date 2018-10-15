@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
-use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
@@ -31,18 +29,6 @@ class ContactRepository extends BaseRepository
     private $excludedFields = [
         'leadsource', 'contact_id', 'donotcall', 'emailoptout', 'assigned_user_id', 'modifiedby', 'imagename', 'isconvertedfromlead',
     ];
-
-    /**
-     * ContactRepository constructor.
-     *
-     * @param Connection    $connection
-     * @param CacheProvider $cache
-     *
-     * @throws \Psr\Cache\InvalidArgumentException
-     */
-    public function __construct(Connection $connection, CacheProvider $cache) {
-        parent::__construct($connection, $cache);
-    }
 
     /**
      * @param Contact $module
