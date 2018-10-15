@@ -28,6 +28,7 @@ class ContactDataExchangeTest extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
+        /*
         $this->contactRepository = $this->createMock(ContactRepository::class);
         $this->contactRepository
             ->method('describe')
@@ -40,6 +41,7 @@ class ContactDataExchangeTest extends \PHPUnit_Framework_TestCase
             $this->valueNormalizer,
             $this->contactValidator
         );
+        */
     }
 
     public function testGetObjectSyncReport()
