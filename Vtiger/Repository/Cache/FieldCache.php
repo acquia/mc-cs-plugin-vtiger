@@ -70,4 +70,12 @@ class FieldCache
         $cachedItem->set($moduleInfo);
         $this->cacheProvider->save($cachedItem);
     }
+
+    /**
+     * @todo - Find a way how to clear all items with 'vtigercrm_repository' tag
+     */
+    public function configFormWasLoaded(): void
+    {
+        $this->cacheProvider->clear();
+    }
 }

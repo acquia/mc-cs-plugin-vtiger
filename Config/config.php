@@ -30,6 +30,12 @@ return [
                     'mautic.vtiger_crm.sync.events_service',
                 ],
             ],
+            'mautic.vtiger_crm.subscriber.config_form_load' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\ConfigFormLoadSubscriber::class,
+                'arguments' => [
+                    'mautic.vtiger_crm.cache.field_cache',
+                ],
+            ],
         ],
         'forms'        => [
             'mautic.vtiger_crm.form.config_auth' => [
