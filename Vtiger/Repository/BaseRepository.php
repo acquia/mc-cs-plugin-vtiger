@@ -97,10 +97,12 @@ abstract class BaseRepository
     }
 
     /**
-     * todo complete refactoring, object needs to be specified at one place only, not multiple
+     * @todo complete refactoring, object needs to be specified at one place only, not multiple
+     * @todo - make this method private / protected
+     *
      * @return string
      */
-    protected function getModuleFromRepositoryName(): string
+    public function getModuleFromRepositoryName(): string
     {
         $className = get_class($this);
 
