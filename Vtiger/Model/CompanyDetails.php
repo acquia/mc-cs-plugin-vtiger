@@ -18,7 +18,8 @@ class CompanyDetails extends BaseModel
     /**
      * @return string|null
      */
-    public function getAssignedUserId() {
+    public function getAssignedUserId()
+    {
         return !isset($this->data['assigned_user_id']) ? null : $this->data['assigned_user_id'];
     }
 
@@ -27,8 +28,10 @@ class CompanyDetails extends BaseModel
      *
      * @return CompanyDetails
      */
-    public function setAssignedUserId(?string $userId): CompanyDetails {
+    public function setAssignedUserId(?string $userId): CompanyDetails
+    {
         $this->data['assigned_user_id'] = $userId;
+
         return $this;
     }
 }

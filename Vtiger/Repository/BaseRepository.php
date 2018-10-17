@@ -26,22 +26,21 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
 
 /**
- * Class BaseRepository
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository
+ * Class BaseRepository.
  */
 abstract class BaseRepository
 {
-    const SYNC_USER = 'user';   //  user: fetches all the updates done on records assigned to you.
+    const SYNC_USER        = 'user';   //  user: fetches all the updates done on records assigned to you.
     const SYNC_APPLICATION = 'application'; //  application: fetches all the updates done on records assigned to any user.
-    const CACHE_NAMESPACE = 'vtigercrm_repo';
+    const CACHE_NAMESPACE  = 'vtigercrm_repo';
 
     public static $moduleClassMapping = [
-        'Contacts' => Contact::class,
-        'Accounts' => Account::class,
-        'Events' => Event::class,
-        'Leads' => Lead::class,
+        'Contacts'       => Contact::class,
+        'Accounts'       => Account::class,
+        'Events'         => Event::class,
+        'Leads'          => Lead::class,
         'CompanyDetails' => CompanyDetails::class,
-        'Users' => User::class
+        'Users'          => User::class,
     ];
 
     /** @var Connection */

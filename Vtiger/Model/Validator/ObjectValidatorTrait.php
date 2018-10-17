@@ -63,7 +63,6 @@ trait ObjectValidatorTrait
         $this->validateObject($object);
     }
 
-
     /**
      * @param BaseModel $object
      *
@@ -75,13 +74,12 @@ trait ObjectValidatorTrait
     {
         if (!$object instanceof BaseRepository::$moduleClassMapping[$this->objectRepository->getModuleFromRepositoryName()]) {
             throw new \InvalidArgumentException('This validator supports only object of type '
-                . $this->objectRepository->getModuleFromRepositoryName());
+                .$this->objectRepository->getModuleFromRepositoryName());
         }
 
         $description = $this->objectRepository->describe()->getFields();
 
         foreach ($object->dehydrate() as $fieldName => $fieldValue) {
-
             $fieldDescription = $description[$fieldName];
             $this->validateField($fieldDescription, $fieldValue);
         }
@@ -98,9 +96,8 @@ trait ObjectValidatorTrait
     private function validateField(ModuleFieldInfo $fieldInfo, $fieldValue): void
     {
         $validators = [];
-        if (!$fieldInfo->isNullable() && $fieldInfo->isMandatory() && $fieldValue === null) {
+        if (!$fieldInfo->isNullable() && $fieldInfo->isMandatory() && null === $fieldValue) {
             $validators[] = new NotNull();
-
         }
 
         //  Validate by data type
@@ -124,6 +121,7 @@ trait ObjectValidatorTrait
      * @param $fieldValue
      *
      * @return array
+     *
      * @throws InvalidObjectException
      * @throws \Psr\Cache\InvalidArgumentException
      */
@@ -141,18 +139,18 @@ trait ObjectValidatorTrait
                 break;
             case 'owner':
                 if (!count($this->existingUsersIds) || true) {
-                    $users               = $this->userRepository->findBy();
-                    $this->existingUsersIds = array_map(function($o) { return $o->id;}, $users);
+                    $users                  = $this->userRepository->findBy();
+                    $this->existingUsersIds = array_map(function ($o) { return $o->id; }, $users);
                 }
 
                 $validators[] = new Choice(['choices' => $this->existingUsersIds]);
                 break;
-            case "reference":
+            case 'reference':
                 break;
-            case "boolean":
+            case 'boolean':
                 break;
             default:
-                throw new InvalidObjectException('Unknown field type ' . print_r((array)$typeObject, true));
+                throw new InvalidObjectException('Unknown field type '.print_r((array) $typeObject, true));
         }
 
         return $validators;

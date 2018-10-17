@@ -14,16 +14,15 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
-use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Service\LeadEventSupplier;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\EventFactory;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\EventRepository;
 
 /**
- * Class AccountDataExchange
- * @package MauticPlugin\MauticVtigerCrmBundle\Sync
+ * Class AccountDataExchange.
  */
 final class EventSyncService
 {
@@ -54,7 +53,6 @@ final class EventSyncService
         $this->settingProvider   = $settingProvider;
     }
 
-
     /**
      * @param \DateTimeInterface|null $dateFrom
      * @param \DateTimeInterface|null $dateTo
@@ -64,7 +62,7 @@ final class EventSyncService
     public function sync(?\DateTimeInterface $dateFrom, ?\DateTimeInterface $dateTo)
     {
         try {
-            if(!$this->settingProvider->getSyncSetting('push_activity')) {
+            if (!$this->settingProvider->getSyncSetting('push_activity')) {
                 return;
             }
         } catch (\InvalidArgumentException $e) {
@@ -74,14 +72,14 @@ final class EventSyncService
         $mapping = $this->leadEventSupplier->getLeadsMapping();
 
         if (!count($mapping)) {
-            DebugLogger::log(VtigerCrmIntegration::NAME, 'No mapped contacts to synchronize activities for.');;
+            DebugLogger::log(VtigerCrmIntegration::NAME, 'No mapped contacts to synchronize activities for.');
+
             return;
         }
 
         $this->settingProvider->exceptConfigured();
 
         $eventsToSynchronize = $this->getSyncReport($mapping, $this->settingProvider->getSyncSetting('activityEvents'), $dateFrom, $dateTo);
-
 
         DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Uploading %d Events', count($eventsToSynchronize['up'])));
 
@@ -109,15 +107,17 @@ final class EventSyncService
      * @param null  $dateTo
      *
      * @return array
+     *
      * @throws \Exception
      */
-    private function getSyncReport($mappings, array $events = [], $dateFrom = null, $dateTo = null) {
+    private function getSyncReport($mappings, array $events = [], $dateFrom = null, $dateTo = null)
+    {
         $mauticEvents = $this->leadEventSupplier->getLeadEvents(array_keys($mappings), $events, $dateFrom, $dateTo);
 
         $vtigerEvents = $this->eventRepository->findByContactIds($mappings);
 
         $eventTypesFlipped = array_flip($this->leadEventSupplier->getTypes());
-        $eventTypes = $this->leadEventSupplier->getTypes();
+        $eventTypes        = $this->leadEventSupplier->getTypes();
 
         $result = ['up' => [], 'down' => []];
 
@@ -130,10 +130,9 @@ final class EventSyncService
 
             $vtigerCheck[$vtigerEvent->getContactId()][$vtigerEvent->getDateTimeStart()->getTimestamp()][] = [
                 'timestamp' => $vtigerEvent->getDateTimeStart()->getTimestamp(),
-                'message' => $vtigerEvent->getSubject(),
-                'event'   => $eventTypesFlipped[$vtigerEvent->getSubject()],
+                'message'   => $vtigerEvent->getSubject(),
+                'event'     => $eventTypesFlipped[$vtigerEvent->getSubject()],
                 'priority'  => $vtigerEvent->getTaskPriority(),
-
             ];
         }
 
@@ -149,11 +148,11 @@ final class EventSyncService
                         'timestamp' => $eventTimeStamp,
                         'message'   => $eventTypes[$event['event']],
                         'event'     => $event['event'],
-                        'priority'  => $event['priority']
+                        'priority'  => $event['priority'],
                     ];
 
                     if (isset($vtigerCheck[$vtigerId][$eventTimeStamp]) && in_array($eventCheck, $vtigerCheck[$vtigerId][$eventTimeStamp])) {
-                        $found++;
+                        ++$found;
                         continue;
                     }
 
@@ -170,7 +169,6 @@ final class EventSyncService
                     $result['up'][] = $event;
                 }
             }
-
         }
 
         return $result;

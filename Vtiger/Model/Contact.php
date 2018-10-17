@@ -14,15 +14,15 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
 /**
- * Class Contact
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model
+ * Class Contact.
  */
 class Contact extends BaseModel
 {
     /**
      * @return string|null
      */
-    public function getAssignedUserId(): ?string {
+    public function getAssignedUserId(): ?string
+    {
         return !isset($this->data['assigned_user_id']) ? null : $this->data['assigned_user_id'];
     }
 
@@ -31,29 +31,34 @@ class Contact extends BaseModel
      *
      * @return Contact
      */
-    public function setAssignedUserId(?string $userId): Contact {
+    public function setAssignedUserId(?string $userId): Contact
+    {
         $this->data['assigned_user_id'] = $userId;
+
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function isConvertedFromLead(): bool {
+    public function isConvertedFromLead(): bool
+    {
         return (bool) $this->data['isconvertedfromlead'];
     }
 
     /**
      * @return string
      */
-    public function getEmail(): string {
+    public function getEmail(): string
+    {
         return $this->data['email'];
     }
 
     /**
      * @return bool
      */
-    public function getEmailOptout(): bool {
+    public function getEmailOptout(): bool
+    {
         return (bool) $this->data['emailoptout'];
     }
 
@@ -62,15 +67,18 @@ class Contact extends BaseModel
      *
      * @return Contact
      */
-    public function setEmailOptout(bool $value): self {
+    public function setEmailOptout(bool $value): self
+    {
         $this->data['emailoptout'] = $value;
+
         return $this;
     }
 
     /**
      * @return bool
      */
-    public function getDoNotCall(): bool {
+    public function getDoNotCall(): bool
+    {
         return (bool) $this->data['donotcall'];
     }
 
@@ -79,8 +87,10 @@ class Contact extends BaseModel
      *
      * @return Contact
      */
-    public function setDoNotCall(bool $value): self {
+    public function setDoNotCall(bool $value): self
+    {
         $this->data['donotcall'] = $value;
+
         return $this;
     }
 }

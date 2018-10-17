@@ -20,8 +20,7 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 
 /**
- * Trait DataExchangeReportTrait
- * @package MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers
+ * Trait DataExchangeReportTrait.
  */
 trait DataExchangeReportTrait
 {
@@ -30,6 +29,7 @@ trait DataExchangeReportTrait
      * @param ReportDAO                                                        $syncReport
      *
      * @return ReportDAO|mixed
+     *
      * @throws \Exception
      */
     public function getObjectSyncReport(\MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject, ReportDAO &$syncReport)
@@ -45,7 +45,6 @@ trait DataExchangeReportTrait
             $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new \DateTimeImmutable($object->getModifiedTime()->format('r')));
 
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
-
                 if (!isset($objectFields[$field])) {
                     // If the present value is not described it should be processed as string
                     $normalizedValue = $this->valueNormalizer->normalizeForMautic(NormalizedValueDAO::STRING_TYPE, $value);
@@ -53,7 +52,6 @@ trait DataExchangeReportTrait
                     // Normalize the value from the API to what Mautic needs
                     $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getType(), $value);
                 }
-
 
                 $reportFieldDAO = new FieldDAO($field, $normalizedValue);
 
@@ -71,19 +69,21 @@ trait DataExchangeReportTrait
      * @param array              $mappedFields
      *
      * @return array|mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
     {
-        $fullReport = []; $iteration = 0;
+        $fullReport = [];
+        $iteration = 0;
         // We must iterate while there is still some result left
 
         do {
-            $report = $this->objectRepository->query('SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields)
-                . ' FROM ' . self::OBJECT_NAME .  ' WHERE modifiedtime>' . $fromDate->getTimestamp()
-                . ' LIMIT ' . ($iteration*100) . ',100');
+            $report = $this->objectRepository->query('SELECT id,modifiedtime,assigned_user_id,'.join(',', $mappedFields)
+                .' FROM '.self::OBJECT_NAME.' WHERE modifiedtime>'.$fromDate->getTimestamp()
+                .' LIMIT '.($iteration * 100).',100');
 
-            $iteration++;
+            ++$iteration;
 
             $fullReport = array_merge($fullReport, $report);
         } while (count($report));

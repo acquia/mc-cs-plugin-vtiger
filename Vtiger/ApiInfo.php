@@ -30,6 +30,7 @@ class ApiInfo
 
     /**
      * @return \Psr\Http\Message\ResponseInterface
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
@@ -39,7 +40,8 @@ class ApiInfo
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
-    public function getListTypes() {
+    public function getListTypes()
+    {
         return $this->get('listtypes');
     }
 
@@ -47,6 +49,7 @@ class ApiInfo
      * @param $elementType
      *
      * @return mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
@@ -56,7 +59,8 @@ class ApiInfo
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
-    public function describe($elementType) {
+    public function describe($elementType)
+    {
         return $this->post('describe', ['elementType'=>$elementType]);
     }
 
@@ -64,6 +68,7 @@ class ApiInfo
      * @param $operation
      *
      * @return mixed|\Psr\Http\Message\ResponseInterface
+     *
      * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException
@@ -76,6 +81,7 @@ class ApiInfo
     private function get($operation)
     {
         $response = $this->connection->get($operation);
+
         return $response;
     }
 
@@ -84,6 +90,7 @@ class ApiInfo
      * @param $payload
      *
      * @return mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
@@ -96,6 +103,7 @@ class ApiInfo
     private function post($operation, $payload)
     {
         $response = $this->connection->post($operation, $payload);
+
         return $response;
     }
 }

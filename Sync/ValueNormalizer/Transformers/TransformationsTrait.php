@@ -14,13 +14,11 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 
 /**
- * Trait TransformationsTrait
- *
- * @package MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers
+ * Trait TransformationsTrait.
  */
 trait TransformationsTrait
 {
@@ -47,8 +45,8 @@ trait TransformationsTrait
             'func' => 'transformDNC',
         ],
         NormalizedValueDAO::INT_TYPE => [
-            'func' => 'transformInt'
-        ]
+            'func' => 'transformInt',
+        ],
     ];
 
     /**
@@ -56,6 +54,7 @@ trait TransformationsTrait
      * @param $value
      *
      * @return NormalizedValueDAO
+     *
      * @throws InvalidObjectValueException
      * @throws InvalidQueryArgumentException
      */
@@ -73,7 +72,7 @@ trait TransformationsTrait
             && isset($this->transformations['func']['required'])
             && $this->transformations['func']['required']
         ) {
-            throw new InvalidObjectValueException("Required property has null value", $transformedValue, $type);
+            throw new InvalidObjectValueException('Required property has null value', $transformedValue, $type);
         }
 
         return new NormalizedValueDAO($type, $value, $transformedValue);
@@ -86,7 +85,7 @@ trait TransformationsTrait
      */
     protected function transformEmail($value): ?string
     {
-        if (is_null($value) || strlen(trim($value)) === 0) {
+        if (is_null($value) || 0 === strlen(trim($value))) {
             return null;
         }
         $value = $this->transformString($value);
@@ -105,7 +104,7 @@ trait TransformationsTrait
             return $value;
         }
 
-        return (string)$value;
+        return (string) $value;
     }
 
     /**
@@ -119,7 +118,7 @@ trait TransformationsTrait
             return $value;
         }
 
-        return intval((bool)$value);
+        return intval((bool) $value);
     }
 
     /**
@@ -152,7 +151,8 @@ trait TransformationsTrait
         return $this->transformString($value);
     }
 
-    protected function transformInt($value): ?int {
+    protected function transformInt($value): ?int
+    {
         return intval($value);
     }
 }

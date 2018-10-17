@@ -20,9 +20,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Class SyncSubscriber
- *
- * @package MauticPlugin\MauticVtigerCrmBundle\EventListener
+ * Class SyncSubscriber.
  */
 class SyncEventsSubscriber implements EventSubscriberInterface
 {
@@ -46,7 +44,8 @@ class SyncEventsSubscriber implements EventSubscriberInterface
      * For instance:
      *  * array('eventName' => 'methodName')
      *  * array('eventName' => array('methodName', $priority))
-     *  * array('eventName' => array(array('methodName1', $priority), array('methodName2')))
+     *  * array('eventName' => array(array('methodName1', $priority), array('methodName2'))).
+     *
      * @return array The event names to listen to
      */
     public static function getSubscribedEvents()
@@ -56,8 +55,8 @@ class SyncEventsSubscriber implements EventSubscriberInterface
         ];
     }
 
-
-    public function onPostExecuteOrder(SyncEvent $event): void {
+    public function onPostExecuteOrder(SyncEvent $event): void
+    {
         if (!$event->isIntegration(VtigerCrmIntegration::NAME)) {
             return;
         }

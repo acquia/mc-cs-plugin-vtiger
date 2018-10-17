@@ -14,9 +14,7 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Model;
 
 /**
- * Class Credentials represents credentials needed for authentication
- *
- * @package MauticPlugin\MauticVtigerCrmBundle\Model
+ * Class Credentials represents credentials needed for authentication.
  */
 class Credentials
 {

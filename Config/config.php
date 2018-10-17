@@ -42,11 +42,11 @@ return [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigAuthType::class,
             ],
             'mautic.vtiger_crm.form.config_features' => [
-                'class' => \MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigSyncFeaturesType::class,
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigSyncFeaturesType::class,
                 'arguments' => [
                     'mautic.vtiger_crm.repository.users',
-                ]
-            ]
+                ],
+            ],
         ],
         'helpers'      => [
         ],
@@ -166,7 +166,7 @@ return [
                     'mautic.vtiger_crm.sync.data_exchange_leads',
                     'mautic.vtiger_crm.sync.data_exchange_company_details',
                     'mautic.vtiger_crm.sync.data_exchange_accounts',
-                    'mautic.vtiger_crm.sync.events_service'
+                    'mautic.vtiger_crm.sync.events_service',
                 ],
             ],
 
@@ -213,13 +213,12 @@ return [
             ],
             'mautic.vtiger_crm.lead_event_supplier'                => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Service\LeadEventSupplier::class,
-                'arguments' => ['mautic.lead.model.lead', 'doctrine.orm.entity_manager']
+                'arguments' => ['mautic.lead.model.lead', 'doctrine.orm.entity_manager'],
             ],
             'mautic.vtiger_crm.sync.events_service'                => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService::class,
-                'arguments' => ['mautic.vtiger_crm.lead_event_supplier', 'mautic.vtiger_crm.repository.events', 'mautic.vtiger_crm.settings',],
+                'arguments' => ['mautic.vtiger_crm.lead_event_supplier', 'mautic.vtiger_crm.repository.events', 'mautic.vtiger_crm.settings'],
             ],
-
         ],
         'models'       => [
         ],
@@ -228,7 +227,7 @@ return [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration::class,
                 'tags'      => [
                     'mautic.integration',
-                    'mautic.basic_integration'
+                    'mautic.basic_integration',
                 ],
             ],
             'mautic.integration.vtiger_crm.sync' => [

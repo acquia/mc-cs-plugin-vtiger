@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
 /**
- * Class ModuleFieldInfo
+ * Class ModuleFieldInfo.
  *
  * @see
  * public 'name' => string 'salutationtype' (length=14)
@@ -27,8 +27,6 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
  * public 'nullable' => boolean true
  * public 'editable' => boolean true
  * public 'default' => string '' (length=0)
- *
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model
  */
 class ModuleFieldInfo
 {
@@ -74,9 +72,9 @@ class ModuleFieldInfo
 
     public function __construct(\stdClass $data)
     {
-        $this->label = $data->label;
-        $this->name = $data->name;
-        $this->type = $data->type;
+        $this->label    = $data->label;
+        $this->name     = $data->name;
+        $this->type     = $data->type;
         $this->nullable = $data->nullable;
         $this->editable = $data->editable;
 
@@ -120,7 +118,8 @@ class ModuleFieldInfo
     /**
      * @return \stdClass
      */
-    public function getTypeObject() {
+    public function getTypeObject()
+    {
         return $this->type;
     }
 
@@ -184,6 +183,6 @@ class ModuleFieldInfo
      */
     private function setMandatory(bool $mandatory, string $name): void
     {
-        $this->mandatory = $mandatory || $name === 'email';
+        $this->mandatory = $mandatory || 'email' === $name;
     }
 }

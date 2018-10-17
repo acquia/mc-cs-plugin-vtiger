@@ -17,14 +17,11 @@ use Mautic\PluginBundle\Bundle\PluginBundleBase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * Class MauticVtigerCrmBundle
- *
- * @package MauticPlugin\MauticVtigerCrmBundle
+ * Class MauticVtigerCrmBundle.
  */
 class MauticVtigerCrmBundle extends PluginBundleBase
 {
     public function build(ContainerBuilder $container)
     {
-
     }
 }

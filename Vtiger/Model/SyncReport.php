@@ -16,8 +16,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 
 /**
- * Class SyncReport
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model
+ * Class SyncReport.
  */
 class SyncReport
 {
@@ -39,15 +38,16 @@ class SyncReport
      * @param \stdClass $data
      * @param string    $moduleName
      */
-    public function __construct(\stdClass $data, string $moduleName) {
+    public function __construct(\stdClass $data, string $moduleName)
+    {
         $moduleClass = BaseRepository::$moduleClassMapping[$moduleName];
 
         foreach ($data->updated as $moduleData) {
-            $this->updated[] = new $moduleClass((array)$moduleData);
+            $this->updated[] = new $moduleClass((array) $moduleData);
         }
 
         foreach ($data->deleted as $moduleData) {
-            $this->deleted[] = new $moduleClass((array)$moduleData);
+            $this->deleted[] = new $moduleClass((array) $moduleData);
         }
     }
 

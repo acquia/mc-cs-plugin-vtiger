@@ -31,13 +31,12 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 
 /**
- * Trait RepositoryHelper
- *
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper
+ * Trait RepositoryHelper.
  */
 trait RepositoryHelper
 {
-    public function findBy($where = [], $columns = '*') {
+    public function findBy($where = [], $columns = '*')
+    {
         return $this->findByInternal($where, $columns);
     }
 
@@ -52,11 +51,11 @@ trait RepositoryHelper
     protected function findByInternal($where = [], $columns = '*')
     {
         $moduleName = $this->getModuleFromRepositoryName();
-        $className = self::$moduleClassMapping[$moduleName];
+        $className  = self::$moduleClassMapping[$moduleName];
 
         $columns = is_array($columns) ? join(', ', $columns) : $columns;
 
-        $query = "select " . $columns . " from " . $moduleName;
+        $query = 'select '.$columns.' from '.$moduleName;
         if (count($where)) {
             foreach ($where as $key => $value) {
                 $whereEscaped[$key] = sprintf("%s='%s'",
@@ -64,10 +63,10 @@ trait RepositoryHelper
                     htmlentities($value)
                 );
             }
-            $query .= " where " . join(' and ', $whereEscaped);
+            $query .= ' where '.join(' and ', $whereEscaped);
         }
 
-        $query .= ";";
+        $query .= ';';
 
         $result = $this->connection->get('query', ['query' => $query]);
         $return = [];
@@ -84,6 +83,7 @@ trait RepositoryHelper
      * @param string $columns
      *
      * @return mixed|null
+     *
      * @throws InvalidQueryArgumentException
      */
     public function findOneBy($where = [], $columns = '*')
@@ -94,7 +94,7 @@ trait RepositoryHelper
             return null;
         }
 
-        if (count($findResult)>1) {
+        if (count($findResult) > 1) {
             throw new InvalidQueryArgumentException('Invalid query. Query returned more than one result.');
         }
 
@@ -110,8 +110,8 @@ trait RepositoryHelper
     {
         $response = $this->connection->post('create', ['element' => json_encode($module->dehydrate()), 'elementType' => $this->getModuleFromRepositoryName()]);
 
-        $className = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
-        $createdModule = new $className((array)$response);
+        $className     = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
+        $createdModule = new $className((array) $response);
 
         return $createdModule;
     }
@@ -123,11 +123,11 @@ trait RepositoryHelper
      */
     public function update(BaseModel $module): BaseModel
     {
-        DebugLogger::log(VtigerCrmIntegration::NAME, 'Updating ' .  $this->getModuleFromRepositoryName() . ' ' . $module->getId());
+        DebugLogger::log(VtigerCrmIntegration::NAME, 'Updating '.$this->getModuleFromRepositoryName().' '.$module->getId());
         $response = $this->connection->post('update', ['element' => json_encode($module->dehydrate())]);
 
-        $className = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
-        $createdModule = new $className((array)$response);
+        $className     = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
+        $createdModule = new $className((array) $response);
 
         return $createdModule;
     }
@@ -137,9 +137,10 @@ trait RepositoryHelper
      *
      * @return array
      */
-    public function query($query) {
+    public function query($query)
+    {
         $moduleName = $this->getModuleFromRepositoryName();
-        $className = self::$moduleClassMapping[$moduleName];
+        $className  = self::$moduleClassMapping[$moduleName];
 
         $result = $this->connection->get('query', ['query' => $query]);
 
@@ -157,8 +158,10 @@ trait RepositoryHelper
      *
      * @return mixed
      */
-    public function delete(string $id) {
+    public function delete(string $id)
+    {
         $response = $this->connection->post('delete', ['id' =>  (string) $id]);
+
         return $response;
     }
 
@@ -171,13 +174,14 @@ trait RepositoryHelper
      *
      * @throws \Exception
      */
-    public function sync(int $modifiedTime, $syncType = BaseRepository::SYNC_APPLICATION) {
+    public function sync(int $modifiedTime, $syncType = BaseRepository::SYNC_APPLICATION)
+    {
         throw new \Exception('Remote API support for sync is not working, thus not implemented. If it starts working we should use it at least for deleted.');
         $moduleName = $this->getModuleFromRepositoryName();
 
         $query = [
             'modifiedtime' => (new \DateTime())->getTimestamp(),
-            'elementType' => rtrim($moduleName,'s').'s',
+            'elementType'  => rtrim($moduleName, 's').'s',
             //'syncType' => 'user'
         ];
 
@@ -189,17 +193,21 @@ trait RepositoryHelper
 
     /**
      * @return array
+     *
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getMappableFields(): array {
+    public function getMappableFields(): array
+    {
         return $this->getEditableFields();
     }
 
     /**
      * @return array
+     *
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getEditableFields():array {
+    public function getEditableFields(): array
+    {
         /** @var ModuleInfo $moduleFields */
         $moduleFields = $this->describe()->getFields();
 

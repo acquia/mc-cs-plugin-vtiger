@@ -16,20 +16,19 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
 use GuzzleHttp\Psr7\Response;
 use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Model\Credentials;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Class Connection
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger
+ * Class Connection.
  */
 class Connection
 {
@@ -81,6 +80,7 @@ class Connection
      * @param array  $payload
      *
      * @return mixed|ResponseInterface
+     *
      * @throws AccessDeniedException
      * @throws DatabaseQueryException
      * @throws InvalidQueryArgumentException
@@ -97,7 +97,7 @@ class Connection
             $this->authenticate();
         }
 
-        $query = sprintf("%s?operation=%s",
+        $query = sprintf('%s?operation=%s',
             $this->getApiUrl(),
             $operation);
 
@@ -105,16 +105,16 @@ class Connection
 
         if (count($payload)) {
             if (isset($payload['query'])) {
-                $queryString = '&query=' . $payload['query'];
+                $queryString = '&query='.$payload['query'];
                 unset($payload['query']);
             }
-            $query .= '&' . http_build_query($payload);
+            $query .= '&'.http_build_query($payload);
             if (isset($queryString)) {
-                $query .= trim($queryString, ';') . ';';
+                $query .= trim($queryString, ';').';';
             }
         }
 
-        DebugLogger::log(VtigerCrmIntegration::NAME,$query);
+        DebugLogger::log(VtigerCrmIntegration::NAME, $query);
 
         $response = $this->httpClient->get($query, ['headers' => $this->requestHeaders]);
 
@@ -128,6 +128,7 @@ class Connection
      * @param array  $payload
      *
      * @return mixed|ResponseInterface
+     *
      * @throws AccessDeniedException
      * @throws DatabaseQueryException
      * @throws InvalidQueryArgumentException
@@ -136,14 +137,15 @@ class Connection
      * @throws VtigerPluginException
      * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
-    public function query(string $operation, array $payload = []) {
+    public function query(string $operation, array $payload = [])
+    {
         $this->settings->exceptConfigured();
 
         if (!$this->isAuthenticated()) {
             $this->authenticate();
         }
 
-        $query = sprintf("%s?operation=%s",
+        $query = sprintf('%s?operation=%s',
             $this->getApiUrl(),
             $operation);
 
@@ -151,16 +153,16 @@ class Connection
 
         if (count($payload)) {
             if (isset($payload['query'])) {
-                $queryString = '&query=' . $payload['query'];
+                $queryString = '&query='.$payload['query'];
                 unset($payload['query']);
             }
-            $query .= '&' . http_build_query($payload);
+            $query .= '&'.http_build_query($payload);
             if (isset($queryString)) {
-                $query .= trim($queryString, ';') . ';';
+                $query .= trim($queryString, ';').';';
             }
         }
 
-        DebugLogger::log(VtigerCrmIntegration::NAME, "Running vtiger query: " . $query);
+        DebugLogger::log(VtigerCrmIntegration::NAME, 'Running vtiger query: '.$query);
         $response = $this->httpClient->get($query, ['headers' => $this->requestHeaders]);
 
         $response = $this->handleResponse($response, $query);
@@ -173,6 +175,7 @@ class Connection
      * @param array  $payload
      *
      * @return mixed
+     *
      * @throws AccessDeniedException
      * @throws DatabaseQueryException
      * @throws InvalidQueryArgumentException
@@ -206,6 +209,7 @@ class Connection
      * @param array    $payload
      *
      * @return mixed
+     *
      * @throws AccessDeniedException
      * @throws DatabaseQueryException
      * @throws InvalidQueryArgumentException
@@ -217,13 +221,13 @@ class Connection
     {
         $content = $response->getBody()->getContents();
 
-        if ($response->getReasonPhrase() != 'OK') {
+        if ('OK' != $response->getReasonPhrase()) {
             throw new SessionException('Server responded with an error');
         }
 
         $content = json_decode($content);
 
-        if ($content === false || $content === null) {
+        if (false === $content || null === $content) {
             throw new VtigerPluginException('Incorrect endpoint response');
         }
 
@@ -231,15 +235,14 @@ class Connection
             return $content->result;
         }
 
-
-        $error = property_exists($content, 'error') ? $content->error->code . ": " . $content->error->message : "No message";
+        $error = property_exists($content, 'error') ? $content->error->code.': '.$content->error->message : 'No message';
 
         switch ($content->error->code) {
-            case "ACCESS_DENIED":
+            case 'ACCESS_DENIED':
                 throw new AccessDeniedException($error, $apiUrl, $payload);
-            case "DATABASE_QUERY_ERROR":
+            case 'DATABASE_QUERY_ERROR':
                 throw new DatabaseQueryException($error, $apiUrl, $payload);
-            case "MANDATORY_FIELDS_MISSING":
+            case 'MANDATORY_FIELDS_MISSING':
                 throw new InvalidQueryArgumentException($content->error->message, $apiUrl, $payload);
         }
 
@@ -248,6 +251,7 @@ class Connection
 
     /**
      * @return mixed|ResponseInterface
+     *
      * @throws AccessDeniedException
      * @throws DatabaseQueryException
      * @throws InvalidQueryArgumentException
@@ -256,12 +260,13 @@ class Connection
      * @throws SessionException
      * @throws VtigerPluginException
      */
-    public function logout() {
+    public function logout()
+    {
         return $this->get('logout');
     }
 
     /**
-     * returns love
+     * returns love.
      */
     public function __destruct()
     {
@@ -270,7 +275,6 @@ class Connection
                 $this->logout();
             }
         } catch (\Exception $e) {
-
         }
     }
 
@@ -290,11 +294,11 @@ class Connection
                 throw new SessionException('No authentication credentials supplied');
             }
 
-            $query = sprintf("%s?operation=%s",
+            $query = sprintf('%s?operation=%s',
                              $this->getApiUrl(),
                              'getchallenge');
 
-            $query .= '&' . http_build_query(['username' => $credentials->getUsername()]);
+            $query .= '&'.http_build_query(['username' => $credentials->getUsername()]);
 
             $response = $this->httpClient->get($query, ['headers' => $this->requestHeaders]);
 
@@ -303,8 +307,8 @@ class Connection
 
             $query = [
                 'operation' => 'login',
-                'username' => $credentials->getUsername(),
-                'accessKey' => md5($response->token . $credentials->getAccesskey()),
+                'username'  => $credentials->getUsername(),
+                'accessKey' => md5($response->token.$credentials->getAccesskey()),
             ];
 
             $response = $this->httpClient->post($this->getApiUrl(), ['form_params' => $query]);
@@ -312,9 +316,8 @@ class Connection
             $loginResponse = $this->handleResponse($response, $this->getApiUrl(), $query);
 
             $this->sessionId = $loginResponse->sessionName;
-        }
-        catch (\Exception $e) {
-            throw new PluginNotConfiguredException('Failed to authenticate. ' . $e->getMessage());
+        } catch (\Exception $e) {
+            throw new PluginNotConfiguredException('Failed to authenticate. '.$e->getMessage());
         }
 
         return $this;
@@ -341,7 +344,7 @@ class Connection
      */
     private function getApiUrl(): string
     {
-        return sprintf("%s/webservice.php",
+        return sprintf('%s/webservice.php',
                        $this->getApiDomain());
     }
 
@@ -358,7 +361,6 @@ class Connection
         $credentialsCfg = $this->settings->getCredentials();
 
         if (isset($credentialsCfg['accessKey'], $credentialsCfg['username'], $credentialsCfg['url'])) {
-
             $this->credentials = new Credentials($credentialsCfg['accessKey'], $credentialsCfg['username']);
 
             $this->apiDomain = $credentialsCfg['url'];

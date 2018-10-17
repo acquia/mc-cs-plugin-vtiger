@@ -24,8 +24,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 
 /**
- * Class DataExchange
- * @package MauticPlugin\MauticVtigerCrmBundle\Sync
+ * Class DataExchange.
  */
 class DataExchange implements SyncDataExchangeInterface
 {
@@ -80,15 +79,14 @@ class DataExchange implements SyncDataExchangeInterface
         CompanyDetailsDataExchange $companyDetailsDataExchange,
         AccountDataExchange $accountDataExchange,
         EventSyncService $eventSyncService
-    )
-    {
-        $this->fieldMapper = $fieldMapper;
+    ) {
+        $this->fieldMapper         = $fieldMapper;
         $this->contactDataExchange = $contactDataExchange;
-        $this->leadDataExchange = $leadDataExchange;
-        $this->mappingHelper = $mappingHelper;
+        $this->leadDataExchange    = $leadDataExchange;
+        $this->mappingHelper       = $mappingHelper;
         $this->companyDataExchange = $companyDetailsDataExchange;
         $this->accountDataExchange = $accountDataExchange;
-        $this->eventSyncService = $eventSyncService;
+        $this->eventSyncService    = $eventSyncService;
     }
 
     /**
@@ -112,11 +110,12 @@ class DataExchange implements SyncDataExchangeInterface
     }
 
     /**
-     * Get Sync report from integration
+     * Get Sync report from integration.
      *
      * @param RequestDAO $requestDAO
      *
      * @return ReportDAO
+     *
      * @throws ObjectNotSupportedException
      */
     public function getSyncReport(RequestDAO $requestDAO): ReportDAO
@@ -151,7 +150,7 @@ class DataExchange implements SyncDataExchangeInterface
     {
         $syncOrderDAO->getSyncDateTime();
 
-        $identifiedObjects = $syncOrderDAO->getIdentifiedObjects();
+        $identifiedObjects   = $syncOrderDAO->getIdentifiedObjects();
         $unidentifiedObjects = $syncOrderDAO->getUnidentifiedObjects();
 
         foreach ($identifiedObjects as $objectName => $updateObjects) {
@@ -170,7 +169,6 @@ class DataExchange implements SyncDataExchangeInterface
             foreach ($updatedObjectMappings as $updateObject) {
                 $syncOrderDAO->updateLastSyncDate($updateObject);
             }
-
         }
 
         foreach ($unidentifiedObjects as $objectName => $createObjects) {
@@ -203,6 +201,7 @@ class DataExchange implements SyncDataExchangeInterface
      * @param $objectName
      *
      * @return ObjectSyncDataExchangeInterface
+     *
      * @throws ObjectNotSupportedException
      */
     private function getDataExchangeService($objectName): ObjectSyncDataExchangeInterface

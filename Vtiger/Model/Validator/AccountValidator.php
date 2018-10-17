@@ -1,5 +1,6 @@
-<?php /** @noinspection PhpDocSignatureInspection */
+<?php
 
+/** @noinspection PhpDocSignatureInspection */
 declare(strict_types=1);
 
 /*
@@ -13,9 +14,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator;
 
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
@@ -34,7 +32,7 @@ class AccountValidator implements ObjectValidatorInterface
         }
 
         $description = $this->objectRepository->describe();
-        var_dump($description); die();
+        var_dump($description);
+        die();
     }
-
 }

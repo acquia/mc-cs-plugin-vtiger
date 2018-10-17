@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
 /**
- * Class ModuleInfo
+ * Class ModuleInfo.
  *
  * @see
  *
@@ -29,8 +29,6 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
  * +"isEntity": true
  * +"allowDuplicates": false
  * +"labelFields": "firstname,lastname"
- *
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model
  */
 class ModuleInfo
 {
@@ -91,18 +89,18 @@ class ModuleInfo
      */
     public function __construct(\stdClass $data)
     {
-        $this->label = $data->label;
-        $this->name = $data->name;
-        $this->createable = $data->createable;
-        $this->updateable = $data->updateable;
-        $this->deleteable = $data->deleteable;
+        $this->label        = $data->label;
+        $this->name         = $data->name;
+        $this->createable   = $data->createable;
+        $this->updateable   = $data->updateable;
+        $this->deleteable   = $data->deleteable;
         $this->retrieveable = $data->retrieveable;
         foreach ($data->fields as $key=>$fieldInfo) {
             $this->fields[$fieldInfo->name] = new ModuleFieldInfo($fieldInfo);
         }
-        $this->idPrefix = $data->idPrefix;
+        $this->idPrefix        = $data->idPrefix;
         $this->allowDuplicates = isset($data->allowDuplicates) ? $data->allowDuplicates : true;
-        $this->labelFields = $data->labelFields;
+        $this->labelFields     = $data->labelFields;
     }
 
     /**

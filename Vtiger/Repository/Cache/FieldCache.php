@@ -64,8 +64,8 @@ class FieldCache
             return;
         }
 
-        $cachedItem->tag(['vtigercrm','vtigercrm_repository']);
-        $cachedItem->expiresAfter(60*60*24*7);  // Expire after a week
+        $cachedItem->tag(['vtigercrm', 'vtigercrm_repository']);
+        $cachedItem->expiresAfter(60 * 60 * 24 * 7);  // Expire after a week
 
         $cachedItem->set($moduleInfo);
         $this->cacheProvider->save($cachedItem);

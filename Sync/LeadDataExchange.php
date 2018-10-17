@@ -26,8 +26,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\LeadValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
 
 /**
- * Class LeadDataExchange
- * @package MauticPlugin\MauticVtigerCrmBundle\Sync
+ * Class LeadDataExchange.
  */
 class LeadDataExchange implements ObjectSyncDataExchangeInterface
 {
@@ -66,8 +65,7 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
         LeadModel $leadModel,
         ValueNormalizerInterface $valueNormalizer,
         LeadValidator $objectValidator
-    )
-    {
+    ) {
         $this->objectRepository = $leadsRepository;
         $this->objectValidator  = $objectValidator;
         $this->valueNormalizer  = $valueNormalizer;
@@ -80,15 +78,14 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
      * @param ReportDAO                                                        $syncReport
      *
      * @return ReportDAO
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function getObjectSyncReport(
         \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
         ReportDAO &$syncReport
-    ): ReportDAO
-    {
-
+    ): ReportDAO {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
         $objectFields = $this->objectRepository->describe()->getFields();
@@ -118,9 +115,13 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
      * @param array $objects
      *
      * @return mixed|void
+     *
      * @throws \Exception
      */
-    public function delete(array $objects) { throw new \Exception('Not implemented'); }
+    public function delete(array $objects)
+    {
+        throw new \Exception('Not implemented');
+    }
 
     /**
      * @param array $objects

@@ -42,6 +42,7 @@ class VtigerSyncProvider implements SyncInterface
 
     /**
      * @return MappingManualDAO
+     *
      * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException
      */
     public function getMappingManual(): MappingManualDAO

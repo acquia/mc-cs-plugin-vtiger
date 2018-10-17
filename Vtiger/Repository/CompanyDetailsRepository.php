@@ -17,8 +17,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 /**
- * Class CompanyDetailsRepository
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository
+ * Class CompanyDetailsRepository.
  */
 class CompanyDetailsRepository extends BaseRepository
 {
@@ -38,6 +37,7 @@ class CompanyDetailsRepository extends BaseRepository
      * @param string $id
      *
      * @return Contact
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */

@@ -17,9 +17,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 /**
- * Class AccountRepository
- *
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository
+ * Class AccountRepository.
  */
 class AccountRepository extends BaseRepository
 {
@@ -39,6 +37,7 @@ class AccountRepository extends BaseRepository
      * @param string $id
      *
      * @return Account
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
@@ -53,9 +52,11 @@ class AccountRepository extends BaseRepository
      * @param string $contactId
      *
      * @return array
+     *
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getByContactId(string $contactId):array {
+    public function getByContactId(string $contactId): array
+    {
         return $this->findBy(['contact_id' => $contactId]);
     }
 
@@ -64,14 +65,15 @@ class AccountRepository extends BaseRepository
      * @param string $columns
      *
      * @return array|Account[]|mixed
+     *
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function findBy($where = [], $columns = '*')
     {
         if (!count($where)) {
             $columnsString = is_array($columns) ? join('|', $columns) : $columns;
-            $cacheKey = 'vtigercrm_acccounts_' . sha1($columnsString);
-            $cacheItem = $this->cacheProvider->getItem($cacheKey);
+            $cacheKey      = 'vtigercrm_acccounts_'.sha1($columnsString);
+            $cacheItem     = $this->cacheProvider->getItem($cacheKey);
             if ($cacheItem->isHit()) {
                 return $cacheItem->get();
             }
@@ -82,6 +84,7 @@ class AccountRepository extends BaseRepository
         $cacheItem->set($result);
 
         $this->cacheProvider->save($cacheItem);
+
         return $result;
     }
 }

@@ -20,7 +20,7 @@ use MauticPlugin\IntegrationsBundle\Helper\IntegrationsHelper;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 
 /**
- * Class VtigerSettingProvider
+ * Class VtigerSettingProvider.
  */
 class VtigerSettingProvider
 {
@@ -64,7 +64,7 @@ class VtigerSettingProvider
      */
     public function getCredentials(): array
     {
-        if ($this->getIntegrationEntity() === null) {
+        if (null === $this->getIntegrationEntity()) {
             return [];
         }
 
@@ -76,7 +76,7 @@ class VtigerSettingProvider
      */
     public function getSettings(): array
     {
-        if ($this->getIntegrationEntity() === null) {
+        if (null === $this->getIntegrationEntity()) {
             return [];
         }
 
@@ -86,7 +86,8 @@ class VtigerSettingProvider
     /**
      * @return bool
      */
-    public function isConfigured(): bool {
+    public function isConfigured(): bool
+    {
         $credentialsCfg = $this->getCredentials();
 
         return !((!isset($credentialsCfg['accessKey']) || !isset($credentialsCfg['username']) || !isset($credentialsCfg['url'])));
@@ -95,14 +96,15 @@ class VtigerSettingProvider
     /**
      * @throws PluginNotConfiguredException
      */
-    public function exceptConfigured(): void {
+    public function exceptConfigured(): void
+    {
         if (!$this->isConfigured()) {
-            throw new PluginNotConfiguredException(VtigerCrmIntegration::NAME . ' is not configured');
+            throw new PluginNotConfiguredException(VtigerCrmIntegration::NAME.' is not configured');
         }
     }
 
     /**
-     * Gets a setting from the ConfigSyncFeaturesType form
+     * Gets a setting from the ConfigSyncFeaturesType form.
      *
      * @param string $settingName
      *
@@ -111,7 +113,6 @@ class VtigerSettingProvider
     public function getSyncSetting(string $settingName)
     {
         $settings = $this->getSettings()['sync']['integration'] ?? [];
-
 
         if (!array_key_exists($settingName, $settings)) {
             // todo debug only @debug

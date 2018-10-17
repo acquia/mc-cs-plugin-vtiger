@@ -40,14 +40,15 @@ class LeadEventSupplier
 
     /**
      * @return array
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
     public function getMappedLeadIds(): array
     {
         $connection = $this->em->getConnection();
 
-        $statement = $connection->prepare("select group_concat(l.id) as ids from " . MAUTIC_TABLE_PREFIX . "sync_object_mapping map
-          inner join " . MAUTIC_TABLE_PREFIX . "leads l on map.internal_object_id = l.id 
+        $statement = $connection->prepare('select group_concat(l.id) as ids from '.MAUTIC_TABLE_PREFIX.'sync_object_mapping map
+          inner join '.MAUTIC_TABLE_PREFIX."leads l on map.internal_object_id = l.id 
           where map.integration = 'VtigerCrm' and map.internal_object_name = 'lead' and map.is_deleted = 0");
 
         $statement->execute();
@@ -62,13 +63,15 @@ class LeadEventSupplier
 
     /**
      * @return array
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getLeadsMapping() {
+    public function getLeadsMapping()
+    {
         $connection = $this->em->getConnection();
 
-        $statement = $connection->prepare("select map.internal_object_id, map.integration_object_id from " . MAUTIC_TABLE_PREFIX . "sync_object_mapping map
-          inner join " . MAUTIC_TABLE_PREFIX . "leads l on map.internal_object_id = l.id 
+        $statement = $connection->prepare('select map.internal_object_id, map.integration_object_id from '.MAUTIC_TABLE_PREFIX.'sync_object_mapping map
+          inner join '.MAUTIC_TABLE_PREFIX."leads l on map.internal_object_id = l.id 
           where map.integration = 'VtigerCrm' and map.internal_object_name = 'lead' and map.is_deleted = 0");
 
         $statement->execute();

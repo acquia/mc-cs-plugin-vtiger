@@ -102,8 +102,7 @@ class ConfigSyncFeaturesType extends AbstractType
     {
         try {
             $owners = $this->userRepository->findBy();
-        }
-        catch (PluginNotConfiguredException $e) {
+        } catch (PluginNotConfiguredException $e) {
             return [];
         }
         $ownersArray = [];

@@ -32,7 +32,7 @@ class ConfigFormLoadSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents(): array
     {
@@ -41,8 +41,9 @@ class ConfigFormLoadSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onConfigFormLoad(FormLoadEvent $event): void {
-        if ($event->getIntegration() !== VtigerCrmIntegration::NAME) {
+    public function onConfigFormLoad(FormLoadEvent $event): void
+    {
+        if (VtigerCrmIntegration::NAME !== $event->getIntegration()) {
             return;
         }
 

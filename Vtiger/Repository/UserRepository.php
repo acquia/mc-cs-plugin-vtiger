@@ -17,9 +17,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 /**
- * Class UserRepository
- *
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository
+ * Class UserRepository.
  */
 class UserRepository extends BaseRepository
 {
@@ -39,6 +37,7 @@ class UserRepository extends BaseRepository
      * @param string $id
      *
      * @return User
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
@@ -54,14 +53,15 @@ class UserRepository extends BaseRepository
      * @param string $columns
      *
      * @return array|User[]|mixed
+     *
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function findBy($where = [], $columns = '*')
     {
         if (!count($where)) {
             $columnsString = is_array($columns) ? join('|', $columns) : $columns;
-            $cacheKey = 'vtigercrm_users_' . sha1($columnsString);
-            $cacheItem = $this->cacheProvider->getItem($cacheKey);
+            $cacheKey      = 'vtigercrm_users_'.sha1($columnsString);
+            $cacheItem     = $this->cacheProvider->getItem($cacheKey);
             if ($cacheItem->isHit()) {
                 return $cacheItem->get();
             }

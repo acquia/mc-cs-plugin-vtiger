@@ -79,7 +79,7 @@ class ConfigAuthType extends AbstractType
                     'class' => 'form-control',
                 ],
                 'constraints' => [$this->getNotBlankConstraint()],
-                'empty_data' => $accessKey,
+                'empty_data'  => $accessKey,
             ]
         );
     }

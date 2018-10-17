@@ -23,19 +23,17 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Helper\MappingHelper;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
-use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\TransformerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ContactValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Class ContactDataExchange
- * @package MauticPlugin\MauticVtigerCrmBundle\Sync
+ * Class ContactDataExchange.
  */
 final class ContactDataExchange implements ObjectSyncDataExchangeInterface
 {
@@ -63,7 +61,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     /** @var ObjectFieldMapper */
     private $objectFieldMapper;
 
-    /** @var array  */
+    /** @var array */
     private $DNCUpdates = [];
 
     /** @var int */
@@ -88,8 +86,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
         ContactValidator $objectValidator,
         MappingHelper $mappingHelper,
         ObjectFieldMapper $objectFieldMapper
-    )
-    {
+    ) {
         $this->objectRepository  = $contactRepository;
         $this->objectValidator   = $objectValidator;
         $this->valueNormalizer   = $valueNormalizer;
@@ -104,6 +101,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
      * @param ReportDAO                                                        $syncReport
      *
      * @return ReportDAO|mixed
+     *
      * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotFoundException
      * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
@@ -112,14 +110,13 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     public function getObjectSyncReport(
         \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
         ReportDAO &$syncReport
-    ): ReportDAO
-    {
+    ): ReportDAO {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
         $objectFields = $this->objectRepository->describe()->getFields();
 
         $mappedFields = array_merge($mappedFields, [
-            'isconvertedfromlead', 'leadsource', 'reference', 'source', 'contact_id', 'emailoptout','donotcall'
+            'isconvertedfromlead', 'leadsource', 'reference', 'source', 'contact_id', 'emailoptout', 'donotcall',
         ]);
 
         $deleted = [];
@@ -140,7 +137,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
                 );
                 // This lead has to be marked as deleted
                 if ($foundMapping) {
-                    DebugLogger::log(VtigerCrmIntegration::NAME, "Marking Lead #" . $contact->getId() . " as deleted");
+                    DebugLogger::log(VtigerCrmIntegration::NAME, 'Marking Lead #'.$contact->getId().' as deleted');
                     $objectChangeDAO = new ObjectChangeDAO(
                         VtigerCrmIntegration::NAME,
                         LeadDataExchange::OBJECT_NAME,
@@ -176,7 +173,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
                 // Normalize the value from the API to what Mautic needs
                 $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getType(), $value);
-                $reportFieldDAO = new FieldDAO($field, $normalizedValue);
+                $reportFieldDAO  = new FieldDAO($field, $normalizedValue);
 
                 $objectDAO->addField($reportFieldDAO);
             }
@@ -204,6 +201,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
      * @param array $objects
      *
      * @return ObjectMapping[]
+     *
      * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectDeletedException
      */
     public function insert(array $objects): array
@@ -220,7 +218,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
                 $objectDAO
             );
 
-            /** If we have a lead record we won't insert it */
+            /* If we have a lead record we won't insert it */
             if (null === $result->getObjectId()) {
                 $insertable[] = $object;
             } else {
@@ -236,6 +234,7 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
      * @param array $objects
      *
      * @return mixed|void
+     *
      * @throws \Exception
      */
     public function delete(array $objects)

@@ -18,9 +18,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 /**
- * Class ContactRepository
- *
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository
+ * Class ContactRepository.
  */
 class ContactRepository extends BaseRepository
 {
@@ -44,6 +42,7 @@ class ContactRepository extends BaseRepository
      * @param string $id
      *
      * @return Contact
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function retrieve(string $id): Contact
@@ -55,6 +54,7 @@ class ContactRepository extends BaseRepository
 
     /**
      * @return array
+     *
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function getMappableFields(): array
@@ -62,7 +62,7 @@ class ContactRepository extends BaseRepository
         $mappable = $this->getEditableFields();
 
         /**
-         * @var int $key
+         * @var int
          * @var ModuleFieldInfo $field
          */
         foreach ($mappable as $key=>$field) {

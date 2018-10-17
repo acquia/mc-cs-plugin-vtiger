@@ -19,7 +19,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\MauticV
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\VtigerMauticTransformer;
 
 /**
- * Class ValueNormalizer
+ * Class ValueNormalizer.
  */
 final class VtigerValueNormalizer implements ValueNormalizerInterface
 {
@@ -39,7 +39,8 @@ final class VtigerValueNormalizer implements ValueNormalizerInterface
      * @param VtigerMauticTransformer $v2mTransformer
      * @param MauticVtigerTransformer $m2vTransformer
      */
-    public function __construct(VtigerMauticTransformer $v2mTransformer, MauticVtigerTransformer $m2vTransformer) {
+    public function __construct(VtigerMauticTransformer $v2mTransformer, MauticVtigerTransformer $m2vTransformer)
+    {
         $this->v2mTransformer = $v2mTransformer;
         $this->m2vTransformer = $m2vTransformer;
     }
@@ -49,6 +50,7 @@ final class VtigerValueNormalizer implements ValueNormalizerInterface
      * @param        $value
      *
      * @return NormalizedValueDAO
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
@@ -61,6 +63,7 @@ final class VtigerValueNormalizer implements ValueNormalizerInterface
      * @param NormalizedValueDAO $value
      *
      * @return NormalizedValueDAO|mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */

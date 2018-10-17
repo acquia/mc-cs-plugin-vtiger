@@ -28,16 +28,16 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class ObjectFieldMapper provides all necessary information  to supply mapping information
- * @package MauticPlugin\MauticVtigerCrmBundle\Mapping
+ * Class ObjectFieldMapper provides all necessary information  to supply mapping information.
  */
 class ObjectFieldMapper
 {
     /**
-     * Map mautic objects to Vtiger module objects
+     * Map mautic objects to Vtiger module objects.
+     *
      * @var array
      */
-    static $vtiger2mauticObjectMapping = [
+    public static $vtiger2mauticObjectMapping = [
         'Contacts' => MauticSyncDataExchange::OBJECT_CONTACT,
         'Leads'    => MauticSyncDataExchange::OBJECT_CONTACT,
         'Accounts' => MauticSyncDataExchange::OBJECT_COMPANY,
@@ -67,8 +67,7 @@ class ObjectFieldMapper
     public function __construct(
         ContainerInterface $container,
         VtigerSettingProvider $settingProvider
-    )
-    {
+    ) {
         $this->container = $container;
         $this->settings  = $settingProvider;
     }
@@ -77,20 +76,20 @@ class ObjectFieldMapper
      * @param $objectName
      *
      * @return array
+     *
      * @throws InvalidQueryArgumentException
      */
     public function getObjectFields($objectName): array
     {
         if (!isset(BaseRepository::$moduleClassMapping[$objectName])) {
-            throw new InvalidQueryArgumentException('Unknown object ' . $objectName);
+            throw new InvalidQueryArgumentException('Unknown object '.$objectName);
         }
 
-        $this->repositories[$objectName] = $this->container->get('mautic.vtiger_crm.repository.' . strtolower($objectName));
+        $this->repositories[$objectName] = $this->container->get('mautic.vtiger_crm.repository.'.strtolower($objectName));
 
         try {
             $fields = $this->repositories[$objectName]->getMappableFields();
-        }
-        catch (PluginNotConfiguredException $e) {
+        } catch (PluginNotConfiguredException $e) {
             return [];
         }
 
@@ -114,6 +113,7 @@ class ObjectFieldMapper
 
     /**
      * @return MappingManualDAO
+     *
      * @throws ObjectNotSupportedException
      */
     public function getObjectsMappingManual(): MappingManualDAO
@@ -134,10 +134,9 @@ class ObjectFieldMapper
                 );
             }
 
-            if (in_array($vtigerObject,[ContactDataExchange::OBJECT_NAME, LeadDataExchange::OBJECT_NAME])) {
-                $objectMapping->addFieldMapping('mautic_internal_dnc_email','emailoptout', ObjectMappingDAO::SYNC_BIDIRECTIONALLY,true);
+            if (in_array($vtigerObject, [ContactDataExchange::OBJECT_NAME, LeadDataExchange::OBJECT_NAME])) {
+                $objectMapping->addFieldMapping('mautic_internal_dnc_email', 'emailoptout', ObjectMappingDAO::SYNC_BIDIRECTIONALLY, true);
             }
-
 
             $mappingManual->addObjectMapping($objectMapping);
         }
@@ -149,6 +148,7 @@ class ObjectFieldMapper
      * @param $objectName
      *
      * @return string
+     *
      * @throws ObjectNotSupportedException
      */
     public function getMautic2VtigerObjectNameMapping($objectName): string

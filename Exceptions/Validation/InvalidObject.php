@@ -26,7 +26,8 @@ class InvalidObject extends InvalidObjectException
      * @param ModuleFieldInfo                  $fieldInfo
      * @param                                  $fieldValue
      */
-    public function __construct(ConstraintViolationListInterface $violations, ModuleFieldInfo $fieldInfo, $fieldValue) {
+    public function __construct(ConstraintViolationListInterface $violations, ModuleFieldInfo $fieldInfo, $fieldValue)
+    {
         $violationsMessages = [];
         foreach ($violations as $violation) {
             $violationsMessages[] = $violation->getMessage;

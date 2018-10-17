@@ -81,6 +81,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      * @param string $object
      *
      * @return array
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function getOptionalFieldsForMapping(string $object): array
@@ -103,6 +104,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      * @param string $object
      *
      * @return array
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function getRequiredFieldsForMapping(string $object): array
@@ -145,6 +147,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      * @param string $object
      *
      * @return mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     private function getFields(string $object): array

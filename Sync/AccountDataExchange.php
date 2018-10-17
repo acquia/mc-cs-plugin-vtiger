@@ -22,8 +22,8 @@ use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
-use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeReportTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
@@ -31,8 +31,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
- * Class AccountDataExchange
- * @package MauticPlugin\MauticVtigerCrmBundle\Sync
+ * Class AccountDataExchange.
  */
 final class AccountDataExchange implements ObjectSyncDataExchangeInterface
 {
@@ -50,7 +49,7 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
     /** @var LeadModel */
     private $model;
 
-    /** @var VtigerSettingProvider  */
+    /** @var VtigerSettingProvider */
     private $settings;
 
     /**
@@ -68,9 +67,9 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
         ValueNormalizerInterface $valueNormalizer)
     {
         $this->objectRepository = $accountRepository;
-        $this->valueNormalizer = $valueNormalizer;
-        $this->model = $companyModel;
-        $this->settings = $settingProvider;
+        $this->valueNormalizer  = $valueNormalizer;
+        $this->model            = $companyModel;
+        $this->settings         = $settingProvider;
     }
 
     /**
@@ -89,7 +88,7 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
             $objectData = [];
 
             foreach ($fields as $field) {
-                /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
+                /* @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
             /** @var Contact $model */
@@ -113,7 +112,7 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
                     sprintf(
-                        "Created %s ID %s from %s %d",
+                        'Created %s ID %s from %s %d',
                         self::OBJECT_NAME,
                         $response->getId(),
                         $object->getObject(),
@@ -150,6 +149,7 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
      * @param array $objects
      *
      * @return mixed|void
+     *
      * @throws \Exception
      */
     public function delete(array $objects)
@@ -163,18 +163,20 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
      * @param array              $mappedFields
      *
      * @return array|mixed
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
     {
-        $fullReport = []; $iteration = 0;
+        $fullReport = [];
+        $iteration = 0;
         // We must iterate while there is still some result left
 
         do {
-            $report = $this->objectRepository->query('SELECT * FROM ' . self::OBJECT_NAME
-                . ' LIMIT ' . ($iteration*100) . ',100');
+            $report = $this->objectRepository->query('SELECT * FROM '.self::OBJECT_NAME
+                .' LIMIT '.($iteration * 100).',100');
 
-            $iteration++;
+            ++$iteration;
 
             $fullReport = array_merge($fullReport, $report);
         } while (count($report));

@@ -17,9 +17,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 /**
- * Class LeadRepository
- *
- * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository
+ * Class LeadRepository.
  */
 class LeadRepository extends BaseRepository
 {
@@ -39,6 +37,7 @@ class LeadRepository extends BaseRepository
      * @param string $id
      *
      * @return Lead
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
