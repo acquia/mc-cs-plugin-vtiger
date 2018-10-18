@@ -183,4 +183,12 @@ class ObjectFieldMapper
     {
         return BaseRepository::$moduleClassMapping[$moduleName];
     }
+
+    /**
+     * @return array
+     */
+    public function getMapping(): array
+    {
+        return $this->vtiger2mauticObjectMapping;
+    }
 }
