@@ -33,11 +33,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ObjectFieldMapper
 {
     /**
-     * Map mautic objects to Vtiger module objects.
+     * Map Mautic objects to Vtiger module objects.
      *
      * @var array
      */
-    public static $vtiger2mauticObjectMapping = [
+    private $vtiger2mauticObjectMapping = [
         'Contacts' => MauticSyncDataExchange::OBJECT_CONTACT,
         'Leads'    => MauticSyncDataExchange::OBJECT_CONTACT,
         'Accounts' => MauticSyncDataExchange::OBJECT_COMPANY,
@@ -59,8 +59,6 @@ class ObjectFieldMapper
     private $settings;
 
     /**
-     * ObjectFieldMapper constructor.
-     *
      * @param ContainerInterface    $container
      * @param VtigerSettingProvider $settingProvider
      */
@@ -153,22 +151,34 @@ class ObjectFieldMapper
      */
     public function getMautic2VtigerObjectNameMapping($objectName): string
     {
-        if (false === ($key = array_search($objectName, self::$vtiger2mauticObjectMapping))) {
+        if (false === ($key = array_search($objectName, $this->vtiger2mauticObjectMapping))) {
             throw new ObjectNotSupportedException('Mautic', $objectName);
         }
 
         return $key;
     }
 
+    /**
+     * @param $vtigerObjectName
+     *
+     * @return mixed
+     *
+     * @throws ObjectNotSupportedException
+     */
     public function getVtiger2MauticObjectNameMapping($vtigerObjectName)
     {
-        if (!isset(self::$vtiger2mauticObjectMapping[$vtigerObjectName])) {
+        if (!isset($this->vtiger2mauticObjectMapping[$vtigerObjectName])) {
             throw new ObjectNotSupportedException(VtigerCrmIntegration::NAME, $vtigerObjectName);
         }
 
-        return self::$vtiger2mauticObjectMapping[$vtigerObjectName];
+        return $this->vtiger2mauticObjectMapping[$vtigerObjectName];
     }
 
+    /**
+     * @param $moduleName
+     *
+     * @return mixed
+     */
     public function getVtigerModelNameFromModuleName($moduleName)
     {
         return BaseRepository::$moduleClassMapping[$moduleName];

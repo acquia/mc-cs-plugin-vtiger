@@ -26,6 +26,9 @@ class ConfigFormLoadSubscriber implements EventSubscriberInterface
      */
     private $fieldCache;
 
+    /**
+     * @param FieldCache $fieldCache
+     */
     public function __construct(FieldCache $fieldCache)
     {
         $this->fieldCache = $fieldCache;
@@ -41,6 +44,9 @@ class ConfigFormLoadSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param FormLoadEvent $event
+     */
     public function onConfigFormLoad(FormLoadEvent $event): void
     {
         if (VtigerCrmIntegration::NAME !== $event->getIntegration()) {
