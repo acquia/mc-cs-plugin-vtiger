@@ -24,7 +24,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\EventRepository;
 /**
  * Class AccountDataExchange.
  */
-final class EventSyncService
+class EventSyncService
 {
     /**
      * @var LeadEventSupplier
