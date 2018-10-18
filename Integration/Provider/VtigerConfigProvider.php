@@ -140,7 +140,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      */
     public function getSyncMappedObjects(): array
     {
-        return ObjectFieldMapper::$vtiger2mauticObjectMapping;
+        return $this->fieldMapping->$vtiger2mauticObjectMapping;
     }
 
     /**
