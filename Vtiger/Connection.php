@@ -360,7 +360,7 @@ class Connection
     {
         $credentialsCfg = $this->settings->getCredentials();
 
-        if (isset($credentialsCfg['accessKey'], $credentialsCfg['username'], $credentialsCfg['url'])) {
+        if (!empty($credentialsCfg['accessKey']) && !empty($credentialsCfg['username']) && !empty($credentialsCfg['url'])) {
             $this->credentials = new Credentials($credentialsCfg['accessKey'], $credentialsCfg['username']);
 
             $this->apiDomain = $credentialsCfg['url'];
