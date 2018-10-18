@@ -24,12 +24,6 @@ return [
                     'mautic.vtiger_crm.sync.events_service',
                 ],
             ],
-            'mautic.vtiger_crm.subscriber.dnc_sync' => [
-                'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\SyncDNCSubscriber::class,
-                'arguments' => [
-                    'mautic.vtiger_crm.sync.events_service',
-                ],
-            ],
             'mautic.vtiger_crm.subscriber.config_form_load' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\ConfigFormLoadSubscriber::class,
                 'arguments' => [
