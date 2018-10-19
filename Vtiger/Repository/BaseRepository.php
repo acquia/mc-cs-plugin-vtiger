@@ -29,9 +29,6 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
  */
 abstract class BaseRepository
 {
-    const SYNC_USER        = 'user';   //  user: fetches all the updates done on records assigned to you.
-    const SYNC_APPLICATION = 'application'; //  application: fetches all the updates done on records assigned to any user.
-
     public static $moduleClassMapping = [
         'Contacts'       => Contact::class,
         'Accounts'       => Account::class,
