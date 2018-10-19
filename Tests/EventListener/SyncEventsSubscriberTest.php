@@ -12,7 +12,7 @@
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\EventListener;
 
 use MauticPlugin\IntegrationsBundle\Event\SyncEvent;
-use MauticPlugin\IntegrationsBundle\SyncEvents;
+use MauticPlugin\IntegrationsBundle\IntegrationEvents;
 use MauticPlugin\MauticVtigerCrmBundle\EventListener\SyncEventsSubscriber;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService;
@@ -64,7 +64,7 @@ class SyncEventsSubscriberTest extends \PHPUnit_Framework_TestCase
     public function testGetSubscribedEvents()
     {
         $this->assertEquals(
-            [SyncEvents::INTEGRATION_POST_EXECUTE => ['onPostExecuteOrder', 0]],
+            [IntegrationEvents::INTEGRATION_POST_EXECUTE => ['onPostExecuteOrder', 0]],
             $this->subscriber->getSubscribedEvents()
         );
     }

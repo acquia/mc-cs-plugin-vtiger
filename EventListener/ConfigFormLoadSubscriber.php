@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\EventListener;
 
 use MauticPlugin\IntegrationsBundle\Event\FormLoadEvent;
-use MauticPlugin\IntegrationsBundle\SyncEvents;
+use MauticPlugin\IntegrationsBundle\IntegrationEvents;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -40,7 +40,7 @@ class ConfigFormLoadSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            SyncEvents::INTEGRATION_CONFIG_FORM_LOAD => ['onConfigFormLoad', 0],
+            IntegrationEvents::INTEGRATION_CONFIG_FORM_LOAD => ['onConfigFormLoad', 0],
         ];
     }
 
