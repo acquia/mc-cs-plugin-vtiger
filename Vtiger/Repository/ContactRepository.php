@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
+use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
@@ -47,9 +48,7 @@ class ContactRepository extends BaseRepository
      */
     public function retrieve(string $id): Contact
     {
-        $record = $this->findOneBy(['id' => $id]);
-
-        return $record;
+        return $this->findOneBy(['id' => $id]);
     }
 
     /**
@@ -72,5 +71,13 @@ class ContactRepository extends BaseRepository
         }
 
         return $mappable;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModuleFromRepositoryName(): string
+    {
+        return CacheEnum::CONTACT;
     }
 }

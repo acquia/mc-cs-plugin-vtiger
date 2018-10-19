@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
-use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\CachedItemNotFoundException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
@@ -30,10 +29,6 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
  */
 abstract class BaseRepository
 {
-    const SYNC_USER        = 'user';   //  user: fetches all the updates done on records assigned to you.
-    const SYNC_APPLICATION = 'application'; //  application: fetches all the updates done on records assigned to any user.
-    const CACHE_NAMESPACE  = 'vtigercrm_repo';
-
     public static $moduleClassMapping = [
         'Contacts'       => Contact::class,
         'Accounts'       => Account::class,
@@ -46,26 +41,19 @@ abstract class BaseRepository
     /** @var Connection */
     protected $connection;
 
-    /** @var CacheProvider */
-    protected $cacheProvider;
-
     /**
      * @var FieldCache
      */
-    private $fieldCache;
+    protected $fieldCache;
 
     /**
-     * @todo get rid of $cacheProvider here - write classes for each cache like $fieldCache
-     *
      * @param Connection    $connection
-     * @param CacheProvider $cacheProvider
      * @param FieldCache    $fieldCache
      */
-    public function __construct(Connection $connection, CacheProvider $cacheProvider, FieldCache $fieldCache)
+    public function __construct(Connection $connection, FieldCache $fieldCache)
     {
-        $this->connection    = $connection;
-        $this->cacheProvider = $cacheProvider;
-        $this->fieldCache    = $fieldCache;
+        $this->connection = $connection;
+        $this->fieldCache = $fieldCache;
     }
 
     /**
@@ -90,23 +78,13 @@ abstract class BaseRepository
         $moduleInfo = new ModuleInfo(
             $this->connection->get('describe', ['elementType' => $key])
         );
-        $this->fieldCache->setModuleInfo($moduleInfo, $key);
+        $this->fieldCache->setModuleInfo($key, $moduleInfo);
 
         return $moduleInfo;
     }
 
     /**
-     * @todo complete refactoring, object needs to be specified at one place only, not multiple
-     * @todo - make this method private / protected
-     *
      * @return string
      */
-    public function getModuleFromRepositoryName(): string
-    {
-        $className = get_class($this);
-
-        $parts = explode('\\', $className);
-
-        return rtrim(str_replace('Repository', '', array_pop($parts)), 's').'s';
-    }
+    abstract public function getModuleFromRepositoryName(): string;
 }

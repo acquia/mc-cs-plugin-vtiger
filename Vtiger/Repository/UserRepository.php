@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
+use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\CachedItemNotFoundException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
@@ -43,37 +45,40 @@ class UserRepository extends BaseRepository
      */
     public function retrieve(string $id): User
     {
-        $record = $this->findOneBy(['id'=>$id]);
-
-        return $record;
+        return $this->findOneBy(['id' =>$id]);
     }
 
     /**
      * @param array  $where
      * @param string $columns
      *
-     * @return array|User[]|mixed
-     *
-     * @throws \Psr\Cache\InvalidArgumentException
+     * @return array|User[]
      */
-    public function findBy($where = [], $columns = '*')
+    public function findBy($where = [], $columns = '*'): array
     {
-        if (!count($where)) {
-            $columnsString = is_array($columns) ? join('|', $columns) : $columns;
-            $cacheKey      = 'vtigercrm_users_'.sha1($columnsString);
-            $cacheItem     = $this->cacheProvider->getItem($cacheKey);
-            if ($cacheItem->isHit()) {
-                return $cacheItem->get();
-            }
-            //  We will cache only queries for complete list of accounts
-            $result = $this->findByInternal($where, $columns);
-            $cacheItem->set($result);
-
-            $this->cacheProvider->save($cacheItem);
-        } else {
-            $result = $this->findByInternal($where, $columns);
+        if (count($where)) {
+            return $this->findByInternal($where, $columns);
         }
 
+        $columnsString = is_array($columns) ? join('|', $columns) : $columns;
+        $key      = 'vtigercrm_users_'.sha1($columnsString);
+
+        try {
+            return $this->fieldCache->getUserQuery($key);
+        } catch (CachedItemNotFoundException $e) {
+        }
+
+        $result = $this->findByInternal($where, $columns);
+        $this->fieldCache->setUserQuery($key, $result);
+
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModuleFromRepositoryName(): string
+    {
+        return CacheEnum::USER;
     }
 }

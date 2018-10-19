@@ -16,7 +16,6 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\CompanyDetails;
@@ -26,9 +25,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\EventFactory;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\SyncReport;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 
 /**
  * Trait RepositoryHelper.
@@ -110,10 +107,9 @@ trait RepositoryHelper
     {
         $response = $this->connection->post('create', ['element' => json_encode($module->dehydrate()), 'elementType' => $this->getModuleFromRepositoryName()]);
 
-        $className     = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
-        $createdModule = new $className((array) $response);
+        $className = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
 
-        return $createdModule;
+        return new $className((array) $response);
     }
 
     /**
@@ -126,10 +122,9 @@ trait RepositoryHelper
         DebugLogger::log(VtigerCrmIntegration::NAME, 'Updating '.$this->getModuleFromRepositoryName().' '.$module->getId());
         $response = $this->connection->post('update', ['element' => json_encode($module->dehydrate())]);
 
-        $className     = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
-        $createdModule = new $className((array) $response);
+        $className = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
 
-        return $createdModule;
+        return new $className((array) $response);
     }
 
     /**
@@ -160,35 +155,7 @@ trait RepositoryHelper
      */
     public function delete(string $id)
     {
-        $response = $this->connection->post('delete', ['id' =>  (string) $id]);
-
-        return $response;
-    }
-
-    /**
-     * @see
-     * ```sync(modifiedTime: Timestamp, elementType: String, syncType: String):SyncResult```
-     *
-     * @param int    $modifiedTime
-     * @param string $syncType
-     *
-     * @throws \Exception
-     */
-    public function sync(int $modifiedTime, $syncType = BaseRepository::SYNC_APPLICATION)
-    {
-        throw new \Exception('Remote API support for sync is not working, thus not implemented. If it starts working we should use it at least for deleted.');
-        $moduleName = $this->getModuleFromRepositoryName();
-
-        $query = [
-            'modifiedtime' => (new \DateTime())->getTimestamp(),
-            'elementType'  => rtrim($moduleName, 's').'s',
-            //'syncType' => 'user'
-        ];
-
-        /** @var Connection $this->connection */
-        $response = $this->connection->query('sync', $query);
-
-        $report = new SyncReport($response, $moduleName);
+        return $this->connection->post('delete', ['id' =>  (string) $id]);
     }
 
     /**

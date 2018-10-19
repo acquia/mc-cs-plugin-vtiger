@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
+use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
@@ -43,9 +44,7 @@ class EventRepository extends BaseRepository
      */
     public function retrieve(string $id): Event
     {
-        $record = $this->findOneBy(['id'=>$id]);
-
-        return $record;
+        return $this->findOneBy(['id' =>$id]);
     }
 
     /**
@@ -95,5 +94,13 @@ class EventRepository extends BaseRepository
         } while (count($result));
 
         return $return;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModuleFromRepositoryName(): string
+    {
+        return CacheEnum::EVENT;
     }
 }

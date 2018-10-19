@@ -13,22 +13,21 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache;
 
-use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
+use Mautic\CoreBundle\Helper\CacheStorageHelper;
+use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\CachedItemNotFoundException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
-use Psr\Cache\InvalidArgumentException;
 
 class FieldCache
 {
-    /** @var CacheProvider */
-    protected $cacheProvider;
-
     /**
-     * @param CacheProvider $cacheProvider
+     * @var CacheStorageHelper
      */
-    public function __construct(CacheProvider $cacheProvider)
+    private $cacheStorageHelper;
+
+    public function __construct(CacheStorageHelper $cacheStorageHelper)
     {
-        $this->cacheProvider = $cacheProvider;
+        $this->cacheStorageHelper = $cacheStorageHelper;
     }
 
     /**
@@ -40,42 +39,105 @@ class FieldCache
      */
     public function getModuleInfo(string $key): ModuleInfo
     {
-        try {
-            $cachedItem = $this->cacheProvider->getItem($key);
-        } catch (InvalidArgumentException $e) {
-            throw new CachedItemNotFoundException($e->getMessage());
-        }
-        if (!$cachedItem->isHit()) {
-            throw new CachedItemNotFoundException('Item was not found');
-        }
-
-        return $cachedItem->get();
+        return $this->getFromCache($key);
     }
 
     /**
-     * @param ModuleInfo $moduleInfo
      * @param string     $key
+     * @param ModuleInfo $moduleInfo
      */
-    public function setModuleInfo(ModuleInfo $moduleInfo, string $key): void
+    public function setModuleInfo(string $key, ModuleInfo $moduleInfo): void
     {
-        try {
-            $cachedItem = $this->cacheProvider->getItem($key);
-        } catch (InvalidArgumentException $e) {
-            return;
-        }
-
-        $cachedItem->tag(['vtigercrm', 'vtigercrm_repository']);
-        $cachedItem->expiresAfter(60 * 60 * 24 * 7);  // Expire after a week
-
-        $cachedItem->set($moduleInfo);
-        $this->cacheProvider->save($cachedItem);
+        $this->saveToCache($key, $moduleInfo);
     }
 
     /**
-     * @todo - Find a way how to clear all items with 'vtigercrm_repository' tag
+     * @param string $key
+     *
+     * @return array
+     *
+     * @throws CachedItemNotFoundException
      */
-    public function configFormWasLoaded(): void
+    public function getUserQuery(string $key): array
     {
-        $this->cacheProvider->clear();
+        return $this->getFromCache($key);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return array
+     *
+     * @throws CachedItemNotFoundException
+     */
+    public function getAccountQuery(string $key): array
+    {
+        return $this->getFromCache($key);
+    }
+
+    /**
+     * @param string $key
+     * @param array  $data
+     */
+    public function setUserQuery(string $key, array $data): void
+    {
+        $this->saveToCache($key, $data);
+    }
+
+    /**
+     * @param string $key
+     * @param array  $data
+     */
+    public function setAccountQuery(string $key, array $data): void
+    {
+        $this->saveToCache($key, $data);
+    }
+
+    public function ClearCacheForConfigForm(): void
+    {
+        $itemsInMappingForm = [
+            CacheEnum::LEAD,
+            CacheEnum::CONTACT,
+            CacheEnum::ACCOUNT,
+            CacheEnum::USER, //Used in form for "Owner for contact"
+        ];
+
+        foreach ($itemsInMappingForm as $item) {
+            $key = $this->getCacheName($item);
+            $this->cacheStorageHelper->delete($key);
+        }
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return mixed
+     *
+     * @throws CachedItemNotFoundException
+     */
+    private function getFromCache(string $key)
+    {
+        $key = $this->getCacheName($key);
+
+        if (!$this->cacheStorageHelper->has($key)) {
+            throw new CachedItemNotFoundException("Cache item '$key' was not found");
+        }
+
+        return $this->cacheStorageHelper->get($key);
+    }
+
+    /**
+     * @param string $key
+     * @param mixed  $data
+     */
+    private function saveToCache(string $key, $data): void
+    {
+        $key = $this->getCacheName($key);
+        $this->cacheStorageHelper->set($key, $data);
+    }
+
+    private function getCacheName($key):string
+    {
+        return CacheEnum::CACHE_NAMESPACE.'_'.$key;
     }
 }

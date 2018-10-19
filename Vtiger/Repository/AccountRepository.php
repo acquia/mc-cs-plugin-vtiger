@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
+use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\CachedItemNotFoundException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
@@ -43,9 +45,7 @@ class AccountRepository extends BaseRepository
      */
     public function retrieve(string $id): Account
     {
-        $record = $this->findOneBy(['id'=>$id]);
-
-        return $record;
+        return $this->findOneBy(['id' =>$id]);
     }
 
     /**
@@ -64,27 +64,32 @@ class AccountRepository extends BaseRepository
      * @param array  $where
      * @param string $columns
      *
-     * @return array|Account[]|mixed
-     *
-     * @throws \Psr\Cache\InvalidArgumentException
+     * @return array|Account[]
      */
-    public function findBy($where = [], $columns = '*')
+    public function findBy($where = [], $columns = '*'): array
     {
-        if (!count($where)) {
-            $columnsString = is_array($columns) ? join('|', $columns) : $columns;
-            $cacheKey      = 'vtigercrm_acccounts_'.sha1($columnsString);
-            $cacheItem     = $this->cacheProvider->getItem($cacheKey);
-            if ($cacheItem->isHit()) {
-                return $cacheItem->get();
-            }
+        if (count($where)) {
+            return $this->findByInternal($where, $columns);
         }
 
-        //  We will cache only queries for complete list of accounts
-        $result = $this->findByInternal($where, $columns);
-        $cacheItem->set($result);
+        $columnsString = is_array($columns) ? join('|', $columns) : $columns;
+        $key           = 'vtigercrm_acccounts_'.sha1($columnsString);
+        try {
+            return $this->fieldCache->getAccountQuery($key);
+        } catch (CachedItemNotFoundException $e) {
+        }
 
-        $this->cacheProvider->save($cacheItem);
+        $result = $this->findByInternal($where, $columns);
+        $this->fieldCache->setAccountQuery($key, $result);
 
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModuleFromRepositoryName(): string
+    {
+        return CacheEnum::ACCOUNT;
     }
 }

@@ -40,7 +40,7 @@ class ConfigFormLoadSubscriberTest extends \PHPUnit_Framework_TestCase
 
         $fieldCache = $this->createMock(FieldCache::class);
         $fieldCache->expects($this->once())
-            ->method('configFormWasLoaded');
+            ->method('ClearCacheForConfigForm');
         $subscriber = new ConfigFormLoadSubscriber($fieldCache);
         $event = $this->createMock(FormLoadEvent::class);
         $event->expects($this->once())

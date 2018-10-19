@@ -53,6 +53,6 @@ class ConfigFormLoadSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->fieldCache->configFormWasLoaded();
+        $this->fieldCache->ClearCacheForConfigForm();
     }
 }
