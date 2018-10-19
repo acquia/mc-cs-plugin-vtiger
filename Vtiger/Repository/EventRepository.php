@@ -96,4 +96,12 @@ class EventRepository extends BaseRepository
 
         return $return;
     }
+
+    /**
+     * @return string
+     */
+    public function getModuleFromRepositoryName(): string
+    {
+        return 'Events';
+    }
 }

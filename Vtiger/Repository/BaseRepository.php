@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
-use MauticPlugin\MauticCacheBundle\Cache\CacheProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\CachedItemNotFoundException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
@@ -46,26 +45,19 @@ abstract class BaseRepository
     /** @var Connection */
     protected $connection;
 
-    /** @var CacheProvider */
-    protected $cacheProvider;
-
     /**
      * @var FieldCache
      */
-    private $fieldCache;
+    protected $fieldCache;
 
     /**
-     * @todo get rid of $cacheProvider here - write classes for each cache like $fieldCache
-     *
      * @param Connection    $connection
-     * @param CacheProvider $cacheProvider
      * @param FieldCache    $fieldCache
      */
-    public function __construct(Connection $connection, CacheProvider $cacheProvider, FieldCache $fieldCache)
+    public function __construct(Connection $connection, FieldCache $fieldCache)
     {
-        $this->connection    = $connection;
-        $this->cacheProvider = $cacheProvider;
-        $this->fieldCache    = $fieldCache;
+        $this->connection = $connection;
+        $this->fieldCache = $fieldCache;
     }
 
     /**
@@ -96,17 +88,7 @@ abstract class BaseRepository
     }
 
     /**
-     * @todo complete refactoring, object needs to be specified at one place only, not multiple
-     * @todo - make this method private / protected
-     *
      * @return string
      */
-    public function getModuleFromRepositoryName(): string
-    {
-        $className = get_class($this);
-
-        $parts = explode('\\', $className);
-
-        return rtrim(str_replace('Repository', '', array_pop($parts)), 's').'s';
-    }
+    abstract public function getModuleFromRepositoryName(): string;
 }

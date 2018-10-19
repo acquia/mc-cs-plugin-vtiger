@@ -84,7 +84,6 @@ return [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository::class,
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
-                    'mautic.cache.provider',
                     'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],
@@ -97,7 +96,6 @@ return [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository::class,
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
-                    'mautic.cache.provider',
                     'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],
@@ -105,7 +103,6 @@ return [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\CompanyDetailsRepository::class,
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
-                    'mautic.cache.provider',
                     'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],
@@ -124,7 +121,6 @@ return [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository::class,
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
-                    'mautic.cache.provider',
                     'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],
@@ -132,7 +128,6 @@ return [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\EventRepository::class,
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
-                    'mautic.cache.provider',
                     'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],
@@ -140,7 +135,6 @@ return [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository::class,
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
-                    'mautic.cache.provider',
                     'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],

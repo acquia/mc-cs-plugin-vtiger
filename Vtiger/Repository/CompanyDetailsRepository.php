@@ -47,4 +47,12 @@ class CompanyDetailsRepository extends BaseRepository
 
         return $record;
     }
+
+    /**
+     * @return string
+     */
+    public function getModuleFromRepositoryName(): string
+    {
+        return 'CompanyDetails';
+    }
 }

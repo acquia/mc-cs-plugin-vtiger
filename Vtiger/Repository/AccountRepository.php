@@ -87,4 +87,12 @@ class AccountRepository extends BaseRepository
 
         return $result;
     }
+
+    /**
+     * @return string
+     */
+    public function getModuleFromRepositoryName(): string
+    {
+        return 'Accounts';
+    }
 }

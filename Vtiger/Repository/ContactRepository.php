@@ -73,4 +73,12 @@ class ContactRepository extends BaseRepository
 
         return $mappable;
     }
+
+    /**
+     * @return string
+     */
+    public function getModuleFromRepositoryName(): string
+    {
+        return 'Contacts';
+    }
 }

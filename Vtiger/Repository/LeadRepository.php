@@ -47,4 +47,12 @@ class LeadRepository extends BaseRepository
 
         return $record;
     }
+
+    /**
+     * @return string
+     */
+    public function getModuleFromRepositoryName(): string
+    {
+        return 'Leads';
+    }
 }

@@ -72,6 +72,25 @@ class FieldCache
     }
 
     /**
+     * @param string $key
+     * @param array  $data
+     */
+    public function setUserQuery(string $key, array $data): void
+    {
+        try {
+            $cachedItem = $this->cacheProvider->getItem($key);
+        } catch (InvalidArgumentException $e) {
+            return;
+        }
+
+        $cachedItem->tag(['vtigercrm', 'vtigercrm_repository']);
+        $cachedItem->expiresAfter(60 * 60 * 24 * 7);  // Expire after a week
+
+        $cachedItem->set($data);
+        $this->cacheProvider->save($cachedItem);
+    }
+
+    /**
      * @todo - Find a way how to clear all items with 'vtigercrm_repository' tag
      */
     public function configFormWasLoaded(): void
