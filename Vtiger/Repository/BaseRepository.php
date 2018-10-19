@@ -31,7 +31,6 @@ abstract class BaseRepository
 {
     const SYNC_USER        = 'user';   //  user: fetches all the updates done on records assigned to you.
     const SYNC_APPLICATION = 'application'; //  application: fetches all the updates done on records assigned to any user.
-    const CACHE_NAMESPACE  = 'vtigercrm_repo';
 
     public static $moduleClassMapping = [
         'Contacts'       => Contact::class,
@@ -82,7 +81,7 @@ abstract class BaseRepository
         $moduleInfo = new ModuleInfo(
             $this->connection->get('describe', ['elementType' => $key])
         );
-        $this->fieldCache->setModuleInfo($moduleInfo, $key);
+        $this->fieldCache->setModuleInfo($key, $moduleInfo);
 
         return $moduleInfo;
     }

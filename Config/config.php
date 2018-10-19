@@ -109,7 +109,7 @@ return [
             'mautic.vtiger_crm.cache.field_cache' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache::class,
                 'arguments' => [
-                    'mautic.cache.provider',
+                    'mautic.helper.cache_storage',
                 ],
             ],
             'mautic.vtiger_crm.validator.account'          => [

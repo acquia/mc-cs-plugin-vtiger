@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
+use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\CachedItemNotFoundException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
@@ -51,11 +52,9 @@ class UserRepository extends BaseRepository
      * @param array  $where
      * @param string $columns
      *
-     * @return array|User[]|mixed
-     *
-     * @throws \Psr\Cache\InvalidArgumentException
+     * @return array|User[]
      */
-    public function findBy($where = [], $columns = '*')
+    public function findBy($where = [], $columns = '*'): array
     {
         if (count($where)) {
             return $this->findByInternal($where, $columns);
@@ -65,11 +64,10 @@ class UserRepository extends BaseRepository
         $key      = 'vtigercrm_users_'.sha1($columnsString);
 
         try {
-            return $this->fieldCache->getModuleInfo($key);
+            return $this->fieldCache->getUserQuery($key);
         } catch (CachedItemNotFoundException $e) {
         }
 
-        //  We will cache only queries for complete list of accounts
         $result = $this->findByInternal($where, $columns);
         $this->fieldCache->setUserQuery($key, $result);
 
@@ -81,6 +79,6 @@ class UserRepository extends BaseRepository
      */
     public function getModuleFromRepositoryName(): string
     {
-        return 'Users';
+        return CacheEnum::USER;
     }
 }
