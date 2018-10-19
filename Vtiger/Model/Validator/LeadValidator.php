@@ -13,7 +13,55 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator;
 
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
+
 class LeadValidator implements ObjectValidatorInterface
 {
-    use ObjectValidatorTrait;
+    /**
+     * @var LeadRepository
+     */
+    private $leadRepository;
+
+    /**
+     * @var GeneralValidator
+     */
+    private $generalValidator;
+
+    /**
+     * @param LeadRepository   $leadRepository
+     * @param GeneralValidator $generalValidator
+     */
+    public function __construct(LeadRepository $leadRepository, GeneralValidator $generalValidator)
+    {
+        $this->leadRepository   = $leadRepository;
+        $this->generalValidator = $generalValidator;
+    }
+
+    /**
+     * @todo Get rid of a BaseModel typehint if possible
+     *
+     * @param BaseModel $object
+     *
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function validate(BaseModel $object): void
+    {
+        if (!$object instanceof Lead) {
+            throw new \InvalidArgumentException('$object must be instance of Account');
+        }
+
+        $description = $this->leadRepository->describe()->getFields();
+        $this->generalValidator->validateObject($object, $description);
+    }
 }

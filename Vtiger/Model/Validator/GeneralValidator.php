@@ -17,18 +17,14 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Validation;
 
-trait ObjectValidatorTrait
+class GeneralValidator
 {
-    /** @var BaseRepository */
-    protected $objectRepository;
-
     /** @var UserRepository */
     private $userRepository;
 
@@ -39,46 +35,24 @@ trait ObjectValidatorTrait
     private $existingUsersIds = [];
 
     /**
-     * ObjectValidatorTrait constructor.
-     *
-     * @param BaseRepository      $objectRepository
-     * @param UserRepository|null $userRepository
+     * @param UserRepository $userRepository
      */
-    public function __construct(BaseRepository $objectRepository, UserRepository $userRepository = null)
+    public function __construct(UserRepository $userRepository)
     {
-        $this->objectRepository = $objectRepository;
-        $this->userRepository   = $userRepository;
-        $this->validator        = Validation::createValidator();    // Use symfony validator TODO inject
+        $this->userRepository = $userRepository;
+        $this->validator      = Validation::createValidator();    // Use symfony validator TODO inject
     }
 
     /**
      * @param BaseModel $object
+     * @param array     $description
      *
      * @throws InvalidObject
      * @throws InvalidObjectException
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function validate(BaseModel $object): void
+    public function validateObject(BaseModel $object, array $description): void
     {
-        $this->validateObject($object);
-    }
-
-    /**
-     * @param BaseModel $object
-     *
-     * @throws InvalidObject
-     * @throws InvalidObjectException
-     * @throws \Psr\Cache\InvalidArgumentException
-     */
-    protected function validateObject(BaseModel $object): void
-    {
-        if (!$object instanceof BaseRepository::$moduleClassMapping[$this->objectRepository->getModuleFromRepositoryName()]) {
-            throw new \InvalidArgumentException('This validator supports only object of type '
-                .$this->objectRepository->getModuleFromRepositoryName());
-        }
-
-        $description = $this->objectRepository->describe()->getFields();
-
         foreach ($object->dehydrate() as $fieldName => $fieldValue) {
             $fieldDescription = $description[$fieldName];
             $this->validateField($fieldDescription, $fieldValue);
@@ -138,7 +112,7 @@ trait ObjectValidatorTrait
                 $validators[] = new Email();
                 break;
             case 'owner':
-                if (!count($this->existingUsersIds) || true) {
+                if (!count($this->existingUsersIds)) {
                     $users                  = $this->userRepository->findBy();
                     $this->existingUsersIds = array_map(function ($o) { return $o->id; }, $users);
                 }
