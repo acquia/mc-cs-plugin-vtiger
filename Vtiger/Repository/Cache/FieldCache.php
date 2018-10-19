@@ -39,7 +39,7 @@ class FieldCache
      */
     public function getModuleInfo(string $key): ModuleInfo
     {
-        return $this->getDataFromCache($key);
+        return $this->getFromCache($key);
     }
 
     /**
@@ -48,7 +48,7 @@ class FieldCache
      */
     public function setModuleInfo(string $key, ModuleInfo $moduleInfo): void
     {
-        $this->setDataToCache($key, $moduleInfo);
+        $this->saveToCache($key, $moduleInfo);
     }
 
     /**
@@ -60,7 +60,7 @@ class FieldCache
      */
     public function getUserQuery(string $key): array
     {
-        return $this->getDataFromCache($key);
+        return $this->getFromCache($key);
     }
 
     /**
@@ -72,7 +72,7 @@ class FieldCache
      */
     public function getAccountQuery(string $key): array
     {
-        return $this->getDataFromCache($key);
+        return $this->getFromCache($key);
     }
 
     /**
@@ -81,7 +81,7 @@ class FieldCache
      */
     public function setUserQuery(string $key, array $data): void
     {
-        $this->setDataToCache($key, $data);
+        $this->saveToCache($key, $data);
     }
 
     /**
@@ -90,10 +90,10 @@ class FieldCache
      */
     public function setAccountQuery(string $key, array $data): void
     {
-        $this->setDataToCache($key, $data);
+        $this->saveToCache($key, $data);
     }
 
-    public function configFormWasLoaded(): void
+    public function ClearCacheForConfigForm(): void
     {
         $itemsInMappingForm = [
             CacheEnum::LEAD,
@@ -115,12 +115,12 @@ class FieldCache
      *
      * @throws CachedItemNotFoundException
      */
-    private function getDataFromCache(string $key)
+    private function getFromCache(string $key)
     {
         $key = $this->getCacheName($key);
 
         if (!$this->cacheStorageHelper->has($key)) {
-            throw new CachedItemNotFoundException('Item was not found');
+            throw new CachedItemNotFoundException("Cache item '$key' was not found");
         }
 
         return $this->cacheStorageHelper->get($key);
@@ -130,7 +130,7 @@ class FieldCache
      * @param string $key
      * @param mixed  $data
      */
-    private function setDataToCache(string $key, $data): void
+    private function saveToCache(string $key, $data): void
     {
         $key = $this->getCacheName($key);
         $this->cacheStorageHelper->set($key, $data);
