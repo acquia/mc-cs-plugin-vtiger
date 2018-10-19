@@ -76,9 +76,13 @@ return [
                     'mautic.vtiger_crm.transformer.mautic2vtiger',
                 ],
             ],
+            'mautic.vtiger_crm.validator.general'         => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\GeneralValidator::class,
+                'arguments' => ['mautic.vtiger_crm.repository.users'],
+            ],
             'mautic.vtiger_crm.validator.contact'         => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ContactValidator::class,
-                'arguments' => ['mautic.vtiger_crm.repository.contacts', 'mautic.vtiger_crm.repository.users'],
+                'arguments' => ['mautic.vtiger_crm.repository.contacts', 'mautic.vtiger_crm.validator.general'],
             ],
             'mautic.vtiger_crm.repository.contacts'       => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository::class,
@@ -89,7 +93,7 @@ return [
             ],
             'mautic.vtiger_crm.validator.lead'            => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\LeadValidator::class,
-                'arguments' => ['mautic.vtiger_crm.repository.leads', 'mautic.vtiger_crm.repository.users'],
+                'arguments' => ['mautic.vtiger_crm.repository.leads', 'mautic.vtiger_crm.validator.general'],
             ],
 
             'mautic.vtiger_crm.repository.leads'           => [
@@ -114,7 +118,7 @@ return [
             ],
             'mautic.vtiger_crm.validator.account'          => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\AccountValidator::class,
-                'arguments' => ['mautic.vtiger_crm.repository.accounts'],
+                'arguments' => ['mautic.vtiger_crm.repository.accounts', 'mautic.vtiger_crm.validator.general'],
             ],
 
             'mautic.vtiger_crm.repository.accounts'   => [

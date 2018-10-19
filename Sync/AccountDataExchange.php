@@ -26,6 +26,8 @@ use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvide
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeReportTrait;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\AccountValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -53,23 +55,30 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
     private $settings;
 
     /**
-     * AccountDataExchange constructor.
-     *
+     * @var AccountValidator
+     */
+    private $objectValidator;
+
+    /**
      * @param AccountRepository        $accountRepository
      * @param VtigerSettingProvider    $settingProvider
      * @param CompanyModel             $companyModel
      * @param ValueNormalizerInterface $valueNormalizer
+     * @param AccountValidator         $accountValidator
      */
     public function __construct(
         AccountRepository $accountRepository,
         VtigerSettingProvider $settingProvider,
         CompanyModel $companyModel,
-        ValueNormalizerInterface $valueNormalizer)
+        ValueNormalizerInterface $valueNormalizer,
+        AccountValidator $accountValidator
+    )
     {
         $this->objectRepository = $accountRepository;
-        $this->valueNormalizer  = $valueNormalizer;
-        $this->model            = $companyModel;
         $this->settings         = $settingProvider;
+        $this->model            = $companyModel;
+        $this->valueNormalizer  = $valueNormalizer;
+        $this->objectValidator  = $accountValidator;
     }
 
     /**
@@ -91,7 +100,7 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
                 /* @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
-            /** @var Contact $model */
+            /** @var Account $model */
             $model = new $modelName($objectData);
             if (!$this->settings->getSyncSetting('owner')) {
                 throw new InvalidConfigurationException('You need to configure owner for new objects');
