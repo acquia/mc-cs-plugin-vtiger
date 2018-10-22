@@ -23,7 +23,7 @@ class Contact extends BaseModel
      */
     public function getAssignedUserId(): ?string
     {
-        return !isset($this->data['assigned_user_id']) ? null : $this->data['assigned_user_id'];
+        return $this->data['assigned_user_id'] ?? null;
     }
 
     /**

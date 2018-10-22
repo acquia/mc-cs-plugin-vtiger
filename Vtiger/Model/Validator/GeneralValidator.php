@@ -114,7 +114,7 @@ class GeneralValidator
             case 'owner':
                 if (!count($this->existingUsersIds)) {
                     $users                  = $this->userRepository->findBy();
-                    $this->existingUsersIds = array_map(function ($o) { return $o->id; }, $users);
+                    $this->existingUsersIds = array_map(function (BaseModel $o) { return $o->getId(); }, $users);
                 }
 
                 $validators[] = new Choice(['choices' => $this->existingUsersIds]);
