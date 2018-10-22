@@ -12,7 +12,7 @@
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\EventListener;
 
 use MauticPlugin\IntegrationsBundle\Event\FormLoadEvent;
-use MauticPlugin\IntegrationsBundle\SyncEvents;
+use MauticPlugin\IntegrationsBundle\IntegrationEvents;
 use MauticPlugin\MauticVtigerCrmBundle\EventListener\ConfigFormLoadSubscriber;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
@@ -52,7 +52,7 @@ class ConfigFormLoadSubscriberTest extends \PHPUnit_Framework_TestCase
     public function testGetSubscribedEvents()
     {
         $this->assertEquals(
-            [SyncEvents::INTEGRATION_CONFIG_FORM_LOAD => ['onConfigFormLoad', 0]],
+            [IntegrationEvents::INTEGRATION_CONFIG_FORM_LOAD => ['onConfigFormLoad', 0]],
             $this->subscriber->getSubscribedEvents()
         );
     }
