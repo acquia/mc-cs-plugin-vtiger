@@ -58,7 +58,7 @@ class ContactValidator implements ObjectValidatorInterface
     public function validate(BaseModel $object): void
     {
         if (!$object instanceof Contact) {
-            throw new \InvalidArgumentException('$object must be instance of Account');
+            throw new \InvalidArgumentException('$object must be instance of Contact');
         }
 
         $description = $this->contactRepository->describe()->getFields();
