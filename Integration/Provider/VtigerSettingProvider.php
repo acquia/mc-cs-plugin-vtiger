@@ -43,7 +43,7 @@ class VtigerSettingProvider
     }
 
     /**
-     * @return Integration
+     * @return Integration|null
      */
     public function getIntegrationEntity(): ?Integration
     {

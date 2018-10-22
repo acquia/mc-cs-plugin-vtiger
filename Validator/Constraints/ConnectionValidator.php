@@ -45,9 +45,8 @@ class ConnectionValidator extends ConstraintValidator
         $username = $formData['username'];
         $accessKey = $formData['accessKey'];
 
-        // @todo
-//        $this->connection->connect($url, $username, $accessKey);
-        $connected = false;
+        $this->connection = clone($this->connection);
+        $connected = $this->connection->test($url, $username, $accessKey);
 
         if (!$connected) {
             $this->context->buildViolation($constraint->message)
