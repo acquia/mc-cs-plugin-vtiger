@@ -252,14 +252,15 @@ class Connection
     /**
      * Test connection settings.
      * Proxy to authenticate method.
+     * Is possible, that given arguments are null
      *
-     * @param string $url
-     * @param string $username
-     * @param string $accessKey
+     * @param string|null $url
+     * @param string|null $username
+     * @param string|null $accessKey
      *
      * @return bool
      */
-    public function test(string $url, string $username, string $accessKey): bool
+    public function test(string $url = null, string $username = null, string $accessKey = null): bool
     {
         try {
             $this->authenticate($url, $username, $accessKey);
@@ -279,7 +280,7 @@ class Connection
      */
     private function authenticate(string $url = null, string $username = null, string $accessKey = null): Connection
     {
-        if ($url && $username && $accessKey) {
+        if ($url || $username || $accessKey) {
             $this->setCredentials($url, $username, $accessKey);
         } else {
             $this->setCredentials($url, $username, $accessKey);
