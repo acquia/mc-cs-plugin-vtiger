@@ -31,9 +31,23 @@ return [
                 ],
             ],
         ],
+        'validators' => [
+            'mautic.vtiger_crm.validator.connection_validator' => [
+                'class' => \MauticPlugin\MauticVtigerCrmBundle\Validator\Constraints\ConnectionValidator::class,
+                'arguments' => [
+                    'mautic.vtiger_crm.connection'
+                ],
+                'tags' => [
+                    'name' => 'validator.constraint_validator',
+                ]
+            ]
+        ],
         'forms'        => [
             'mautic.vtiger_crm.form.config_auth' => [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigAuthType::class,
+                'arguments' => [
+                    'mautic.vtiger_crm.connection'
+                ]
             ],
             'mautic.vtiger_crm.form.config_features' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigSyncFeaturesType::class,
