@@ -18,7 +18,6 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\CompanyDetails;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\EventFactory;
@@ -26,13 +25,11 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 
-/**
- * Trait RepositoryHelper.
- */
 trait RepositoryHelper
 {
-    public function findBy($where = [], $columns = '*')
+    public function findBy($where = [], $columns = '*'): array
     {
         return $this->findByInternal($where, $columns);
     }
@@ -45,15 +42,15 @@ trait RepositoryHelper
      *
      * @return array
      */
-    protected function findByInternal($where = [], $columns = '*')
+    protected function findByInternal($where = [], $columns = '*'): array
     {
         $moduleName = $this->getModuleFromRepositoryName();
-        $className  = self::$moduleClassMapping[$moduleName];
 
         $columns = is_array($columns) ? join(', ', $columns) : $columns;
 
         $query = 'select '.$columns.' from '.$moduleName;
         if (count($where)) {
+            $whereEscaped = [];
             foreach ($where as $key => $value) {
                 $whereEscaped[$key] = sprintf("%s='%s'",
                     $key,
@@ -68,8 +65,8 @@ trait RepositoryHelper
         $result = $this->connection->get('query', ['query' => $query]);
         $return = [];
 
-        foreach ($result as $key=>$moduleObject) {
-            $return[] = new $className((array) $moduleObject);
+        foreach ($result as $key => $moduleObject) {
+            $return[] = ModelFactory::getModel($moduleName, (array) $moduleObject);
         }
 
         return $return;
@@ -101,15 +98,13 @@ trait RepositoryHelper
     /**
      * @param BaseModel $module
      *
-     * @return BaseModel|Account|CompanyDetails|Contact|Event|EventFactory|Lead|User
+     * @return BaseModel|Account|Contact|Event|EventFactory|Lead|User
      */
-    private function createUnified($module): BaseModel
+    private function createUnified(BaseModel $module): BaseModel
     {
         $response = $this->connection->post('create', ['element' => json_encode($module->dehydrate()), 'elementType' => $this->getModuleFromRepositoryName()]);
 
-        $className = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
-
-        return new $className((array) $response);
+        return ModelFactory::getModel($this->getModuleFromRepositoryName(), (array) $response);
     }
 
     /**
@@ -122,9 +117,7 @@ trait RepositoryHelper
         DebugLogger::log(VtigerCrmIntegration::NAME, 'Updating '.$this->getModuleFromRepositoryName().' '.$module->getId());
         $response = $this->connection->post('update', ['element' => json_encode($module->dehydrate())]);
 
-        $className = self::$moduleClassMapping[$this->getModuleFromRepositoryName()];
-
-        return new $className((array) $response);
+        return ModelFactory::getModel($this->getModuleFromRepositoryName(), (array) $response);
     }
 
     /**
@@ -132,30 +125,19 @@ trait RepositoryHelper
      *
      * @return array
      */
-    public function query($query)
+    public function query($query): array
     {
         $moduleName = $this->getModuleFromRepositoryName();
-        $className  = self::$moduleClassMapping[$moduleName];
 
         $result = $this->connection->get('query', ['query' => $query]);
 
         $return = [];
 
-        foreach ($result as $key=>$moduleObject) {
-            $return[] = new $className((array) $moduleObject);
+        foreach ($result as $key => $moduleObject) {
+            $return[] = ModelFactory::getModel($moduleName, (array) $moduleObject);
         }
 
         return $return;
-    }
-
-    /**
-     * @param $id string Vtiger ID
-     *
-     * @return mixed
-     */
-    public function delete(string $id)
-    {
-        return $this->connection->post('delete', ['id' =>  (string) $id]);
     }
 
     /**

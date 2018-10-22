@@ -58,7 +58,7 @@ class LeadValidator implements ObjectValidatorInterface
     public function validate(BaseModel $object): void
     {
         if (!$object instanceof Lead) {
-            throw new \InvalidArgumentException('$object must be instance of Account');
+            throw new \InvalidArgumentException('$object must be instance of Lead');
         }
 
         $description = $this->leadRepository->describe()->getFields();

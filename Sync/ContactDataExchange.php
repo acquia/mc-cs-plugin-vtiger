@@ -20,9 +20,11 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectDeletedException;
 use MauticPlugin\IntegrationsBundle\Sync\Helper\MappingHelper;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
@@ -100,17 +102,22 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
      * @param \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
      * @param ReportDAO                                                        $syncReport
      *
-     * @return ReportDAO|mixed
-     *
+     * @return ReportDAO
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotFoundException
      * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
-     * @throws \Psr\Cache\InvalidArgumentException
+     * @throws VtigerPluginException
      */
     public function getObjectSyncReport(
         \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
-        ReportDAO &$syncReport
-    ): ReportDAO {
+        ReportDAO $syncReport
+    ): ReportDAO
+    {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
         $objectFields = $this->objectRepository->describe()->getFields();
@@ -200,9 +207,10 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     /**
      * @param array $objects
      *
-     * @return ObjectMapping[]
+     * @return array|ObjectChangeDAO[]
      *
-     * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectDeletedException
+     * @throws ObjectDeletedException
+     * @throws VtigerPluginException
      */
     public function insert(array $objects): array
     {
@@ -228,18 +236,5 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
 
         //  Update DNC information
         return $this->internalInsert($insertable);
-    }
-
-    /**
-     * @param array $objects
-     *
-     * @return mixed|void
-     *
-     * @throws \Exception
-     */
-    public function delete(array $objects)
-    {
-        // TODO: Implement delete() method.
-        throw new \Exception('Not implemented');
     }
 }

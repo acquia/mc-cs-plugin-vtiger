@@ -18,11 +18,12 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ObjectValidatorInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 
 trait DataExchangeOperationsTrait
 {
@@ -71,9 +72,7 @@ trait DataExchangeOperationsTrait
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
 
-            $modelClass = BaseRepository::$moduleClassMapping[$changedObject->getObject()];
-
-            $vtigerModel = new $modelClass($objectData);
+            $vtigerModel = ModelFactory::getModel($changedObject->getObject(), $objectData);
 
             if ($this->settings->getSyncSetting('updateOwner') || !$vtigerModel->getAssignedUserId()) {
                 $vtigerModel->setAssignedUserId($this->settings->getSyncSetting('owner'));
@@ -82,8 +81,7 @@ trait DataExchangeOperationsTrait
             try {
                 $this->objectValidator->validate($vtigerModel);
 
-                /** @var BaseModel $returnedModel */
-                $returnedModel = $this->objectRepository->update($vtigerModel);
+                $this->objectRepository->update($vtigerModel);
 
                 $newChange = new ObjectChangeDAO(
                     VtigerCrmIntegration::NAME,
@@ -124,17 +122,17 @@ trait DataExchangeOperationsTrait
     /**
      * @param ObjectChangeDAO[] $objects
      *
-     * @return ObjectMapping[]
+     * @return array|ObjectMapping[]
+     *
+     * @throws VtigerPluginException
      */
-    public function insert(array $objects)
+    public function insert(array $objects): array
     {
-        $modelName = BaseRepository::$moduleClassMapping[self::OBJECT_NAME];
-
         DebugLogger::log(
             self::OBJECT_NAME,
             sprintf(
                 'Found %d %s to INSERT',
-                $modelName,
+                self::OBJECT_NAME,
                 count($objects)
             ),
             __CLASS__.':'.__FUNCTION__
@@ -151,10 +149,9 @@ trait DataExchangeOperationsTrait
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
 
-            /** @var BaseModel $objectModel */
-            $objectModel = new $modelName($objectData);
+            $objectModel = ModelFactory::getModel(self::OBJECT_NAME, $objectData);
             if (!$this->settings->getSyncSetting('owner')) {
-                throw new InvalidConfigurationException('You need to configure owner for new objects');
+                throw new VtigerPluginException('You need to configure owner for new objects');
             }
             $objectModel->setAssignedUserId($this->settings->getSyncSetting('owner'));
 
@@ -222,38 +219,6 @@ trait DataExchangeOperationsTrait
                 .' FROM '.self::OBJECT_NAME.' WHERE modifiedtime >= \''.$fromDate->format('Y-m-d H:i:s').'\''
                 .' LIMIT '.($iteration * self::VTIGER_API_QUERY_LIMIT).','.self::VTIGER_API_QUERY_LIMIT;
 
-            $report = $this->objectRepository->query($reportQuery);
-
-            ++$iteration;
-
-            $fullReport = array_merge($fullReport, $report);
-        } while (count($report));
-
-        return $fullReport;
-    }
-
-    /**
-     * @param \DateTimeImmutable $fromDate
-     * @param array              $mappedFields
-     *
-     * @return array|mixed
-     *
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
-     */
-    public function getDeleted(\DateTimeImmutable $fromDate)
-    {
-        var_dump($this->objectRepository->sync((new \DateTime('-1 year'))->getTimestamp()));
-        die();
-
-        $fullReport = [];
-        $iteration = 0;
-        // We must iterate while there is still some result left
-
-        do {
-            $reportQuery = 'SELECT * FROM '.self::OBJECT_NAME
-                .' LIMIT '.($iteration * self::VTIGER_API_QUERY_LIMIT).','.self::VTIGER_API_QUERY_LIMIT;
-
-            echo $reportQuery;
             $report = $this->objectRepository->query($reportQuery);
 
             ++$iteration;

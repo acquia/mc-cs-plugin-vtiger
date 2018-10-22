@@ -18,6 +18,9 @@ abstract class BaseModel
     /** @var array */
     protected $data = [];           //  This contains the real data of the object for manipulation
 
+    /**
+     * @param array|null $data
+     */
     public function __construct(array $data = null)
     {
         if (!is_null($data)) {
@@ -25,14 +28,22 @@ abstract class BaseModel
         }
     }
 
-    public function hydrate(array $attributes)
+    /**
+     * @param array $attributes
+     */
+    public function hydrate(array $attributes): void
     {
         foreach ($attributes as $attribute=>$value) {
             $this->data[$attribute] = $value;
         }
     }
 
-    public function dehydrate($fields = [])
+    /**
+     * @param array $fields
+     *
+     * @return array
+     */
+    public function dehydrate($fields = []): array
     {
         if (0 === count($fields)) {
             return $this->data;
@@ -41,53 +52,18 @@ abstract class BaseModel
         $response = [];
 
         foreach ($fields as $fieldName) {
-            $response[$fieldName] = isset($this->data[$fieldName]) ? $this->data[$fieldName] : null;
+            $response[$fieldName] = $this->data[$fieldName] ?? null;
         }
 
         return $response;
     }
 
-    public function __get($name)
-    {
-        if (!isset($this->data[$name]) && !in_array($name, [])) {
-            var_dump($this->data);
-            throw new \InvalidArgumentException('Unknown property '.$name);
-        }
-
-        return isset($this->data[$name]) ? $this->data[$name] : null;
-    }
-
-    public function __set($name, $value)
-    {
-        $this->data[$name] = $value;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getCreatedTime()
-    {
-        return $this->createdtime ? new \DateTime($this->createdtime) : null;
-    }
-
     /**
      * @return string|null
      */
-    public function getId()
+    public function getId(): ?string
     {
-        return isset($this->data['id']) ? $this->data['id'] : null;
-    }
-
-    /**
-     * @param $id string|null
-     *
-     * @return BaseModel
-     */
-    public function setId($id): self
-    {
-        $this->data['id'] = $id;
-
-        return $this;
+        return $this->data['id'] ?? null;
     }
 
     /**
@@ -95,11 +71,6 @@ abstract class BaseModel
      */
     public function getModifiedTime(): ?\DateTime
     {
-        return $this->modifiedtime ? new \DateTime($this->modifiedtime) : null;
-    }
-
-    public function set($identified, $value)
-    {
-        $this->data[$identified] = $value;
+        return $this->data['modifiedtime'] ? new \DateTime($this->data['modifiedtime']) : null;
     }
 }

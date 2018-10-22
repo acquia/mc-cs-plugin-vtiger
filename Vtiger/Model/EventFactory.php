@@ -29,9 +29,6 @@ class EventFactory extends BaseModel
         $event->set('duration_minutes', 0);
         $event->set('eventstatus', 'Held');
         $event->set('activitytype', 'Mautic Event');
-        /*      $event->set('createdtime', $created = (new \DateTime())->getTimestamp());
-                $event->set('modifiedtime', $created = (new \DateTime())->getTimestamp());
-                $event->set('sendnotification', 0);*/
         $event->set('visibility', 'Public');
         $event->set('notime', 0);
         $event->set('reminder_time', 0);

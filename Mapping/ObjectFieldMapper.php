@@ -25,6 +25,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\LeadDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -79,7 +80,7 @@ class ObjectFieldMapper
      */
     public function getObjectFields($objectName): array
     {
-        if (!isset(BaseRepository::$moduleClassMapping[$objectName])) {
+        if (!ModelFactory::isObjectSupported($objectName)) {
             throw new InvalidQueryArgumentException('Unknown object '.$objectName);
         }
 
@@ -172,16 +173,6 @@ class ObjectFieldMapper
         }
 
         return $this->vtiger2mauticObjectMapping[$vtigerObjectName];
-    }
-
-    /**
-     * @param $moduleName
-     *
-     * @return mixed
-     */
-    public function getVtigerModelNameFromModuleName($moduleName)
-    {
-        return BaseRepository::$moduleClassMapping[$moduleName];
     }
 
     /**
