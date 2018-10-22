@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO;
 
@@ -24,7 +25,7 @@ interface ObjectSyncDataExchangeInterface
      *
      * @return mixed
      */
-    public function getObjectSyncReport(ObjectDAO $requestedObject, ReportDAO &$syncReport);
+    public function getObjectSyncReport(ObjectDAO $requestedObject, ReportDAO $syncReport);
 
     /**
      * @param array $ids
@@ -37,14 +38,7 @@ interface ObjectSyncDataExchangeInterface
     /**
      * @param array $objects
      *
-     * @return mixed
+     * @return array|ObjectChangeDAO[]
      */
-    public function insert(array $objects);
-
-    /**
-     * @param array $objects
-     *
-     * @return mixed
-     */
-    public function delete(array $objects);
+    public function insert(array $objects): array;
 }

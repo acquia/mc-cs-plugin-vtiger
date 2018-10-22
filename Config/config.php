@@ -103,13 +103,6 @@ return [
                     'mautic.vtiger_crm.cache.field_cache',
                 ],
             ],
-            'mautic.vtiger_crm.repository.company_details' => [
-                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\CompanyDetailsRepository::class,
-                'arguments' => [
-                    'mautic.vtiger_crm.connection',
-                    'mautic.vtiger_crm.cache.field_cache',
-                ],
-            ],
             'mautic.vtiger_crm.cache.field_cache' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache::class,
                 'arguments' => [
@@ -133,6 +126,7 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
                     'mautic.vtiger_crm.cache.field_cache',
+                    'mautic.vtiger_crm.modelFactory',
                 ],
             ],
             'mautic.vtiger_crm.repository.users'      => [
@@ -153,12 +147,9 @@ return [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\DataExchange::class,
                 'arguments' => [
                     'mautic.vtiger_crm.mapping.field_mapping',
-                    'mautic.integrations.helper.sync_mapping',
                     'mautic.vtiger_crm.sync.data_exchange_contacts',
                     'mautic.vtiger_crm.sync.data_exchange_leads',
-                    'mautic.vtiger_crm.sync.data_exchange_company_details',
                     'mautic.vtiger_crm.sync.data_exchange_accounts',
-                    'mautic.vtiger_crm.sync.events_service',
                 ],
             ],
 
@@ -185,14 +176,6 @@ return [
                     'mautic.integrations.helper.sync_mapping',
                 ],
             ],
-            'mautic.vtiger_crm.sync.data_exchange_company_details' => [
-                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\CompanyDetailsDataExchange::class,
-                'arguments' => [
-                    'mautic.vtiger_crm.repository.company_details',
-                    'mautic.vtiger_crm.settings',
-                    'mautic.vtiger_crm.value_normalizer',
-                ],
-            ],
             'mautic.vtiger_crm.sync.data_exchange_accounts'        => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\AccountDataExchange::class,
                 'arguments' => [
@@ -201,6 +184,7 @@ return [
                     'mautic.lead.model.company',
                     'mautic.vtiger_crm.value_normalizer',
                     'mautic.vtiger_crm.validator.account',
+                    'mautic.vtiger_crm.modelFactory',
                 ],
             ],
             'mautic.vtiger_crm.lead_event_supplier'                => [
@@ -210,6 +194,10 @@ return [
             'mautic.vtiger_crm.sync.events_service'                => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService::class,
                 'arguments' => ['mautic.vtiger_crm.lead_event_supplier', 'mautic.vtiger_crm.repository.events', 'mautic.vtiger_crm.settings'],
+            ],
+            'mautic.vtiger_crm.modelFactory'                => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory::class,
+                'arguments' => [],
             ],
         ],
         'models'       => [

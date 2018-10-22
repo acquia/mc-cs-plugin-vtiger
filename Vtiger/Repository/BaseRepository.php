@@ -15,13 +15,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\CachedItemNotFoundException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\CompanyDetails;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
 
 /**
@@ -29,15 +23,6 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
  */
 abstract class BaseRepository
 {
-    public static $moduleClassMapping = [
-        'Contacts'       => Contact::class,
-        'Accounts'       => Account::class,
-        'Events'         => Event::class,
-        'Leads'          => Lead::class,
-        'CompanyDetails' => CompanyDetails::class,
-        'Users'          => User::class,
-    ];
-
     /** @var Connection */
     protected $connection;
 

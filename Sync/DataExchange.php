@@ -13,19 +13,14 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
-use MauticPlugin\IntegrationsBundle\Sync\Helper\MappingHelper;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 
-/**
- * Class DataExchange.
- */
 class DataExchange implements SyncDataExchangeInterface
 {
     /**
@@ -43,50 +38,25 @@ class DataExchange implements SyncDataExchangeInterface
      */
     private $leadDataExchange;
 
-    /**
-     * @var CompanyDetailsDataExchange
-     */
-    private $companyDataExchange;
-
     /** @var AccountDataExchange */
     private $accountDataExchange;
-    /**
-     * @var MappingHelper
-     */
-    private $mappingHelper;
 
     /**
-     * @var EventSyncService
-     */
-    private $eventSyncService;
-
-    /**
-     * DataExchange constructor.
-     *
-     * @param ObjectFieldMapper          $fieldMapper
-     * @param MappingHelper              $mappingHelper
-     * @param ContactDataExchange        $contactDataExchange
-     * @param LeadDataExchange           $leadDataExchange
-     * @param CompanyDetailsDataExchange $companyDetailsDataExchange
-     * @param AccountDataExchange        $accountDataExchange
-     * @param EventSyncService           $eventSyncService
+     * @param ObjectFieldMapper   $fieldMapper
+     * @param ContactDataExchange $contactDataExchange
+     * @param LeadDataExchange    $leadDataExchange
+     * @param AccountDataExchange $accountDataExchange
      */
     public function __construct(
         ObjectFieldMapper $fieldMapper,
-        MappingHelper $mappingHelper,
         ContactDataExchange $contactDataExchange,
         LeadDataExchange $leadDataExchange,
-        CompanyDetailsDataExchange $companyDetailsDataExchange,
-        AccountDataExchange $accountDataExchange,
-        EventSyncService $eventSyncService
+        AccountDataExchange $accountDataExchange
     ) {
         $this->fieldMapper         = $fieldMapper;
         $this->contactDataExchange = $contactDataExchange;
         $this->leadDataExchange    = $leadDataExchange;
-        $this->mappingHelper       = $mappingHelper;
-        $this->companyDataExchange = $companyDetailsDataExchange;
         $this->accountDataExchange = $accountDataExchange;
-        $this->eventSyncService    = $eventSyncService;
     }
 
     /**
@@ -183,7 +153,6 @@ class DataExchange implements SyncDataExchangeInterface
 
             $objectMappings = $dataExchange->insert($createObjects);
 
-            /** @var ObjectChangeDAO $objectMapping */
             foreach ($objectMappings as $objectMapping) {
                 $syncOrderDAO->addObjectMapping(
                     $objectMapping,
@@ -194,8 +163,6 @@ class DataExchange implements SyncDataExchangeInterface
             }
         }
     }
-
-    // @todo add delete support
 
     /**
      * @param $objectName
@@ -211,8 +178,6 @@ class DataExchange implements SyncDataExchangeInterface
                 return $this->contactDataExchange;
             case 'Leads':
                 return $this->leadDataExchange;
-            case 'CompanyDetails':
-                return $this->companyDataExchange;
             case 'Accounts':
                 return $this->accountDataExchange;
             default:

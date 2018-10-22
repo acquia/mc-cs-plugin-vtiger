@@ -14,11 +14,13 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use Mautic\LeadBundle\Model\LeadModel;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
@@ -84,7 +86,7 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
      */
     public function getObjectSyncReport(
         \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
-        ReportDAO &$syncReport
+        ReportDAO $syncReport
     ): ReportDAO {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
@@ -112,23 +114,9 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
     }
 
     /**
-     * @param array $objects
-     *
-     * @return mixed|void
-     *
-     * @throws \Exception
+     * @inheritdoc
      */
-    public function delete(array $objects)
-    {
-        throw new \Exception('Not implemented');
-    }
-
-    /**
-     * @param array $objects
-     *
-     * @return array|mixed
-     */
-    public function insert(array $objects)
+    public function insert(array $objects): array
     {
         return [];  // We will not insert leads as we are not able to tell them
     }
