@@ -11,9 +11,11 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Validator\Constraints;
 
+use Mautic\PluginBundle\Entity\Integration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
+use Symfony\Component\Translation\TranslatorInterface;
 
 class ConnectionValidator extends ConstraintValidator
 {
@@ -24,11 +26,18 @@ class ConnectionValidator extends ConstraintValidator
     private $connection;
 
     /**
-     * @param Connection $connection
+     * @var TranslatorInterface
      */
-    public function __construct(Connection $connection)
+    private $translator;
+
+    /**
+     * @param Connection $connection
+     * @param TranslatorInterface $translator
+     */
+    public function __construct(Connection $connection, TranslatorInterface $translator)
     {
         $this->connection = $connection;
+        $this->translator = $translator;
     }
 
     /**
@@ -39,17 +48,25 @@ class ConnectionValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint): void
     {
-        $formData = $this->context->getRoot()->getData()->getApiKeys();
+        /** @var Integration */
+        $integration = $this->context->getRoot()->getData();
+
+        if (!$integration->getIsPublished()) {
+            // Plugin not enabled
+            return;
+        }
+
+        $formData = $integration->getApiKeys();
 
         $url = $formData['url'];
         $username = $formData['username'];
         $accessKey = $formData['accessKey'];
 
-        $this->connection = clone($this->connection);
+        $this->connection = clone($this->connection); // Do not leave testing credentials inside used Connection class
         $connected = $this->connection->test($url, $username, $accessKey);
 
         if (!$connected) {
-            $this->context->buildViolation($constraint->message)
+            $this->context->buildViolation($this->translator->trans($constraint->message))
                 ->addViolation();
         }
     }

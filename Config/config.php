@@ -35,7 +35,8 @@ return [
             'mautic.vtiger_crm.validator.connection_validator' => [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Validator\Constraints\ConnectionValidator::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.connection'
+                    'mautic.vtiger_crm.connection',
+                    'translator',
                 ],
                 'tags' => [
                     'name' => 'validator.constraint_validator',
