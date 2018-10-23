@@ -250,13 +250,41 @@ class Connection
     }
 
     /**
-     * @return Connection
+     * Test connection settings.
+     * Proxy to authenticate method.
+     * Is possible, that given arguments are null
      *
-     * @throws PluginNotConfiguredException
+     * @param string|null $url
+     * @param string|null $username
+     * @param string|null $accessKey
+     *
+     * @return bool
      */
-    private function authenticate(): Connection
+    public function test(string $url = null, string $username = null, string $accessKey = null): bool
     {
-        $this->setCredentials();
+        try {
+            $this->authenticate($url, $username, $accessKey);
+        } catch (PluginNotConfiguredException $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string|null $url
+     * @param string|null $username
+     * @param string|null $accessKey
+     *
+     * @return Connection
+     */
+    private function authenticate(string $url = null, string $username = null, string $accessKey = null): Connection
+    {
+        if ($url || $username || $accessKey) {
+            $this->setCredentials($url, $username, $accessKey);
+        } else {
+            $this->setCredentials($url, $username, $accessKey);
+        }
 
         try {
             $credentials = $this->credentials;
@@ -315,8 +343,7 @@ class Connection
      */
     private function getApiUrl(): string
     {
-        return sprintf('%s/webservice.php',
-                       $this->getApiDomain());
+        return sprintf('%s/webservice.php', $this->getApiDomain());
     }
 
     /**
@@ -327,9 +354,22 @@ class Connection
         return !is_null($this->sessionId);
     }
 
-    private function setCredentials(): void
+    /**
+     * @param string|null $url
+     * @param string|null $username
+     * @param string|null $accessKey
+     */
+    private function setCredentials(string $url = null, string $username = null, string $accessKey = null): void
     {
-        $credentialsCfg = $this->settings->getCredentials();
+        if ($url && $username && $accessKey) {
+            $credentialsCfg = [
+                'url' => $url,
+                'username' => $username,
+                'accessKey' => $accessKey,
+            ];
+        } else {
+            $credentialsCfg = $this->settings->getCredentials();
+        }
 
         if (!empty($credentialsCfg['accessKey']) && !empty($credentialsCfg['username']) && !empty($credentialsCfg['url'])) {
             $this->credentials = new Credentials($credentialsCfg['accessKey'], $credentialsCfg['username']);

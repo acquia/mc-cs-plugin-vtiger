@@ -15,6 +15,8 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Form\Type;
 
 use MauticPlugin\IntegrationsBundle\Form\Type\NotBlankIfPublishedConstraintTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerConfigProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Validator\Constraints\Connection as ConnectionConstraint;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -25,6 +27,19 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class ConfigAuthType extends AbstractType
 {
     use NotBlankIfPublishedConstraintTrait;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * @param Connection $connection
+     */
+    public function __construct(Connection $connection)
+    {
+        $this->connection = $connection;
+    }
 
     /**
      * @param FormBuilderInterface $builder
@@ -50,7 +65,10 @@ class ConfigAuthType extends AbstractType
                 'attr'       => [
                     'class' => 'form-control',
                 ],
-                'constraints' => [$this->getNotBlankConstraint()],
+                'constraints' => [
+                    $this->getNotBlankConstraint(),
+                    new ConnectionConstraint($this->connection)
+                ],
             ]
         );
 
