@@ -18,6 +18,7 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
@@ -156,7 +157,23 @@ trait DataExchangeOperationsTrait
             $objectModel->setAssignedUserId($this->settings->getSyncSetting('owner'));
 
             /* Perform validation */
-            $this->objectValidator->validate($objectModel);
+            try {
+                $this->objectValidator->validate($objectModel);
+            } catch (InvalidObject $e) {
+                DebugLogger::log(
+                    VtigerCrmIntegration::NAME,
+                    sprintf(
+                        "Invalid object %s (%s) with ID '%s' with message '%s'",
+                        self::OBJECT_NAME,
+                        $object->getMappedObject(),
+                        $object->getMappedObjectId(),
+                        $e->getMessage()
+                    ),
+                    __CLASS__.':'.__FUNCTION__
+                );
+                continue;
+            }
+
 
             try {
                 $response = $this->objectRepository->create($objectModel);
