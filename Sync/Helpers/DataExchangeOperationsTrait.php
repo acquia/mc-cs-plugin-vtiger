@@ -38,7 +38,9 @@ trait DataExchangeOperationsTrait
      */
     private $objectValidator;
 
-    /** @var VtigerSettingProvider */
+    /**
+     * @var VtigerSettingProvider
+     */
     private $settings;
 
     /**
@@ -88,7 +90,6 @@ trait DataExchangeOperationsTrait
             }
 
             try {
-
                 $this->objectRepository->update($objectModel);
 
                 $newChange = new ObjectChangeDAO(
