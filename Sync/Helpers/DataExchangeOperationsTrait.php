@@ -148,6 +148,7 @@ trait DataExchangeOperationsTrait
         );
 
         $objectMappings = [];
+        /** @var ObjectMapping $object */
         foreach ($objects as $object) {
             $fields = $object->getFields();
 
