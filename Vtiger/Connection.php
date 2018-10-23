@@ -250,22 +250,6 @@ class Connection
     }
 
     /**
-     * @return mixed|ResponseInterface
-     *
-     * @throws AccessDeniedException
-     * @throws DatabaseQueryException
-     * @throws InvalidQueryArgumentException
-     * @throws InvalidRequestException
-     * @throws PluginNotConfiguredException
-     * @throws SessionException
-     * @throws VtigerPluginException
-     */
-    public function logout()
-    {
-        return $this->get('logout');
-    }
-
-    /**
      * @return Connection
      *
      * @throws PluginNotConfiguredException
