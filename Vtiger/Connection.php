@@ -266,19 +266,6 @@ class Connection
     }
 
     /**
-     * returns love.
-     */
-    public function __destruct()
-    {
-        try {
-            if (!is_null($this->httpClient)) {
-                $this->logout();
-            }
-        } catch (\Exception $e) {
-        }
-    }
-
-    /**
      * @return Connection
      *
      * @throws PluginNotConfiguredException
