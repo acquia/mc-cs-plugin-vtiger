@@ -250,35 +250,6 @@ class Connection
     }
 
     /**
-     * @return mixed|ResponseInterface
-     *
-     * @throws AccessDeniedException
-     * @throws DatabaseQueryException
-     * @throws InvalidQueryArgumentException
-     * @throws InvalidRequestException
-     * @throws PluginNotConfiguredException
-     * @throws SessionException
-     * @throws VtigerPluginException
-     */
-    public function logout()
-    {
-        return $this->get('logout');
-    }
-
-    /**
-     * returns love.
-     */
-    public function __destruct()
-    {
-        try {
-            if (!is_null($this->httpClient)) {
-                $this->logout();
-            }
-        } catch (\Exception $e) {
-        }
-    }
-
-    /**
      * @return Connection
      *
      * @throws PluginNotConfiguredException
