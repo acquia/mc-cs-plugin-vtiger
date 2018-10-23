@@ -22,7 +22,6 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ObjectValidatorInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
@@ -39,7 +38,9 @@ trait DataExchangeOperationsTrait
      */
     private $objectValidator;
 
-    /** @var VtigerSettingProvider */
+    /**
+     * @var VtigerSettingProvider
+     */
     private $settings;
 
     /**
@@ -84,12 +85,11 @@ trait DataExchangeOperationsTrait
             try {
                 $this->objectValidator->validate($objectModel);
             } catch (InvalidObject $e) {
-                $this->logInvalidObject($object, $e);
+                $this->logInvalidObject($changedObject, $e);
                 continue;
             }
 
             try {
-
                 $this->objectRepository->update($objectModel);
 
                 $newChange = new ObjectChangeDAO(
@@ -148,6 +148,7 @@ trait DataExchangeOperationsTrait
         );
 
         $objectMappings = [];
+        /** @var ObjectChangeDAO $object */
         foreach ($objects as $object) {
             $fields = $object->getFields();
 
@@ -215,12 +216,10 @@ trait DataExchangeOperationsTrait
     }
 
     /**
-     * @param \DateTimeImmutable $fromDate
-     * @param array              $mappedFields
+     * @param \DateTimeInterface $fromDate
+     * @param array $mappedFields
      *
      * @return array|mixed
-     *
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     private function getReportPayload(\DateTimeInterface $fromDate, array $mappedFields)
     {
@@ -244,10 +243,10 @@ trait DataExchangeOperationsTrait
     }
 
     /**
-     * @param BaseModel $object
+     * @param ObjectChangeDAO $object
      * @param InvalidObject $exception
      */
-    private function logInvalidObject(BaseModel $object, InvalidObject $exception): void
+    private function logInvalidObject(ObjectChangeDAO $object, InvalidObject $exception): void
     {
         DebugLogger::log(
             VtigerCrmIntegration::NAME,
