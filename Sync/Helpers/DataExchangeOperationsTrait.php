@@ -85,7 +85,7 @@ trait DataExchangeOperationsTrait
             try {
                 $this->objectValidator->validate($objectModel);
             } catch (InvalidObject $e) {
-                $this->logInvalidObject($object, $e);
+                $this->logInvalidObject($changedObject, $e);
                 continue;
             }
 
@@ -148,7 +148,7 @@ trait DataExchangeOperationsTrait
         );
 
         $objectMappings = [];
-        /** @var ObjectMapping $object */
+        /** @var ObjectChangeDAO $object */
         foreach ($objects as $object) {
             $fields = $object->getFields();
 
@@ -243,10 +243,10 @@ trait DataExchangeOperationsTrait
     }
 
     /**
-     * @param ObjectMapping $object
+     * @param ObjectChangeDAO $object
      * @param InvalidObject $exception
      */
-    private function logInvalidObject(ObjectMapping $object, InvalidObject $exception): void
+    private function logInvalidObject(ObjectChangeDAO $object, InvalidObject $exception): void
     {
         DebugLogger::log(
             VtigerCrmIntegration::NAME,
