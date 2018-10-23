@@ -215,12 +215,10 @@ trait DataExchangeOperationsTrait
     }
 
     /**
-     * @param \DateTimeImmutable $fromDate
-     * @param array              $mappedFields
+     * @param \DateTimeInterface $fromDate
+     * @param array $mappedFields
      *
      * @return array|mixed
-     *
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     private function getReportPayload(\DateTimeInterface $fromDate, array $mappedFields)
     {
