@@ -22,7 +22,6 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ObjectValidatorInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
@@ -245,10 +244,10 @@ trait DataExchangeOperationsTrait
     }
 
     /**
-     * @param BaseModel $object
+     * @param ObjectMapping $object
      * @param InvalidObject $exception
      */
-    private function logInvalidObject(BaseModel $object, InvalidObject $exception): void
+    private function logInvalidObject(ObjectMapping $object, InvalidObject $exception): void
     {
         DebugLogger::log(
             VtigerCrmIntegration::NAME,
