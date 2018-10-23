@@ -22,6 +22,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ObjectValidatorInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
@@ -73,16 +74,23 @@ trait DataExchangeOperationsTrait
                 $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
             }
 
-            $vtigerModel = ModelFactory::getModel($changedObject->getObject(), $objectData);
+            $objectModel = ModelFactory::getModel($changedObject->getObject(), $objectData);
 
-            if ($this->settings->getSyncSetting('updateOwner') || !$vtigerModel->getAssignedUserId()) {
-                $vtigerModel->setAssignedUserId($this->settings->getSyncSetting('owner'));
+            if ($this->settings->getSyncSetting('updateOwner') || !$objectModel->getAssignedUserId()) {
+                $objectModel->setAssignedUserId($this->settings->getSyncSetting('owner'));
+            }
+
+            /* Perform validation */
+            try {
+                $this->objectValidator->validate($objectModel);
+            } catch (InvalidObject $e) {
+                $this->logInvalidObject($object, $e);
+                continue;
             }
 
             try {
-                $this->objectValidator->validate($vtigerModel);
 
-                $this->objectRepository->update($vtigerModel);
+                $this->objectRepository->update($objectModel);
 
                 $newChange = new ObjectChangeDAO(
                     VtigerCrmIntegration::NAME,
@@ -160,20 +168,9 @@ trait DataExchangeOperationsTrait
             try {
                 $this->objectValidator->validate($objectModel);
             } catch (InvalidObject $e) {
-                DebugLogger::log(
-                    VtigerCrmIntegration::NAME,
-                    sprintf(
-                        "Invalid object %s (%s) with ID '%s' with message '%s'",
-                        self::OBJECT_NAME,
-                        $object->getMappedObject(),
-                        $object->getMappedObjectId(),
-                        $e->getMessage()
-                    ),
-                    __CLASS__.':'.__FUNCTION__
-                );
+                $this->logInvalidObject($object, $e);
                 continue;
             }
-
 
             try {
                 $response = $this->objectRepository->create($objectModel);
@@ -244,5 +241,24 @@ trait DataExchangeOperationsTrait
         } while (count($report));
 
         return $fullReport;
+    }
+
+    /**
+     * @param BaseModel $object
+     * @param InvalidObject $exception
+     */
+    private function logInvalidObject(BaseModel $object, InvalidObject $exception): void
+    {
+        DebugLogger::log(
+            VtigerCrmIntegration::NAME,
+            sprintf(
+                "Invalid object %s (%s) with ID '%s' with message '%s'",
+                self::OBJECT_NAME,
+                $object->getMappedObject(),
+                $object->getMappedObjectId(),
+                $exception->getMessage()
+            ),
+            __CLASS__.':'.__FUNCTION__
+        );
     }
 }
