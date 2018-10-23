@@ -15,6 +15,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Form\Type;
 
 use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\IntegrationsBundle\Form\Type\ActivityListType;
+use MauticPlugin\MauticVtigerCrmBundle\Enum\SettingsKeyEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -41,10 +42,10 @@ class ConfigSyncFeaturesType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array                $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add(
-            'updateOwner',
+            SettingsKeyEnum::OWNER_UPDATE_IS_ENABLED,
             ChoiceType::class,
             [
                 'choices'     => [
@@ -60,7 +61,7 @@ class ConfigSyncFeaturesType extends AbstractType
         );
 
         $builder->add(
-            'updateDncByDate',
+            SettingsKeyEnum::UPDATE_DNC_BY_DATE,
             ChoiceType::class,
             [
                 'choices'     => [
@@ -76,7 +77,7 @@ class ConfigSyncFeaturesType extends AbstractType
         );
 
         $builder->add(
-            'owner',
+            SettingsKeyEnum::OWNER,
             ChoiceType::class,
             [
                 'choices'    => $this->getFormOwners(),
@@ -90,7 +91,7 @@ class ConfigSyncFeaturesType extends AbstractType
         );
 
         $builder->add(
-            'activityEvents',
+            SettingsKeyEnum::ACTIVITY_EVENTS,
             ActivityListType::class
         );
     }

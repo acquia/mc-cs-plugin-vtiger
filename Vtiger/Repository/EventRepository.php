@@ -106,7 +106,7 @@ class EventRepository extends BaseRepository
         do {
             $queryLimiter = sprintf('LIMIT %d,%d', $offset, $limit);
             $result       = $this->connection->get('query', ['query' => $query.' '.$queryLimiter]);
-            foreach ($result as $key=> $moduleObject) {
+            foreach ($result as $key => $moduleObject) {
                 $return[] = $this->modelFactory->createEvent((array) $moduleObject);
             }
             $offset += $limit;

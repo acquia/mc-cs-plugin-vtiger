@@ -57,15 +57,15 @@ class EventSyncService
      * @param \DateTimeInterface|null $dateFrom
      * @param \DateTimeInterface|null $dateTo
      *
+     * @throws \Doctrine\DBAL\DBALException
      * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
-    public function sync(?\DateTimeInterface $dateFrom, ?\DateTimeInterface $dateTo)
+    public function sync(?\DateTimeInterface $dateFrom, ?\DateTimeInterface $dateTo): void
     {
-        try {
-            if (!$this->settingProvider->getSyncSetting('push_activity')) {
-                return;
-            }
-        } catch (\InvalidArgumentException $e) {
+        //@todo Event sync is not finished
+        return;
+
+        if (!$this->settingProvider->isActivitySyncEnabled()) {
             return;
         }
 
@@ -79,7 +79,7 @@ class EventSyncService
 
         $this->settingProvider->exceptConfigured();
 
-        $eventsToSynchronize = $this->getSyncReport($mapping, $this->settingProvider->getSyncSetting('activityEvents'), $dateFrom, $dateTo);
+        $eventsToSynchronize = $this->getSyncReport($mapping, $this->settingProvider->getActivityEvents(), $dateFrom, $dateTo);
 
         DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Uploading %d Events', count($eventsToSynchronize['up'])));
 
@@ -165,7 +165,7 @@ class EventSyncService
                     $event->setDateTimeEnd($eventTime);
                     $event->setSubject($eventCheck['message']);
                     $event->setTaskPriority($eventCheck['priority']);
-                    $event->setAssignedUserId($this->settingProvider->getSyncSetting('owner'));
+                    $event->setAssignedUserId($this->settingProvider->getOwner());
                     $result['up'][] = $event;
                 }
             }

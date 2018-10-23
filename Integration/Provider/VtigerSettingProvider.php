@@ -17,6 +17,7 @@ use Mautic\PluginBundle\Entity\Integration;
 use MauticPlugin\IntegrationsBundle\Exception\IntegrationNotFoundException;
 use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\IntegrationsBundle\Helper\IntegrationsHelper;
+use MauticPlugin\MauticVtigerCrmBundle\Enum\SettingsKeyEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 
 /**
@@ -43,23 +44,6 @@ class VtigerSettingProvider
     }
 
     /**
-     * @return Integration|null
-     */
-    public function getIntegrationEntity(): ?Integration
-    {
-        if (is_null($this->integrationEntity)) {
-            try {
-                $integrationObject       = $this->integrationsHelper->getIntegration(VtigerCrmIntegration::NAME);
-                $this->integrationEntity = $integrationObject->getIntegrationConfiguration();
-            } catch (IntegrationNotFoundException $exception) {
-                return null;
-            }
-        }
-
-        return $this->integrationEntity;
-    }
-
-    /**
      * @return array
      */
     public function getCredentials(): array
@@ -69,18 +53,6 @@ class VtigerSettingProvider
         }
 
         return $this->integrationEntity->getApiKeys();
-    }
-
-    /**
-     * @return array
-     */
-    public function getSettings(): array
-    {
-        if (null === $this->getIntegrationEntity()) {
-            return [];
-        }
-
-        return $this->integrationEntity->getFeatureSettings();
     }
 
     /**
@@ -104,13 +76,63 @@ class VtigerSettingProvider
     }
 
     /**
+     * @return array
+     */
+    public function getSyncObjects(): array
+    {
+        return $this->getSettings()['sync']['objects'] ?? [];
+    }
+
+    /**
+     * @param string $object
+     *
+     * @return array
+     */
+    public function getFieldMappings(string $object): array
+    {
+        return $this->getSettings()['sync']['fieldMappings'][$object] ?? [];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isActivitySyncEnabled(): bool
+    {
+        return in_array(SettingsKeyEnum::PUSH_ACTIVITY_IS_ENABLED, $this->getIntegrationEntity()->getSupportedFeatures(), true);
+    }
+
+    /**
+     * @return array
+     */
+    public function getActivityEvents(): array
+    {
+        return $this->getSyncSetting(SettingsKeyEnum::ACTIVITY_EVENTS);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isOwnerUpdateEnabled(): bool
+    {
+        return (bool) $this->getSyncSetting(SettingsKeyEnum::OWNER_UPDATE_IS_ENABLED);
+    }
+
+    /**
+     * @return string
+     */
+    public function getOwner(): string
+    {
+        return (string) $this->getSyncSetting(SettingsKeyEnum::OWNER);
+    }
+
+    /**
      * Gets a setting from the ConfigSyncFeaturesType form.
      *
      * @param string $settingName
      *
      * @return mixed
      */
-    public function getSyncSetting(string $settingName)
+    private function getSyncSetting(string $settingName)
     {
         $settings = $this->getSettings()['sync']['integration'] ?? [];
 
@@ -131,18 +153,29 @@ class VtigerSettingProvider
     /**
      * @return array
      */
-    public function getSyncObjects()
+    private function getSettings(): array
     {
-        return isset($this->getSettings()['sync']['objects']) ? $this->getSettings()['sync']['objects'] : [];
+        if (null === $this->getIntegrationEntity()) {
+            return [];
+        }
+
+        return $this->integrationEntity->getFeatureSettings();
     }
 
     /**
-     * @param string $object
-     *
-     * @return array
+     * @return Integration|null
      */
-    public function getFieldMappings(string $object): array
+    private function getIntegrationEntity(): ?Integration
     {
-        return isset($this->getSettings()['sync']['fieldMappings'][$object]) ? $this->getSettings()['sync']['fieldMappings'][$object] : [];
+        if (is_null($this->integrationEntity)) {
+            try {
+                $integrationObject       = $this->integrationsHelper->getIntegration(VtigerCrmIntegration::NAME);
+                $this->integrationEntity = $integrationObject->getIntegrationConfiguration();
+            } catch (IntegrationNotFoundException $exception) {
+                return null;
+            }
+        }
+
+        return $this->integrationEntity;
     }
 }

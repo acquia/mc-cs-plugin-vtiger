@@ -77,8 +77,8 @@ trait DataExchangeOperationsTrait
 
             $objectModel = ModelFactory::getModel($changedObject->getObject(), $objectData);
 
-            if ($this->settings->getSyncSetting('updateOwner') || !$objectModel->getAssignedUserId()) {
-                $objectModel->setAssignedUserId($this->settings->getSyncSetting('owner'));
+            if ($this->settings->isOwnerUpdateEnabled() || !$objectModel->getAssignedUserId()) {
+                $objectModel->setAssignedUserId($this->settings->getOwner());
             }
 
             /* Perform validation */
@@ -160,10 +160,10 @@ trait DataExchangeOperationsTrait
             }
 
             $objectModel = ModelFactory::getModel(self::OBJECT_NAME, $objectData);
-            if (!$this->settings->getSyncSetting('owner')) {
+            if (!$this->settings->getOwner()) {
                 throw new VtigerPluginException('You need to configure owner for new objects');
             }
-            $objectModel->setAssignedUserId($this->settings->getSyncSetting('owner'));
+            $objectModel->setAssignedUserId($this->settings->getOwner());
 
             /* Perform validation */
             try {
