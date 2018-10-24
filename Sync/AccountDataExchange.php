@@ -123,7 +123,7 @@ class AccountDataExchange extends GeneralDataExchange
      * @return array|mixed
      *
      */
-    protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields, string $objectName)
+    protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields, string $objectName): array
     {
         $fullReport = [];
         $iteration = 0;
