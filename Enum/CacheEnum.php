@@ -41,7 +41,7 @@ final class CacheEnum
     /**
      * @var string
      */
-    public const EVENT = 'events';
+    public const EVENT = 'Events';
 
     /**
      * @var string

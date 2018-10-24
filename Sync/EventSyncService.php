@@ -62,9 +62,6 @@ class EventSyncService
      */
     public function sync(?\DateTimeInterface $dateFrom, ?\DateTimeInterface $dateTo): void
     {
-        //@todo Event sync is not finished
-        return;
-
         if (!$this->settingProvider->isActivitySyncEnabled()) {
             return;
         }
@@ -107,7 +104,6 @@ class EventSyncService
      * @param null  $dateTo
      *
      * @return array
-     *
      * @throws \Exception
      */
     private function getSyncReport($mappings, array $events = [], $dateFrom = null, $dateTo = null)
@@ -137,12 +133,12 @@ class EventSyncService
         }
 
         $found = 0;
-        foreach ($mauticEvents as $mauticLeadId=>$leadEventsArray) {
+        foreach ($mauticEvents as $mauticLeadId => $leadEventsArray) {
             $vtigerId = $mappings[$mauticLeadId] ?? false;
             if (!$vtigerId) {   // Do not upload to not mapped contacts
                 continue;
             }
-            foreach ($leadEventsArray as $eventTimeStamp=>$leadEvents) {
+            foreach ($leadEventsArray as $eventTimeStamp => $leadEvents) {
                 foreach ($leadEvents as $event) {
                     $eventCheck = [
                         'timestamp' => $eventTimeStamp,
@@ -160,7 +156,7 @@ class EventSyncService
                     $eventTime->setTimestamp($eventTimeStamp);
                     /** @var Event $event */
                     $event = EventFactory::createEmptyPrefilled();
-                    $event->setContactId((string) $vtigerId);
+                    $event->setContactId((string)$vtigerId);
                     $event->setDateTimeStart($eventTime);
                     $event->setDateTimeEnd($eventTime);
                     $event->setSubject($eventCheck['message']);
