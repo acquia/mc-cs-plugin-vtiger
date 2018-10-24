@@ -171,33 +171,31 @@ return [
             'mautic.vtiger_crm.sync.data_exchange_contacts'        => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.repository.contacts',
                     'mautic.vtiger_crm.settings',
-                    'mautic.lead.model.lead',
                     'mautic.vtiger_crm.value_normalizer',
+                    'mautic.vtiger_crm.repository.contacts',
                     'mautic.vtiger_crm.validator.contact',
                     'mautic.integrations.helper.sync_mapping',
                     'mautic.vtiger_crm.mapping.field_mapping',
+                    'mautic.vtiger_crm.modelFactory',
                 ],
             ],
             'mautic.vtiger_crm.sync.data_exchange_leads'           => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\LeadDataExchange::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.repository.leads',
                     'mautic.vtiger_crm.settings',
-                    'mautic.lead.model.lead',
                     'mautic.vtiger_crm.value_normalizer',
+                    'mautic.vtiger_crm.repository.leads',
                     'mautic.vtiger_crm.validator.lead',
-                    'mautic.integrations.helper.sync_mapping',
+                    'mautic.vtiger_crm.modelFactory',
                 ],
             ],
             'mautic.vtiger_crm.sync.data_exchange_accounts'        => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\AccountDataExchange::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.repository.accounts',
                     'mautic.vtiger_crm.settings',
-                    'mautic.lead.model.company',
                     'mautic.vtiger_crm.value_normalizer',
+                    'mautic.vtiger_crm.repository.accounts',
                     'mautic.vtiger_crm.validator.account',
                     'mautic.vtiger_crm.modelFactory',
                 ],

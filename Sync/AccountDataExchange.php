@@ -13,47 +13,41 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use Mautic\LeadBundle\Model\CompanyModel;
-use Mautic\LeadBundle\Model\LeadModel;
 use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
-use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
-use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
-use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
-use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeReportTrait;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\AccountValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-final class AccountDataExchange implements ObjectSyncDataExchangeInterface
+class AccountDataExchange extends GeneralDataExchange
 {
-    use DataExchangeOperationsTrait;
-    use DataExchangeReportTrait;
+    /**
+     * @var string
+     */
+    private const OBJECT_NAME = 'Accounts';
 
-    const OBJECT_NAME = 'Accounts';
+    /**
+     * @var int
+     */
+    private const VTIGER_API_QUERY_LIMIT = 100;
 
     /** @var AccountRepository */
-    private $objectRepository;
-
-    /** @var ValueNormalizerInterface */
-    private $valueNormalizer;
-
-    /** @var LeadModel */
-    private $model;
-
-    /** @var VtigerSettingProvider */
-    private $settings;
+    private $accountRepository;
 
     /**
      * @var AccountValidator
      */
-    private $objectValidator;
+    private $accountValidator;
 
     /**
      * @var ModelFactory
@@ -61,47 +55,83 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
     private $modelFactory;
 
     /**
-     * @param AccountRepository        $accountRepository
-     * @param VtigerSettingProvider    $settingProvider
-     * @param CompanyModel             $companyModel
+     * @param VtigerSettingProvider    $vtigerSettingProvider
      * @param ValueNormalizerInterface $valueNormalizer
+     * @param AccountRepository        $accountRepository
      * @param AccountValidator         $accountValidator
      * @param ModelFactory             $modelFactory
      */
     public function __construct(
-        AccountRepository $accountRepository,
-        VtigerSettingProvider $settingProvider,
-        CompanyModel $companyModel,
+        VtigerSettingProvider $vtigerSettingProvider,
         ValueNormalizerInterface $valueNormalizer,
+        AccountRepository $accountRepository,
         AccountValidator $accountValidator,
         ModelFactory $modelFactory
     )
     {
-        $this->objectRepository = $accountRepository;
-        $this->settings         = $settingProvider;
-        $this->model            = $companyModel;
-        $this->valueNormalizer  = $valueNormalizer;
-        $this->objectValidator  = $accountValidator;
-        $this->modelFactory     = $modelFactory;
+        parent::__construct($vtigerSettingProvider, $valueNormalizer);
+        $this->accountRepository = $accountRepository;
+        $this->accountValidator  = $accountValidator;
+        $this->modelFactory      = $modelFactory;
+    }
+
+    /**
+     * @param \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
+     * @param ReportDAO                                                        $syncReport
+     *
+     * @return ReportDAO|mixed
+     *
+     * @throws \Exception
+     */
+    public function getObjectSyncReport(\MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject, ReportDAO $syncReport)
+    {
+        $fromDateTime = $requestedObject->getFromDateTime();
+        $mappedFields = $requestedObject->getFields();
+        $objectFields = $this->accountRepository->describe()->getFields();
+
+        $updated = $this->getReportPayload($fromDateTime, $mappedFields, self::OBJECT_NAME);
+
+        /** @var BaseModel $object */
+        foreach ($updated as $object) {
+            $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new \DateTimeImmutable($object->getModifiedTime()->format('r')));
+
+            foreach ($object->dehydrate($mappedFields) as $field => $value) {
+                if (!isset($objectFields[$field])) {
+                    // If the present value is not described it should be processed as string
+                    $normalizedValue = $this->valueNormalizer->normalizeForMautic(NormalizedValueDAO::STRING_TYPE, $value);
+                } else {
+                    // Normalize the value from the API to what Mautic needs
+                    $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getType(), $value);
+                }
+
+                $reportFieldDAO = new FieldDAO($field, $normalizedValue);
+
+                $objectDAO->addField($reportFieldDAO);
+            }
+
+            $syncReport->addObject($objectDAO);
+        }
+
+        return $syncReport;
     }
 
     /**
      * @param \DateTimeImmutable $fromDate
      * @param array              $mappedFields
+     * @param string             $objectName
      *
      * @return array|mixed
      *
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
-    protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields)
+    protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields, string $objectName)
     {
         $fullReport = [];
         $iteration = 0;
         // We must iterate while there is still some result left
 
         do {
-            $report = $this->objectRepository->query('SELECT * FROM '.self::OBJECT_NAME
-                .' LIMIT '.($iteration * 100).',100');
+            $report = $this->accountRepository->query('SELECT * FROM '.$objectName
+                .' LIMIT '.($iteration * $this->getVtigerApiQueryLimit()).','.$this->getVtigerApiQueryLimit());
 
             ++$iteration;
 
@@ -109,5 +139,62 @@ final class AccountDataExchange implements ObjectSyncDataExchangeInterface
         } while (count($report));
 
         return $fullReport;
+    }
+
+    /**
+     * @param array             $ids
+     * @param ObjectChangeDAO[] $objects
+     *
+     * @return UpdatedObjectMappingDAO[]
+     */
+    public function update(array $ids, array $objects): array
+    {
+        return $this->updateInternal($ids, $objects, self::OBJECT_NAME);
+    }
+
+    /**
+     * @param ObjectChangeDAO[] $objects
+     *
+     * @return array|ObjectMapping[]
+     *
+     * @throws VtigerPluginException
+     */
+    public function insert(array $objects): array
+    {
+        return $this->insertInternal($objects, self::OBJECT_NAME);
+    }
+
+    /**
+     * @param array $objectData
+     *
+     * @return Account
+     */
+    protected function getModel(array $objectData): Account
+    {
+        return $this->modelFactory->createAccount($objectData);
+    }
+
+    /**
+     * @return AccountValidator
+     */
+    protected function getValidator(): AccountValidator
+    {
+        return $this->accountValidator;
+    }
+
+    /**
+     * @return AccountRepository
+     */
+    protected function getRepository(): AccountRepository
+    {
+        return $this->accountRepository;
+    }
+
+    /**
+     * @return int
+     */
+    protected function getVtigerApiQueryLimit(): int
+    {
+        return self::VTIGER_API_QUERY_LIMIT;
     }
 }

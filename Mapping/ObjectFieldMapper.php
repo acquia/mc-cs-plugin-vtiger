@@ -24,7 +24,6 @@ use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\LeadDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\BaseRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

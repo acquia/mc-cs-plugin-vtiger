@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use Mautic\LeadBundle\Model\LeadModel;
 use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
@@ -28,34 +28,29 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\TransformerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ContactValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 
-/**
- * Class ContactDataExchange.
- */
-final class ContactDataExchange implements ObjectSyncDataExchangeInterface
+class ContactDataExchange extends GeneralDataExchange
 {
-    use DataExchangeOperationsTrait {
-        insert as private internalInsert;
-    }
+    /**
+     * @var string
+     */
+    public const OBJECT_NAME = 'Contacts';
 
-    const OBJECT_NAME = 'Contacts';
+    /**
+     * @var int
+     */
+    private const VTIGER_API_QUERY_LIMIT = 100;
 
     /** @var ContactRepository */
-    private $objectRepository;
-
-    /** @var ValueNormalizerInterface */
-    private $valueNormalizer;
-
-    /** @var LeadModel */
-    private $mauticModel;
+    private $contactRepository;
 
     /** @var ContactValidator */
-    private $objectValidator;
+    private $contactValidator;
 
     /** @var MappingHelper */
     private $mappingHelper;
@@ -63,39 +58,35 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     /** @var ObjectFieldMapper */
     private $objectFieldMapper;
 
-    /** @var array */
-    private $DNCUpdates = [];
-
-    /** @var int */
-    const VTIGER_API_QUERY_LIMIT = 100;
+    /**
+     * @var ModelFactory
+     */
+    private $modelFactory;
 
     /**
-     * ContactDataExchange constructor.
-     *
-     * @param ContactRepository        $contactRepository
-     * @param VtigerSettingProvider    $settingProvider
-     * @param LeadModel                $leadModel
+     * @param VtigerSettingProvider    $vtigerSettingProvider
      * @param ValueNormalizerInterface $valueNormalizer
-     * @param ContactValidator         $objectValidator
+     * @param ContactRepository        $contactRepository
+     * @param ContactValidator         $contactValidator
      * @param MappingHelper            $mappingHelper
      * @param ObjectFieldMapper        $objectFieldMapper
+     * @param ModelFactory             $modelFactory
      */
     public function __construct(
-        ContactRepository $contactRepository,
-        VtigerSettingProvider $settingProvider,
-        LeadModel $leadModel,
+        VtigerSettingProvider $vtigerSettingProvider,
         ValueNormalizerInterface $valueNormalizer,
-        ContactValidator $objectValidator,
+        ContactRepository $contactRepository,
+        ContactValidator $contactValidator,
         MappingHelper $mappingHelper,
-        ObjectFieldMapper $objectFieldMapper
+        ObjectFieldMapper $objectFieldMapper,
+        ModelFactory $modelFactory
     ) {
-        $this->objectRepository  = $contactRepository;
-        $this->objectValidator   = $objectValidator;
-        $this->valueNormalizer   = $valueNormalizer;
-        $this->mauticModel       = $leadModel;
-        $this->settings          = $settingProvider;
+        parent::__construct($vtigerSettingProvider, $valueNormalizer);
+        $this->contactRepository = $contactRepository;
+        $this->contactValidator  = $contactValidator;
         $this->mappingHelper     = $mappingHelper;
         $this->objectFieldMapper = $objectFieldMapper;
+        $this->modelFactory = $modelFactory;
     }
 
     /**
@@ -120,17 +111,17 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
-        $objectFields = $this->objectRepository->describe()->getFields();
+        $objectFields = $this->contactRepository->describe()->getFields();
 
         $mappedFields = array_merge($mappedFields, [
             'isconvertedfromlead', 'leadsource', 'reference', 'source', 'contact_id', 'emailoptout', 'donotcall',
         ]);
 
         $deleted = [];
-        $updated = $this->getReportPayload($fromDateTime, $mappedFields);
+        $updated = $this->getReportPayload($fromDateTime, $mappedFields, self::OBJECT_NAME);
 
         /** @var Contact $contact */
-        foreach ($updated as $key=>$contact) {
+        foreach ($updated as $key => $contact) {
             if ($contact->isConvertedFromLead()) {
                 $objectDAO = new ObjectDAO(LeadDataExchange::OBJECT_NAME, $contact->getId(), $contact->getModifiedTime());
                 $objectDAO->addField(
@@ -205,12 +196,23 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
     }
 
     /**
-     * @param array $objects
+     * @param array             $ids
+     * @param ObjectChangeDAO[] $objects
      *
-     * @return array|ObjectChangeDAO[]
+     * @return UpdatedObjectMappingDAO[]
+     */
+    public function update(array $ids, array $objects): array
+    {
+        return $this->updateInternal($ids, $objects, self::OBJECT_NAME);
+    }
+
+    /**
+     * @param ObjectChangeDAO[] $objects
      *
-     * @throws ObjectDeletedException
+     * @return array|ObjectMapping[]
+     *
      * @throws VtigerPluginException
+     * @throws ObjectDeletedException
      */
     public function insert(array $objects): array
     {
@@ -234,7 +236,40 @@ final class ContactDataExchange implements ObjectSyncDataExchangeInterface
             }
         }
 
-        //  Update DNC information
-        return $this->internalInsert($insertable);
+        return $this->insertInternal($insertable, self::OBJECT_NAME);
+    }
+
+    /**
+     * @param array $objectData
+     *
+     * @return Contact
+     */
+    protected function getModel(array $objectData): Contact
+    {
+        return $this->modelFactory->createContact($objectData);
+    }
+
+    /**
+     * @return ContactValidator
+     */
+    protected function getValidator(): ContactValidator
+    {
+        return $this->contactValidator;
+    }
+
+    /**
+     * @return ContactRepository
+     */
+    protected function getRepository(): ContactRepository
+    {
+        return $this->contactRepository;
+    }
+
+    /**
+     * @return int
+     */
+    protected function getVtigerApiQueryLimit(): int
+    {
+        return self::VTIGER_API_QUERY_LIMIT;
     }
 }
