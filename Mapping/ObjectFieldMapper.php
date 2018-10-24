@@ -124,11 +124,17 @@ class ObjectFieldMapper
                 $vtigerObject
             );
 
+            $availableFields = $this->getObjectFields($vtigerObject);
             foreach ($this->settings->getFieldMappings($vtigerObject) as $vtigerField => $fieldMapping) {
+                if (!isset($availableFields[$vtigerField])) {
+                    continue;
+                }
+
                 $objectMapping->addFieldMapping(
                     $fieldMapping['mappedField'],
                     $vtigerField,
-                    $fieldMapping['syncDirection']
+                    $fieldMapping['syncDirection'],
+                    $availableFields[$vtigerField]['required']
                 );
             }
 
