@@ -73,7 +73,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
     {
         return [
             ConfigFormFeaturesInterface::FEATURE_SYNC          => 'mautic.integration.feature.sync',
-            ConfigFormFeaturesInterface::FEATURE_PUSH_ACTIVITY => 'mautic.integration.feature.push_activity',
+            //ConfigFormFeaturesInterface::FEATURE_PUSH_ACTIVITY => 'mautic.integration.feature.push_activity',
         ];
     }
 

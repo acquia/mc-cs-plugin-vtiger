@@ -107,10 +107,15 @@ class ConfigSyncFeaturesType extends AbstractType
             ]
         );
 
+        /*
+        Uncomment feature it VtigerConfigProvider::getSupportedFeatures too
+        Revert changes in VtigerSettingProvider::isActivitySyncEnabled and VtigerSettingProvider::getActivityEvents
+
         $builder->add(
             SettingsKeyEnum::ACTIVITY_EVENTS,
             ActivityListType::class
         );
+        */
     }
 
     /**

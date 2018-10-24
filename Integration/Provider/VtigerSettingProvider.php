@@ -95,12 +95,14 @@ class VtigerSettingProvider
 
     /**
      * @return bool
+     *
      * @throws PluginNotConfiguredException
      */
     public function isActivitySyncEnabled(): bool
     {
         $this->exceptConfigured();
 
+        return false; // Activities are commented out in the form.
         return in_array(SettingsKeyEnum::PUSH_ACTIVITY_IS_ENABLED, $this->getIntegrationEntity()->getSupportedFeatures(), true);
     }
 
@@ -109,6 +111,7 @@ class VtigerSettingProvider
      */
     public function getActivityEvents(): array
     {
+        return []; // Activities are commented out in the form.
         return $this->getSyncSetting(SettingsKeyEnum::ACTIVITY_EVENTS);
     }
 
