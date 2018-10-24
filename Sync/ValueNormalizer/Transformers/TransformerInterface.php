@@ -18,6 +18,7 @@ interface TransformerInterface
     const PICKLIST_TYPE  = 'picklist';
     const REFERENCE_TYPE = 'reference';
     const DNC_TYPE       = 'dnc';
+    const CURRENCY_TYPE  = 'currency';
 
     public function transform($type, $value);
 }

@@ -41,12 +41,21 @@ trait TransformationsTrait
         TransformerInterface::REFERENCE_TYPE => [
             'func' => 'transformReference',
         ],
-        TransformerInterface::DNC_TYPE => [
+        TransformerInterface::DNC_TYPE       => [
             'func' => 'transformDNC',
         ],
-        NormalizedValueDAO::INT_TYPE => [
+        NormalizedValueDAO::INT_TYPE         => [
             'func' => 'transformInt',
         ],
+        NormalizedValueDAO::DATE_TYPE        => [
+            'func' => 'transformDate',
+        ],
+        TransformerInterface::CURRENCY_TYPE  => [
+            'func' => 'transformCurrency',
+        ],
+        NormalizedValueDAO::DOUBLE_TYPE      => [
+            'func' => 'transformDouble'
+        ]
     ];
 
     /**
@@ -54,14 +63,13 @@ trait TransformationsTrait
      * @param $value
      *
      * @return NormalizedValueDAO
-     *
      * @throws InvalidObjectValueException
      * @throws InvalidQueryArgumentException
      */
     public function transform($type, $value): NormalizedValueDAO
     {
         if (!isset($this->transformations[$type])) {
-            throw new InvalidQueryArgumentException(sprintf('Unknown type "%s", cannot transform.', $type));
+            throw new InvalidQueryArgumentException(sprintf('Unknown type "%s", cannot transform. Value type: "%s"', $type, var_export($value, true)));
         }
 
         $transformationMethod = $this->transformations[$type]['func'];
@@ -104,7 +112,7 @@ trait TransformationsTrait
             return $value;
         }
 
-        return (string) $value;
+        return (string)$value;
     }
 
     /**
@@ -118,7 +126,7 @@ trait TransformationsTrait
             return $value;
         }
 
-        return intval((bool) $value);
+        return intval((bool)$value);
     }
 
     /**
@@ -151,8 +159,43 @@ trait TransformationsTrait
         return $this->transformString($value);
     }
 
+    /**
+     * @param $value
+     *
+     * @return null|string
+     */
+    protected function transformDate($value): ?string
+    {
+        return $this->transformString($value);
+    }
+
+    /**
+     * @param $value
+     *
+     * @return int|null
+     */
     protected function transformInt($value): ?int
     {
         return intval($value);
+    }
+
+    /**
+     * @param $value
+     *
+     * @return string
+     */
+    protected function transformCurrency($value): string
+    {
+        return number_format(floatval($value), 2);
+    }
+
+    /**
+     * @param $value
+     *
+     * @return float
+     */
+    protected function transformDouble($value): float
+    {
+        return doubleval($value);
     }
 }
