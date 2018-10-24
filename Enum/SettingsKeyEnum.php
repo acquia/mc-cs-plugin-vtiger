@@ -41,4 +41,19 @@ final class SettingsKeyEnum
      * @var string
      */
     public const UPDATE_DNC_BY_DATE = 'updateDncByDate';
+
+    /**
+     * @var string
+     */
+    public const PUSH_MAUTIC_CONTACT_AS = 'push_mautic_contact_as';
+
+    /**
+     * @var string
+     */
+    public const PUSH_MAUTIC_CONTACT_AS_LEAD = 'push_mautic_contact_as_lead';
+
+    /**
+     * @var string
+     */
+    public const PUSH_MAUTIC_CONTACT_AS_CONTACT = 'push_mautic_contact_as_contact';
 }

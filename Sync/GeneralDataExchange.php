@@ -41,7 +41,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     /**
      * @var VtigerSettingProvider
      */
-    private $vtigerSettingProvider;
+    protected $vtigerSettingProvider;
 
     /**
      * @var ValueNormalizerInterface

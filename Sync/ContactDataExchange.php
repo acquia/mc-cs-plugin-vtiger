@@ -20,7 +20,6 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
-use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectDeletedException;
 use MauticPlugin\IntegrationsBundle\Sync\Helper\MappingHelper;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
@@ -86,7 +85,7 @@ class ContactDataExchange extends GeneralDataExchange
         $this->contactValidator  = $contactValidator;
         $this->mappingHelper     = $mappingHelper;
         $this->objectFieldMapper = $objectFieldMapper;
-        $this->modelFactory = $modelFactory;
+        $this->modelFactory      = $modelFactory;
     }
 
     /**
@@ -212,31 +211,14 @@ class ContactDataExchange extends GeneralDataExchange
      * @return array|ObjectMapping[]
      *
      * @throws VtigerPluginException
-     * @throws ObjectDeletedException
      */
     public function insert(array $objects): array
     {
-        $insertable = [];
-
-        /** @var ObjectChangeDAO $object */
-        foreach ($objects as $object) {
-            $objectDAO = new ObjectDAO($object->getMappedObject(), $object->getMappedObjectId());
-
-            $result = $this->mappingHelper->findIntegrationObject(
-                VtigerCrmIntegration::NAME,
-                'Leads',
-                $objectDAO
-            );
-
-            /* If we have a lead record we won't insert it */
-            if (null === $result->getObjectId()) {
-                $insertable[] = $object;
-            } else {
-                DebugLogger::log(VtigerCrmIntegration::NAME, "Lead is remotely Leads module, it won't be inserted to Contacts");
-            }
+        if (!$this->vtigerSettingProvider->shouldBeMauticContactPushedAsContact()) {
+            return [];
         }
 
-        return $this->insertInternal($insertable, self::OBJECT_NAME);
+        return $this->insertInternal($objects, self::OBJECT_NAME);
     }
 
     /**

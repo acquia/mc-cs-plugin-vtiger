@@ -100,6 +100,7 @@ class VtigerSettingProvider
     public function isActivitySyncEnabled(): bool
     {
         $this->exceptConfigured();
+
         return in_array(SettingsKeyEnum::PUSH_ACTIVITY_IS_ENABLED, $this->getIntegrationEntity()->getSupportedFeatures(), true);
     }
 
@@ -125,6 +126,22 @@ class VtigerSettingProvider
     public function getOwner(): string
     {
         return (string) $this->getSyncSetting(SettingsKeyEnum::OWNER);
+    }
+
+    /**
+     * @return bool
+     */
+    public function shouldBeMauticContactPushedAsLead(): bool
+    {
+        return $this->getSyncSetting(SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS) === SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_LEAD;
+    }
+
+    /**
+     * @return bool
+     */
+    public function shouldBeMauticContactPushedAsContact(): bool
+    {
+        return $this->getSyncSetting(SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS) === SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_CONTACT;
     }
 
     /**
