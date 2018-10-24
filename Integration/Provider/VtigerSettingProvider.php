@@ -95,9 +95,11 @@ class VtigerSettingProvider
 
     /**
      * @return bool
+     * @throws PluginNotConfiguredException
      */
     public function isActivitySyncEnabled(): bool
     {
+        $this->exceptConfigured();
         return in_array(SettingsKeyEnum::PUSH_ACTIVITY_IS_ENABLED, $this->getIntegrationEntity()->getSupportedFeatures(), true);
     }
 

@@ -15,6 +15,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 /**
@@ -23,6 +24,11 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper
 class LeadRepository extends BaseRepository
 {
     use RepositoryHelper;
+
+    private $excludedFields = [
+        'leadsource', 'contact_id', 'donotcall', 'emailoptout', 'assigned_user_id', 'modifiedby', 'imagename', 'isconvertedfromlead',
+    ];
+
 
     /**
      * @param Lead $module
@@ -53,5 +59,27 @@ class LeadRepository extends BaseRepository
     public function getModuleFromRepositoryName(): string
     {
         return CacheEnum::LEAD;
+    }
+
+    /**
+     * @return array
+     *
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function getMappableFields(): array
+    {
+        $mappable = $this->getEditableFields();
+
+        /**
+         * @var int
+         * @var ModuleFieldInfo $field
+         */
+        foreach ($mappable as $key=>$field) {
+            if (in_array($field->getName(), $this->excludedFields)) {
+                unset($mappable[$key]);
+            }
+        }
+
+        return $mappable;
     }
 }

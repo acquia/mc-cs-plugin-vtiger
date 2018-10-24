@@ -51,6 +51,11 @@ class Event extends BaseModel
         return new \DateTimeImmutable($this->data['due_date'].' '.$this->data['time_end']);
     }
 
+    /**
+     * @param \DateTimeInterface $dateTime
+     *
+     * @return Event
+     */
     public function setDateTimeStart(\DateTimeInterface $dateTime): Event
     {
         $day  = $dateTime->format('Y-m-d');
@@ -61,6 +66,11 @@ class Event extends BaseModel
         return $this;
     }
 
+    /**
+     * @param \DateTimeInterface $dateTime
+     *
+     * @return Event
+     */
     public function setDateTimeEnd(\DateTimeInterface $dateTime): Event
     {
         $day  = $dateTime->format('Y-m-d');
@@ -71,6 +81,11 @@ class Event extends BaseModel
         return $this;
     }
 
+    /**
+     * @param null|string $subject
+     *
+     * @return Event
+     */
     public function setSubject(?string $subject): Event
     {
         $this->set('subject', $subject);
@@ -78,6 +93,11 @@ class Event extends BaseModel
         return $this;
     }
 
+    /**
+     * @param null|string $userId
+     *
+     * @return Event
+     */
     public function setAssignedUserId(?string $userId): Event
     {
         $this->set('assigned_user_id', $userId);
@@ -85,6 +105,11 @@ class Event extends BaseModel
         return $this;
     }
 
+    /**
+     * @param null|string $userId
+     *
+     * @return Event
+     */
     public function setModifiedBy(?string $userId): Event
     {
         $this->set('modifiedby', $userId);
@@ -92,6 +117,11 @@ class Event extends BaseModel
         return $this;
     }
 
+    /**
+     * @param int|null $priority
+     *
+     * @return Event
+     */
     public function setTaskPriority(?int $priority): Event
     {
         $this->set('taskpriority', $priority);
@@ -99,11 +129,19 @@ class Event extends BaseModel
         return $this;
     }
 
+    /**
+     * @return null|string
+     */
     public function getContactId(): ?string
     {
         return $this->data['contact_id'] ?? null;
     }
 
+    /**
+     * @param null|string $userId
+     *
+     * @return Event
+     */
     public function setContactId(?string $userId): Event
     {
         $this->set('contact_id', $userId);

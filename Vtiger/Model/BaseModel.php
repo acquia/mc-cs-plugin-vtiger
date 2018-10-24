@@ -33,7 +33,7 @@ abstract class BaseModel
      */
     public function hydrate(array $attributes): void
     {
-        foreach ($attributes as $attribute=>$value) {
+        foreach ($attributes as $attribute => $value) {
             $this->data[$attribute] = $value;
         }
     }
@@ -72,5 +72,19 @@ abstract class BaseModel
     public function getModifiedTime(): ?\DateTime
     {
         return $this->data['modifiedtime'] ? new \DateTime($this->data['modifiedtime']) : null;
+    }
+
+
+    /**
+     * @param $identified
+     * @param $value
+     *
+     * @return $this
+     */
+    public function set($identified, $value): self
+    {
+        $this->data[$identified] = $value;
+
+        return $this;
     }
 }
