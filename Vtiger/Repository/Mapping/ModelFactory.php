@@ -33,6 +33,26 @@ class ModelFactory
     /**
      * @param array $data
      *
+     * @return Lead
+     */
+    public function createLead(array $data): Lead
+    {
+        return new Lead($data);
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return Contact
+     */
+    public function createContact(array $data): Contact
+    {
+        return new Contact($data);
+    }
+
+    /**
+     * @param array $data
+     *
      * @return Account
      */
     public function createAccount(array $data): Account

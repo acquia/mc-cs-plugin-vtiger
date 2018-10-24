@@ -13,9 +13,15 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator;
 
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 
 interface ObjectValidatorInterface
 {
+    /**
+     * @param BaseModel $object
+     *
+     * @throws InvalidObject
+     */
     public function validate(BaseModel $object): void;
 }

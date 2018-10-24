@@ -13,66 +13,66 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use Mautic\LeadBundle\Model\LeadModel;
+use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
-use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizer;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\Helpers\DataExchangeOperationsTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\LeadValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 
-/**
- * Class LeadDataExchange.
- */
-class LeadDataExchange implements ObjectSyncDataExchangeInterface
+class LeadDataExchange extends GeneralDataExchange
 {
-    use DataExchangeOperationsTrait;
-
-    const OBJECT_NAME = 'Leads';
-
     /**
-     * @var ValueNormalizer
+     * @var string
      */
-    private $valueNormalizer;
+    public const OBJECT_NAME = 'Leads';
 
     /**
-     * @var LeadModel
+     * @var int
      */
-    private $model;
+    private const VTIGER_API_QUERY_LIMIT = 100;
 
     /**
-     * @var VtigerSettingProvider
+     * @var LeadRepository
      */
-    private $settings;
-
-    /** @var int */
-    const VTIGER_API_QUERY_LIMIT = 100;
+    private $leadRepository;
 
     /**
-     * @param LeadRepository           $leadsRepository
-     * @param VtigerSettingProvider    $settingProvider
-     * @param LeadModel                $leadModel
+     * @var LeadValidator
+     */
+    private $leadValidator;
+
+    /**
+     * @var ModelFactory
+     */
+    private $modelFactory;
+
+    /**
+     * @param VtigerSettingProvider    $vtigerSettingProvider
      * @param ValueNormalizerInterface $valueNormalizer
-     * @param LeadValidator            $objectValidator
+     * @param LeadRepository           $leadRepository
+     * @param LeadValidator            $leadValidator
+     * @param ModelFactory             $modelFactory
      */
     public function __construct(
-        LeadRepository $leadsRepository,
-        VtigerSettingProvider $settingProvider,
-        LeadModel $leadModel,
+        VtigerSettingProvider $vtigerSettingProvider,
         ValueNormalizerInterface $valueNormalizer,
-        LeadValidator $objectValidator
+        LeadRepository $leadRepository,
+        LeadValidator $leadValidator,
+        ModelFactory $modelFactory
     ) {
-        $this->objectRepository = $leadsRepository;
-        $this->objectValidator  = $objectValidator;
-        $this->valueNormalizer  = $valueNormalizer;
-        $this->model            = $leadModel;
-        $this->settings         = $settingProvider;
+        parent::__construct($vtigerSettingProvider, $valueNormalizer);
+        $this->leadRepository  = $leadRepository;
+        $this->leadValidator   = $leadValidator;
+        $this->modelFactory    = $modelFactory;
     }
 
     /**
@@ -90,9 +90,9 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
     ): ReportDAO {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
-        $objectFields = $this->objectRepository->describe()->getFields();
+        $objectFields = $this->leadRepository->describe()->getFields();
 
-        $updated = $this->getReportPayload($fromDateTime, $mappedFields);
+        $updated = $this->getReportPayload($fromDateTime, $mappedFields, self::OBJECT_NAME);
 
         /** @var Contact $object */
         foreach ($updated as $object) {
@@ -114,10 +114,63 @@ class LeadDataExchange implements ObjectSyncDataExchangeInterface
     }
 
     /**
-     * @inheritdoc
+     * @param array             $ids
+     * @param ObjectChangeDAO[] $objects
+     *
+     * @return UpdatedObjectMappingDAO[]
+     */
+    public function update(array $ids, array $objects): array
+    {
+        return $this->updateInternal($ids, $objects, self::OBJECT_NAME);
+    }
+
+    /**
+     * @param ObjectChangeDAO[] $objects
+     *
+     * @return array|ObjectMapping[]
+     *
+     * @throws VtigerPluginException
      */
     public function insert(array $objects): array
     {
-        return [];  // We will not insert leads as we are not able to tell them
+        if (!$this->vtigerSettingProvider->shouldBeMauticContactPushedAsLead()) {
+            return [];
+        }
+
+        return $this->insertInternal($objects, self::OBJECT_NAME);
+    }
+
+    /**
+     * @param array $objectData
+     *
+     * @return Lead
+     */
+    protected function getModel(array $objectData): Lead
+    {
+        return $this->modelFactory->createLead($objectData);
+    }
+
+    /**
+     * @return LeadValidator
+     */
+    protected function getValidator(): LeadValidator
+    {
+        return $this->leadValidator;
+    }
+
+    /**
+     * @return LeadRepository
+     */
+    protected function getRepository(): LeadRepository
+    {
+        return $this->leadRepository;
+    }
+
+    /**
+     * @return int
+     */
+    protected function getVtigerApiQueryLimit(): int
+    {
+        return self::VTIGER_API_QUERY_LIMIT;
     }
 }

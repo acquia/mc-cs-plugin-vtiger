@@ -91,9 +91,31 @@ class ConfigSyncFeaturesType extends AbstractType
         );
 
         $builder->add(
+            SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS,
+            ChoiceType::class,
+            [
+                'choices'    => [
+                    SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_LEAD    => 'mautic.plugin.vtiger.form.push_mautic_contact_as_lead',
+                    SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_CONTACT => 'mautic.plugin.vtiger.form.push_mautic_contact_as_contact',
+                ],
+                'label'      => 'mautic.plugin.vtiger.form.push_mautic_contact_as',
+                'label_attr' => [
+                    'class' => 'control-label',
+                ],
+                'multiple'   => false,
+                'required'   => true,
+            ]
+        );
+
+        /*
+        Uncomment feature it VtigerConfigProvider::getSupportedFeatures too
+        Revert changes in VtigerSettingProvider::isActivitySyncEnabled and VtigerSettingProvider::getActivityEvents
+
+        $builder->add(
             SettingsKeyEnum::ACTIVITY_EVENTS,
             ActivityListType::class
         );
+        */
     }
 
     /**
