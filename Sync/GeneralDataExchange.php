@@ -65,7 +65,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
      *
      * @return UpdatedObjectMappingDAO[]
      */
-    protected function updateInternal(array $ids, array $objects, string $objectName)
+    protected function updateInternal(array $ids, array $objects, string $objectName): array
     {
         DebugLogger::log($objectName, sprintf('Found %d objects to update to integration with ids %s', count($objects), implode(', ', $ids)), __CLASS__.':'.__FUNCTION__);
 
@@ -75,7 +75,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
         foreach ($objects as $integrationObjectId => $changedObject) {
             $fields = $changedObject->getFields();
 
-            $objectData = ['id'=>$changedObject->getObjectId()];
+            $objectData = ['id' => $changedObject->getObjectId()];
 
             foreach ($fields as $field) {
                 /* @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
@@ -176,13 +176,13 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     }
 
     /**
-     * @param \DateTimeInterface $fromDate
+     * @param \DateTimeImmutable $fromDate
      * @param array              $mappedFields
      * @param string             $objectName
      *
      * @return array|mixed
      */
-    protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields, string $objectName)
+    protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields, string $objectName): array
     {
         $fullReport = [];
         $iteration = 0;
