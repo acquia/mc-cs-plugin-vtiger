@@ -55,6 +55,9 @@ trait TransformationsTrait
         ],
         NormalizedValueDAO::DOUBLE_TYPE      => [
             'func' => 'transformDouble'
+        ],
+        NormalizedValueDAO::TEXT_TYPE      => [
+            'func' => 'transformString'
         ]
     ];
 
