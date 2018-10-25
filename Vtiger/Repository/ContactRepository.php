@@ -16,15 +16,12 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 /**
  * Class ContactRepository.
  */
 class ContactRepository extends BaseRepository
 {
-    use RepositoryHelper;
-
     private $excludedFields = [
         'leadsource', 'contact_id', 'donotcall', 'emailoptout', 'assigned_user_id', 'modifiedby', 'imagename', 'isconvertedfromlead',
     ];
@@ -79,5 +76,15 @@ class ContactRepository extends BaseRepository
     public function getModuleFromRepositoryName(): string
     {
         return CacheEnum::CONTACT;
+    }
+
+    /**
+     * @param array $objectData
+     *
+     * @return Contact
+     */
+    protected function getModel(array $objectData): Contact
+    {
+        return $this->modelFactory->createContact($objectData);
     }
 }

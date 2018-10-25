@@ -104,6 +104,7 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
                     'mautic.vtiger_crm.cache.field_cache',
+                    'mautic.vtiger_crm.modelFactory',
                 ],
             ],
             'mautic.vtiger_crm.validator.lead'            => [
@@ -116,6 +117,7 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
                     'mautic.vtiger_crm.cache.field_cache',
+                    'mautic.vtiger_crm.modelFactory',
                 ],
             ],
             'mautic.vtiger_crm.cache.field_cache' => [
@@ -134,6 +136,7 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
                     'mautic.vtiger_crm.cache.field_cache',
+                    'mautic.vtiger_crm.modelFactory',
                 ],
             ],
             'mautic.vtiger_crm.repository.events'     => [
@@ -149,6 +152,7 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.connection',
                     'mautic.vtiger_crm.cache.field_cache',
+                    'mautic.vtiger_crm.modelFactory',
                 ],
             ],
             'mautic.vtiger_crm.mapping.field_mapping' => [

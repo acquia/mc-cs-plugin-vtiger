@@ -16,15 +16,12 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\CachedItemNotFoundException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 /**
  * Class AccountRepository.
  */
 class AccountRepository extends BaseRepository
 {
-    use RepositoryHelper;
-
     /**
      * @param Account $module
      *
@@ -91,5 +88,15 @@ class AccountRepository extends BaseRepository
     public function getModuleFromRepositoryName(): string
     {
         return CacheEnum::ACCOUNT;
+    }
+
+    /**
+     * @param array $objectData
+     *
+     * @return Account
+     */
+    protected function getModel(array $objectData): Account
+    {
+        return $this->modelFactory->createAccount($objectData);
     }
 }
