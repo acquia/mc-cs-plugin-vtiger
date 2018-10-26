@@ -71,16 +71,13 @@ class ModelFactory
     }
 
     /**
-     * @todo Refactor all things so we do not need to use this static method
+     * @param array $data
      *
-     * @param string $key
-     * @param array  $data
-     *
-     * @return BaseModel|Contact|Account|Event|Lead|User
+     * @return User
      */
-    public static function getModel(string $key, array $data): BaseModel
+    public function createUser(array $data): User
     {
-        return new self::$moduleClassMapping[$key]($data);
+        return new User($data);
     }
 
     /**

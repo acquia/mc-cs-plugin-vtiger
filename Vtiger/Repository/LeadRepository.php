@@ -16,15 +16,12 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
 
 /**
  * Class LeadRepository.
  */
 class LeadRepository extends BaseRepository
 {
-    use RepositoryHelper;
-
     private $excludedFields = [
         'leadsource', 'contact_id', 'donotcall', 'emailoptout', 'assigned_user_id', 'modifiedby', 'imagename', 'isconvertedfromlead',
     ];
@@ -81,5 +78,15 @@ class LeadRepository extends BaseRepository
         }
 
         return $mappable;
+    }
+
+    /**
+     * @param array $objectData
+     *
+     * @return Lead
+     */
+    protected function getModel(array $objectData): Lead
+    {
+        return $this->modelFactory->createLead($objectData);
     }
 }
