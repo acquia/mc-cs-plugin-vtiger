@@ -15,6 +15,9 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Exceptions;
 
 class InvalidQueryArgumentException extends SessionException
 {
+    /** @var string  */
+    private $incomingMessage;
+
     /**
      * @param string $message
      * @param string $apiUrl
@@ -22,6 +25,8 @@ class InvalidQueryArgumentException extends SessionException
      */
     public function __construct(string $message = '', string $apiUrl = '', $payload = [])
     {
+        $this->incomingMessage = $message;
+
         $message = sprintf("call to %s failed. with message '%s'. Payload %s",
             $apiUrl,
             $message,
@@ -29,4 +34,12 @@ class InvalidQueryArgumentException extends SessionException
         );
         parent::__construct($message);
     }
+
+    /**
+     * @return string
+     */
+    public function getIncomingMessage() {
+        return $this->incomingMessage;
+    }
+
 }

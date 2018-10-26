@@ -15,7 +15,9 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
@@ -75,14 +77,9 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
         foreach ($objects as $integrationObjectId => $changedObject) {
             $fields = $changedObject->getFields();
 
-            $objectData = ['id' => $changedObject->getObjectId()];
+            $fields['id'] = new FieldDAO('id', new NormalizedValueDAO('string', $changedObject->getObjectId(), $changedObject->getObjectId()));
 
-            foreach ($fields as $field) {
-                /* @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
-                $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
-            }
-
-            $objectModel = $this->getModel($objectData);
+            $objectModel = $this->getModel($fields);
 
             if ($this->vtigerSettingProvider->isOwnerUpdateEnabled() || !$objectModel->getAssignedUserId()) {
                 $objectModel->setAssignedUserId($this->vtigerSettingProvider->getOwner());

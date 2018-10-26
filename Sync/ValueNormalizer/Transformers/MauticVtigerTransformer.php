@@ -13,12 +13,50 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
+
 final class MauticVtigerTransformer implements TransformerInterface
 {
     use TransformationsTrait;
 
+    /**
+     * @var LeadRepository
+     */
+    private $leadRepository;
+    /**
+     * @var ContactRepository
+     */
+    private $contactRepository;
+    /**
+     * @var AccountRepository
+     */
+    private $accountRepository;
+
+    /**
+     * MauticVtigerTransformer constructor.
+     *
+     * @param LeadRepository    $leadRepository
+     * @param ContactRepository $contactRepository
+     * @param AccountRepository $accountRepository
+     */
+    public function __construct(LeadRepository $leadRepository, ContactRepository $contactRepository, AccountRepository $accountRepository)
+    {
+
+        $this->leadRepository    = $leadRepository;
+        $this->contactRepository = $contactRepository;
+        $this->accountRepository = $accountRepository;
+    }
+
     protected function transformDNC($vtigerValue)
     {
         return $vtigerValue ? DoNotContact::UNSUBSCRIBED : DoNotContact::IS_CONTACTABLE;
+    }
+
+    public function transform(FieldDAO $field) {
+        var_dump($field);
+        die();
     }
 }
