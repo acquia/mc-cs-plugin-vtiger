@@ -36,25 +36,39 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 
 class ContactDataExchange extends GeneralDataExchange
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     public const OBJECT_NAME = 'Contacts';
 
-    /** @var int */
+    /**
+     * @var int
+     */
     private const VTIGER_API_QUERY_LIMIT = 100;
 
-    /** @var ContactRepository */
+    /**
+     * @var ContactRepository
+     */
     private $contactRepository;
 
-    /** @var ContactValidator */
+    /**
+     * @var ContactValidator
+     */
     private $contactValidator;
 
-    /** @var MappingHelper */
+    /**
+     * @var MappingHelper
+     */
     private $mappingHelper;
 
-    /** @var ObjectFieldMapper */
+    /**
+     * @var ObjectFieldMapper
+     */
     private $objectFieldMapper;
 
-    /** @var ModelFactory */
+    /**
+     * @var ModelFactory
+     */
     private $modelFactory;
 
     /**

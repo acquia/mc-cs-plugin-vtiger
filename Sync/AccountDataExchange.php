@@ -41,7 +41,9 @@ class AccountDataExchange extends GeneralDataExchange
      */
     private const VTIGER_API_QUERY_LIMIT = 100;
 
-    /** @var AccountRepository */
+    /**
+     * @var AccountRepository
+     */
     private $accountRepository;
 
     /**
