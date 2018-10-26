@@ -85,6 +85,12 @@ abstract class BaseRepository
         return $moduleInfo;
     }
 
+    /**
+     * @param array  $where
+     * @param string $columns
+     *
+     * @return array
+     */
     public function findBy($where = [], $columns = '*'): array
     {
         return $this->findByInternal($where, $columns);
@@ -159,7 +165,7 @@ abstract class BaseRepository
      *
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getEditableFields(): array
+    protected function getEditableFields(): array
     {
         /** @var ModuleInfo $moduleFields */
         $moduleFields = $this->describe()->getFields();
