@@ -187,10 +187,9 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
         $fullReport = [];
         $iteration = 0;
         // We must iterate while there is still some result left
-
         do {
             $reportQuery = 'SELECT id,modifiedtime,assigned_user_id,'.join(',', $mappedFields)
-                .' FROM '.$objectName.' WHERE modifiedtime >= \''.$fromDate->format('Y-m-d H:i:s').'\''
+                .' FROM '.$objectName.' WHERE modifiedtime > \''.$fromDate->format('Y-m-d H:i:s').'\''
                 .' LIMIT '.$iteration * $this->getVtigerApiQueryLimit().','.$this->getVtigerApiQueryLimit();
 
             $report = $this->getRepository()->query($reportQuery);

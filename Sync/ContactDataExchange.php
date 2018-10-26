@@ -20,6 +20,7 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectDeletedException;
 use MauticPlugin\IntegrationsBundle\Sync\Helper\MappingHelper;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
@@ -45,16 +46,24 @@ class ContactDataExchange extends GeneralDataExchange
      */
     private const VTIGER_API_QUERY_LIMIT = 100;
 
-    /** @var ContactRepository */
+    /**
+     * @var ContactRepository
+     */
     private $contactRepository;
 
-    /** @var ContactValidator */
+    /**
+     * @var ContactValidator
+     */
     private $contactValidator;
 
-    /** @var MappingHelper */
+    /**
+     * @var MappingHelper
+     */
     private $mappingHelper;
 
-    /** @var ObjectFieldMapper */
+    /**
+     * @var ObjectFieldMapper
+     */
     private $objectFieldMapper;
 
     /**
@@ -79,7 +88,8 @@ class ContactDataExchange extends GeneralDataExchange
         MappingHelper $mappingHelper,
         ObjectFieldMapper $objectFieldMapper,
         ModelFactory $modelFactory
-    ) {
+    )
+    {
         parent::__construct($vtigerSettingProvider, $valueNormalizer);
         $this->contactRepository = $contactRepository;
         $this->contactValidator  = $contactValidator;
@@ -126,15 +136,22 @@ class ContactDataExchange extends GeneralDataExchange
                 $objectDAO->addField(
                     new FieldDAO('email', $this->valueNormalizer->normalizeForMautic(NormalizedValueDAO::EMAIL_TYPE, $contact->getEmail()))
                 );
-                // beware this method also saves it :-(
-                $foundMapping = $this->mappingHelper->findMauticObject(
-                    $this->objectFieldMapper->getObjectsMappingManual(),
-                    'lead',
-                    $objectDAO
-                );
+                try {
+                    // beware this method also saves it :-(
+                    $foundMapping = $this->mappingHelper->findMauticObject(
+                        $this->objectFieldMapper->getObjectsMappingManual(),
+                        'lead',
+                        $objectDAO
+                    );
+                }
+                catch (ObjectDeletedException $e) {
+                    $foundMapping = false;
+                }
+
+
                 // This lead has to be marked as deleted
                 if ($foundMapping) {
-                    DebugLogger::log(VtigerCrmIntegration::NAME, 'Marking Lead #'.$contact->getId().' as deleted');
+                    DebugLogger::log(VtigerCrmIntegration::NAME, 'Marking Lead #' . $contact->getId() . ' as deleted');
                     $objectChangeDAO = new ObjectChangeDAO(
                         VtigerCrmIntegration::NAME,
                         LeadDataExchange::OBJECT_NAME,
@@ -151,11 +168,14 @@ class ContactDataExchange extends GeneralDataExchange
                         ->setInternalObjectId($foundMapping->getObjectId())
                         ->setLastSyncDate($foundMapping->getChangeDateTime());
 
+                    DebugLogger::log(VtigerCrmIntegration::NAME, 'Remapping Lead to Contact');
+
                     $this->mappingHelper->saveObjectMappings([
                         $mapping,
                     ]);
 
                     $deleted[] = $objectChangeDAO;
+
                     unset($updated[$key]);
                 }
             }
@@ -209,7 +229,6 @@ class ContactDataExchange extends GeneralDataExchange
      * @param ObjectChangeDAO[] $objects
      *
      * @return array|ObjectMapping[]
-     *
      * @throws VtigerPluginException
      */
     public function insert(array $objects): array
