@@ -59,9 +59,7 @@ class LeadRepository extends BaseRepository
     }
 
     /**
-     * @return array
-     *
-     * @throws \Psr\Cache\InvalidArgumentException
+     * {@inheritdoc}
      */
     public function getMappableFields(): array
     {
