@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping;
 
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
@@ -22,14 +21,6 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
 
 class ModelFactory
 {
-    private static $moduleClassMapping = [
-        'Contacts'       => Contact::class,
-        'Accounts'       => Account::class,
-        'Events'         => Event::class,
-        'Leads'          => Lead::class,
-        'Users'          => User::class,
-    ];
-
     /**
      * @param array $data
      *
@@ -78,17 +69,5 @@ class ModelFactory
     public function createUser(array $data): User
     {
         return new User($data);
-    }
-
-    /**
-     * @todo Refactor all things so we do not need to use this static method
-     *
-     * @param string $key
-     *
-     * @return bool
-     */
-    public static function isObjectSupported(string $key): bool
-    {
-        return isset(self::$moduleClassMapping[$key]);
     }
 }
