@@ -75,6 +75,6 @@ final class VtigerValueNormalizer implements ValueNormalizerInterface
     }
 
     public function normalizeForVtiger(FieldDAO $fieldDAO) {
-        return $this->m2vTransformer->transform($fieldDAO);
+        return $this->m2vTransformer->transform($fieldDAO->getName());
     }
 }

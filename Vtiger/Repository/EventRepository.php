@@ -14,36 +14,10 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Helper\RepositoryHelper;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 
 class EventRepository extends BaseRepository
 {
-    use RepositoryHelper;
-
-    /**
-     * @var ModelFactory
-     */
-    private $modelFactory;
-
-    /**
-     * @param Connection   $connection
-     * @param FieldCache   $fieldCache
-     * @param ModelFactory $modelFactory
-     */
-    public function __construct(
-        Connection $connection,
-        FieldCache $fieldCache,
-        ModelFactory $modelFactory
-    )
-    {
-        parent::__construct($connection, $fieldCache);
-        $this->modelFactory = $modelFactory;
-    }
-
     /**
      * @param Event $module
      *
@@ -107,7 +81,7 @@ class EventRepository extends BaseRepository
             $queryLimiter = sprintf('LIMIT %d,%d', $offset, $limit);
             $result       = $this->connection->get('query', ['query' => $query.' '.$queryLimiter]);
             foreach ($result as $key => $moduleObject) {
-                $return[] = $this->modelFactory->createEvent((array) $moduleObject);
+                $return[] = $this->getModel((array) $moduleObject);
             }
             $offset += $limit;
         } while (count($result));
@@ -121,5 +95,15 @@ class EventRepository extends BaseRepository
     public function getModuleFromRepositoryName(): string
     {
         return CacheEnum::EVENT;
+    }
+
+    /**
+     * @param array $objectData
+     *
+     * @return Event
+     */
+    protected function getModel(array $objectData): Event
+    {
+        return $this->modelFactory->createEvent($objectData);
     }
 }

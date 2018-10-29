@@ -55,8 +55,15 @@ final class MauticVtigerTransformer implements TransformerInterface
         return $vtigerValue ? DoNotContact::UNSUBSCRIBED : DoNotContact::IS_CONTACTABLE;
     }
 
-    public function transform(FieldDAO $field) {
-        var_dump($field);
-        die();
+    /**
+     * @param $value
+     *
+     * @return null|string
+     */
+    protected function transformString($value): ?string
+    {
+        var_dump($value); die();
     }
+
+
 }

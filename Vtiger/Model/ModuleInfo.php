@@ -63,7 +63,7 @@ class ModuleInfo
     private $retrieveable;
 
     /**
-     * @var array
+     * @var array|ModuleFieldInfo[]
      */
     private $fields;
 
@@ -152,7 +152,7 @@ class ModuleInfo
     }
 
     /**
-     * @return array
+     * @return array|ModuleFieldInfo[]
      */
     public function getFields(): array
     {
