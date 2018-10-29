@@ -81,6 +81,7 @@ class GeneralValidator
             return;
         }
 
+        throw new \Exception(var_export($fieldValue, true));
         //  Validate for required fields
         $violations = $this->validator->validate($fieldValue, $validators);
         if (!count($violations)) {

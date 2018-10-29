@@ -14,13 +14,17 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
 
 final class MauticVtigerTransformer implements TransformerInterface
 {
-    use TransformationsTrait;
+    use TransformationsTrait {
+        transform as protected commonTransform;
+    }
 
     /**
      * @var LeadRepository
@@ -34,6 +38,11 @@ final class MauticVtigerTransformer implements TransformerInterface
      * @var AccountRepository
      */
     private $accountRepository;
+
+    /**
+     * @var ModuleFieldInfo
+     */
+    private $currentFieldInfo;
 
     /**
      * MauticVtigerTransformer constructor.
@@ -55,15 +64,47 @@ final class MauticVtigerTransformer implements TransformerInterface
         return $vtigerValue ? DoNotContact::UNSUBSCRIBED : DoNotContact::IS_CONTACTABLE;
     }
 
-    /**
-     * @param $value
-     *
-     * @return null|string
-     */
-    protected function transformString($value): ?string
-    {
-        var_dump($value); die();
+    protected function transformMultiPicklist($value) {
+        var_dump($value);
+        var_dump($this->getCurrentFieldInfo()->getTypeObject());
+        die();
+        return $value;
     }
 
+    /**
+     * @param $fieldInfo
+     * @param $value
+     *
+     * @return NormalizedValueDAO
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     */
+    public function transform($fieldInfo, $value): NormalizedValueDAO
+    {
+        $this->setCurrentFieldInfo($fieldInfo);
+        $normalizedValue = $this->commonTransform($fieldInfo->getType(), $value->getValue()->getOriginalValue());
+        return $normalizedValue;
+    }
+
+
+    /**
+     * @return ModuleFieldInfo
+     */
+    public function getCurrentFieldInfo(): ModuleFieldInfo
+    {
+        return $this->currentFieldInfo;
+    }
+
+    /**
+     * @param ModuleFieldInfo $currentFieldInfo
+     *
+     * @return MauticVtigerTransformer
+     */
+    public function setCurrentFieldInfo(ModuleFieldInfo $currentFieldInfo): MauticVtigerTransformer
+    {
+        $this->currentFieldInfo = $currentFieldInfo;
+
+        return $this;
+    }
 
 }

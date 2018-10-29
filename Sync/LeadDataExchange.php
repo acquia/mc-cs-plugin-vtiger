@@ -157,20 +157,29 @@ class LeadDataExchange extends GeneralDataExchange
      * @param array $objectData
      *
      * @return Lead
+     * @throws InvalidQueryArgumentException
+     * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     protected function getModel(array $objectData): Lead
     {
         $objectFields = $this->leadRepository->describe()->getFields();
+        $normalizedFields = [];
 
         /**
-         * @var string $key
+         * @var string   $key
          * @var FieldDAO $fieldDAO
          */
         foreach ($objectData as $key => $fieldDAO) {
-            $this->valueNormalizer->normalizeForVtiger($fieldDAO, $objectFields[$fieldDAO->getName()]);
+            $normalizedFields[$key] = $this->valueNormalizer->normalizeForVtiger($objectFields[$fieldDAO->getName()], $fieldDAO)->getNormalizedValue();
         }
-        die();
-        return $this->modelFactory->createLead($objectData);
+
+        var_dump($normalizedFields); die();
+        return $this->modelFactory->createLead($normalizedFields);
     }
 
     /**

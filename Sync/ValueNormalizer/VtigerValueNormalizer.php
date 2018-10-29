@@ -74,7 +74,7 @@ final class VtigerValueNormalizer implements ValueNormalizerInterface
         throw new \Exception('Use normalizeForVtiger instead');
     }
 
-    public function normalizeForVtiger(FieldDAO $fieldDAO) {
-        return $this->m2vTransformer->transform($fieldDAO->getName());
+    public function normalizeForVtiger(ModuleFieldInfo $fieldInfo, FieldDAO $fieldDAO) {
+        return $this->m2vTransformer->transform($fieldInfo, $fieldDAO);
     }
 }

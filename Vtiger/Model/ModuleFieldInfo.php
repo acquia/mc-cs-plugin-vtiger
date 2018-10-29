@@ -13,9 +13,8 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-/**
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\MultipicklistType;/**
  * Class ModuleFieldInfo.
- *
  * @see
  * public 'name' => string 'salutationtype' (length=14)
  * public 'label' => string 'Salutation' (length=10)
@@ -70,6 +69,16 @@ class ModuleFieldInfo
      */
     private $default;
 
+    /**
+     * @var array
+     */
+    static $subtypesMapping = [
+        'multipicklist' => MultipicklistType::class
+    ];
+
+
+    private $typedObject;
+
     public function __construct(\stdClass $data)
     {
         $this->label    = $data->label;
@@ -81,6 +90,11 @@ class ModuleFieldInfo
         $this->setDefault($data);
         $this->setIsUnique($data);
         $this->setMandatory($data->mandatory, $this->name);
+
+        if (in_array($this->type, self::$subtypesMapping)) {
+            $typeClass = self::$subtypesMapping[$this->type];
+
+        }
     }
 
     /**

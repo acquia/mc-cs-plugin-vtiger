@@ -23,4 +23,9 @@ final class VtigerMauticTransformer implements TransformerInterface
     {
         return $mauticValue ? DoNotContact::UNSUBSCRIBED : DoNotContact::IS_CONTACTABLE;
     }
+
+    protected function transformMultiPicklist($mauticValue) {
+        var_dump($mauticValue);
+        return $this->transformString($mauticValue);
+    }
 }
