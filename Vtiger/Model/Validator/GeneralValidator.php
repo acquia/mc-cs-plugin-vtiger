@@ -17,8 +17,10 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\Constraints\Date;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\CommonType;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\DateType;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\PicklistType;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
@@ -146,6 +148,10 @@ class GeneralValidator
             case 'picklist':
                 /** @var PicklistType $typeObject */
                 $validators[] = new Choice(['choices' => $typeObject->getPicklistValuesArray()]);
+                break;
+            case 'date':
+                /** @var DateType $typeObject */
+                $validators[] = new Date(['format'=>$typeObject->getFormat()]);
                 break;
             default:
                 throw new InvalidObjectException('Unknown field type '. $typeObject->getName());

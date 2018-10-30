@@ -74,9 +74,8 @@ final class MauticVtigerTransformer implements TransformerInterface
      *
      * @return mixed
      */
-    protected function transformMultiPicklist($value) {
-        var_dump($value);
-        var_dump($this->getCurrentFieldInfo());
+    protected function transformMultiPicklist($value)
+    {
         return $value;
     }
 
@@ -92,6 +91,7 @@ final class MauticVtigerTransformer implements TransformerInterface
     {
         $this->setCurrentFieldInfo($fieldInfo);
         $normalizedValue = $this->commonTransform($this->getCurrentFieldInfo()->getType()->getName(), $value->getValue()->getOriginalValue());
+
         return $normalizedValue;
     }
 
@@ -114,6 +114,26 @@ final class MauticVtigerTransformer implements TransformerInterface
         $this->currentFieldInfo = $currentFieldInfo;
 
         return $this;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return null|string
+     */
+    protected function transformDate($value): ?string
+    {
+        $format = $this->getCurrentFieldInfo()->getType()->getFormat();
+
+        $dateFormarReplacement = [
+            'dd'   => 'd',
+            'mm'   => 'm',
+            'yyyy' => 'Y',
+        ];
+
+        $formatString = str_replace(array_keys($dateFormarReplacement), array_values($dateFormarReplacement), $format);
+
+        return $value->format($formatString);
     }
 
 }
