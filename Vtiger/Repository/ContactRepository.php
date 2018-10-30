@@ -47,9 +47,7 @@ class ContactRepository extends BaseRepository
      * @param string $id
      *
      * @return Contact
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
@@ -61,14 +59,7 @@ class ContactRepository extends BaseRepository
     }
 
     /**
-     * @return array
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
+     * {@inheritdoc}
      */
     public function getMappableFields(): array
     {

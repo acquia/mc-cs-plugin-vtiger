@@ -23,9 +23,9 @@ use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvide
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\LeadDataExchange;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
 
 /**
  * Class ObjectFieldMapper provides all necessary information  to supply mapping information.
@@ -44,56 +44,77 @@ class ObjectFieldMapper
     ];
 
     /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
-     * @var array
-     */
-    private $repositories;
-
-    /**
      * @var VtigerSettingProvider
      */
-    private $settings;
+    private $settingProvider;
 
     /**
-     * @param ContainerInterface    $container
+     * @var ContactRepository
+     */
+    private $contactRepository;
+
+    /**
+     * @var LeadRepository
+     */
+    private $leadRepository;
+
+    /**
+     * @var AccountRepository
+     */
+    private $accountRepository;
+
+    /**
      * @param VtigerSettingProvider $settingProvider
+     * @param ContactRepository     $contactRepository
+     * @param LeadRepository        $leadRepository
+     * @param AccountRepository     $accountRepository
      */
     public function __construct(
-        ContainerInterface $container,
-        VtigerSettingProvider $settingProvider
+        VtigerSettingProvider $settingProvider,
+        ContactRepository $contactRepository,
+        LeadRepository $leadRepository,
+        AccountRepository $accountRepository
     ) {
-        $this->container = $container;
-        $this->settings  = $settingProvider;
+        $this->settingProvider   = $settingProvider;
+        $this->contactRepository = $contactRepository;
+        $this->leadRepository    = $leadRepository;
+        $this->accountRepository = $accountRepository;
     }
 
     /**
-     * @param $objectName
+     * @param string $objectName
      *
      * @return array
      *
      * @throws InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
-    public function getObjectFields($objectName): array
+    public function getObjectFields(string $objectName): array
     {
-        if (!ModelFactory::isObjectSupported($objectName)) {
-            throw new InvalidQueryArgumentException('Unknown object '.$objectName);
-        }
-
-        $this->repositories[$objectName] = $this->container->get('mautic.vtiger_crm.repository.'.strtolower($objectName));
-
         try {
-            $fields = $this->repositories[$objectName]->getMappableFields();
+            switch ($objectName) {
+                case 'Contacts':
+                    $fields = $this->contactRepository->getMappableFields();
+                    break;
+                case 'Leads':
+                    $fields = $this->leadRepository->getMappableFields();
+                    break;
+                case 'Accounts':
+                    $fields = $this->accountRepository->getMappableFields();
+                    break;
+                default:
+                    throw new InvalidQueryArgumentException('Unknown object '.$objectName);
+            }
         } catch (PluginNotConfiguredException $e) {
             return [];
         }
 
         $salesFields = [];
 
-        /** @var ModuleFieldInfo $fieldInfo */
         foreach ($fields as $fieldInfo) {
             $type                               = 'string';
             $salesFields[$fieldInfo->getName()] = [
@@ -111,21 +132,26 @@ class ObjectFieldMapper
 
     /**
      * @return MappingManualDAO
-     * @throws ObjectNotSupportedException*@throws InvalidQueryArgumentException
-     * @throws InvalidQueryArgumentException
+     *
+     * @throws ObjectNotSupportedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function getObjectsMappingManual(): MappingManualDAO
     {
         $mappingManual = new MappingManualDAO(VtigerCrmIntegration::NAME);
 
-        foreach ($this->settings->getSyncObjects() as $vtigerObject) {
+        foreach ($this->settingProvider->getSyncObjects() as $vtigerObject) {
             $objectMapping = new ObjectMappingDAO(
                 $this->getVtiger2MauticObjectNameMapping($vtigerObject),
                 $vtigerObject
             );
 
             $availableFields = $this->getObjectFields($vtigerObject);
-            foreach ($this->settings->getFieldMappings($vtigerObject) as $vtigerField => $fieldMapping) {
+            foreach ($this->settingProvider->getFieldMappings($vtigerObject) as $vtigerField => $fieldMapping) {
                 if (!isset($availableFields[$vtigerField])) {
                     continue;
                 }

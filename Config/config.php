@@ -158,8 +158,10 @@ return [
             'mautic.vtiger_crm.mapping.field_mapping' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper::class,
                 'arguments' => [
-                    'service_container',
                     'mautic.vtiger_crm.settings',
+                    'mautic.vtiger_crm.repository.contacts',
+                    'mautic.vtiger_crm.repository.leads',
+                    'mautic.vtiger_crm.repository.accounts',
                 ],
             ],
             'mautic.vtiger_crm.sync.data_exchange'    => [
