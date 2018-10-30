@@ -22,10 +22,32 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type;
  *
  * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type
  */
-class MultipicklistType extends PicklistType
+class CommonType
 {
-    public function __construct(\stdClass $description)
+    /**
+     * @var string
+     */
+    private $name;
+
+    public function __construct($data)
     {
-        parent::__construct($description);
+        $this->name = $data->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    : string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getName();
     }
 }

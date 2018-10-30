@@ -12,17 +12,30 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type;
 
-
 /**
- * Class MultipicklistType
- *
- * @see
- *
- *
- *
+ * Class ReferenceType
  * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type
  */
-interface TypeInterface
+class ReferenceType extends CommonType
 {
+    /**
+     * @var string
+     */
+    private $refersTo;
 
+    public function __construct($data)
+    {
+        parent::__construct($data);
+
+        $this->refersTo = $data->refersTo;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRefersTo()
+    : string
+    {
+        return $this->refersTo;
+    }
 }

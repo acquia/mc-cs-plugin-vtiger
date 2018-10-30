@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping;
 
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;

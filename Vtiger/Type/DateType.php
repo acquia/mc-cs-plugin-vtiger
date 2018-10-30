@@ -14,18 +14,32 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type;
 
 
 /**
- * Class MultipicklistType
- *
- * @see
- *
- *
- *
+ * Class DateType
  * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type
  */
-class MultipicklistType extends PicklistType
+class DateType extends CommonType
 {
-    public function __construct(\stdClass $description)
+    /** @var string */
+    private $format;
+
+    /**
+     * DateType constructor.
+     *
+     * @param $data
+     */
+    public function __construct($data)
     {
-        parent::__construct($description);
+        parent::__construct($data);
+
+        $this->format = $data->format;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormat()
+    : string
+    {
+        return $this->format;
     }
 }

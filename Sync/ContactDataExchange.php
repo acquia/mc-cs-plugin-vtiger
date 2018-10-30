@@ -189,7 +189,7 @@ class ContactDataExchange extends GeneralDataExchange
 
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
                 // Normalize the value from the API to what Mautic needs
-                $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getType(), $value);
+                $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getTypeName(), $value);
                 $reportFieldDAO  = new FieldDAO($field, $normalizedValue);
 
                 $objectDAO->addField($reportFieldDAO);
@@ -219,6 +219,14 @@ class ContactDataExchange extends GeneralDataExchange
      * @param ObjectChangeDAO[] $objects
      *
      * @return UpdatedObjectMappingDAO[]
+     * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function update(array $ids, array $objects): array
     {
@@ -230,6 +238,13 @@ class ContactDataExchange extends GeneralDataExchange
      *
      * @return array|ObjectMapping[]
      * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function insert(array $objects): array
     {
@@ -240,14 +255,21 @@ class ContactDataExchange extends GeneralDataExchange
         return $this->insertInternal($objects, self::OBJECT_NAME);
     }
 
-    /**
-     * @param array $objectData
-     *
-     * @return Contact
-     */
+
     protected function getModel(array $objectData): Contact
     {
-        return $this->modelFactory->createContact($objectData);
+        $objectFields = $this->contactRepository->describe()->getFields();
+        $normalizedFields = [];
+
+        /**
+         * @var string   $key
+         * @var FieldDAO $fieldDAO
+         */
+        foreach ($objectData as $key => $fieldDAO) {
+            $normalizedFields[$key] = $this->valueNormalizer->normalizeForVtiger($objectFields[$fieldDAO->getName()], $fieldDAO)->getNormalizedValue();
+        }
+
+        return $this->modelFactory->createContact($normalizedFields);
     }
 
     /**

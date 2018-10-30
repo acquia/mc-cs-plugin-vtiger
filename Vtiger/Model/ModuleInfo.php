@@ -86,6 +86,8 @@ class ModuleInfo
      * ModuleInfo constructor.
      *
      * @param \stdClass $data
+     *
+     * @throws \Exception
      */
     public function __construct(\stdClass $data)
     {

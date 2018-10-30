@@ -13,20 +13,9 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\MultipicklistType;/**
- * Class ModuleFieldInfo.
- * @see
- * public 'name' => string 'salutationtype' (length=14)
- * public 'label' => string 'Salutation' (length=10)
- * public 'mandatory' => boolean false
- * public 'type' =>
- * object(stdClass)[890]
- * ...
- * public 'isunique' => boolean false
- * public 'nullable' => boolean true
- * public 'editable' => boolean true
- * public 'default' => string '' (length=0)
- */
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\CommonType;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\TypeFactory;
+
 class ModuleFieldInfo
 {
     /**
@@ -45,7 +34,7 @@ class ModuleFieldInfo
     private $mandatory;
 
     /**
-     * @var mixed
+     * @var CommonType
      */
     private $type;
 
@@ -70,20 +59,16 @@ class ModuleFieldInfo
     private $default;
 
     /**
-     * @var array
+     * ModuleFieldInfo constructor.
+     *
+     * @param \stdClass $data
+     *
+     * @throws \Exception
      */
-    static $subtypesMapping = [
-        'multipicklist' => MultipicklistType::class
-    ];
-
-
-    private $typedObject;
-
     public function __construct(\stdClass $data)
     {
         $this->label    = $data->label;
         $this->name     = $data->name;
-        $this->type     = $data->type;
         $this->nullable = $data->nullable;
         $this->editable = $data->editable;
 
@@ -91,10 +76,7 @@ class ModuleFieldInfo
         $this->setIsUnique($data);
         $this->setMandatory($data->mandatory, $this->name);
 
-        if (in_array($this->type, self::$subtypesMapping)) {
-            $typeClass = self::$subtypesMapping[$this->type];
-
-        }
+        $this->type = TypeFactory::create($data->type);
     }
 
     /**
@@ -124,15 +106,16 @@ class ModuleFieldInfo
     /**
      * @return mixed
      */
-    public function getType()
+    public function getTypeName()
     {
-        return $this->getTypeObject()->name;
+        return $this->getType()->getName();
     }
 
     /**
-     * @return \stdClass
+     * @return CommonType
      */
-    public function getTypeObject()
+    public function getType()
+    : CommonType
     {
         return $this->type;
     }

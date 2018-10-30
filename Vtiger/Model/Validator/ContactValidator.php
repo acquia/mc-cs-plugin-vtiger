@@ -53,7 +53,6 @@ class ContactValidator implements ObjectValidatorInterface
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
-     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function validate(BaseModel $object): void
     {

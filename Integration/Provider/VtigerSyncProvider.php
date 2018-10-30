@@ -44,6 +44,7 @@ class VtigerSyncProvider implements SyncInterface
      * @return MappingManualDAO
      *
      * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function getMappingManual(): MappingManualDAO
     {

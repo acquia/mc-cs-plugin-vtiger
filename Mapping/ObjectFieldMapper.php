@@ -111,8 +111,8 @@ class ObjectFieldMapper
 
     /**
      * @return MappingManualDAO
-     *
-     * @throws ObjectNotSupportedException
+     * @throws ObjectNotSupportedException*@throws InvalidQueryArgumentException
+     * @throws InvalidQueryArgumentException
      */
     public function getObjectsMappingManual(): MappingManualDAO
     {

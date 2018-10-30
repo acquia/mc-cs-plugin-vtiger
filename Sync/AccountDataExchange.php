@@ -13,9 +13,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
@@ -103,7 +100,7 @@ class AccountDataExchange extends GeneralDataExchange
                     $normalizedValue = $this->valueNormalizer->normalizeForMautic(NormalizedValueDAO::STRING_TYPE, $value);
                 } else {
                     // Normalize the value from the API to what Mautic needs
-                    $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getType(), $value);
+                    $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getTypeName(), $value);
                 }
 
                 $reportFieldDAO = new FieldDAO($field, $normalizedValue);
@@ -123,7 +120,13 @@ class AccountDataExchange extends GeneralDataExchange
      * @param string             $objectName
      *
      * @return array|mixed
-     *
+     * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields, string $objectName): array
     {
@@ -144,10 +147,18 @@ class AccountDataExchange extends GeneralDataExchange
     }
 
     /**
-     * @param array             $ids
-     * @param ObjectChangeDAO[] $objects
+     * @param array $ids
+     * @param array $objects
      *
-     * @return UpdatedObjectMappingDAO[]
+     * @return array
+     * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function update(array $ids, array $objects): array
     {
@@ -155,11 +166,17 @@ class AccountDataExchange extends GeneralDataExchange
     }
 
     /**
-     * @param ObjectChangeDAO[] $objects
+     * @param array $objects
      *
-     * @return array|ObjectMapping[]
-     *
+     * @return array
      * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function insert(array $objects): array
     {
@@ -170,10 +187,28 @@ class AccountDataExchange extends GeneralDataExchange
      * @param array $objectData
      *
      * @return Account
+     * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     protected function getModel(array $objectData): Account
     {
-        return $this->modelFactory->createAccount($objectData);
+        $objectFields = $this->accountRepository->describe()->getFields();
+        $normalizedFields = [];
+
+        /**
+         * @var string   $key
+         * @var FieldDAO $fieldDAO
+         */
+        foreach ($objectData as $key => $fieldDAO) {
+            $normalizedFields[$key] = $this->valueNormalizer->normalizeForVtiger($objectFields[$fieldDAO->getName()], $fieldDAO)->getNormalizedValue();
+        }
+
+        return $this->modelFactory->createAccount($normalizedFields);
     }
 
     /**

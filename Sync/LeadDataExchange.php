@@ -19,14 +19,12 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-use MauticPlugin\MauticVtigerCrmBundle\Tests\TestDataProvider\ModulesDescriptionProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\LeadValidator;
@@ -86,8 +84,13 @@ class LeadDataExchange extends GeneralDataExchange
      * @param ReportDAO                                                        $syncReport
      *
      * @return ReportDAO
+     * @throws InvalidQueryArgumentException
+     * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
-     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function getObjectSyncReport(
         \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
@@ -107,7 +110,7 @@ class LeadDataExchange extends GeneralDataExchange
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
                 try {
                     // Normalize the value from the API to what Mautic needs
-                    $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getType(), $value);
+                    $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getTypeName(), $value);
                     $reportFieldDAO  = new FieldDAO($field, $normalizedValue);
 
                     $objectDAO->addField($reportFieldDAO);
@@ -132,6 +135,14 @@ class LeadDataExchange extends GeneralDataExchange
      * @param ObjectChangeDAO[] $objects
      *
      * @return UpdatedObjectMappingDAO[]
+     * @throws InvalidQueryArgumentException
+     * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function update(array $ids, array $objects): array
     {
@@ -142,7 +153,14 @@ class LeadDataExchange extends GeneralDataExchange
      * @param ObjectChangeDAO[] $objects
      *
      * @return array|ObjectMapping[]
+     * @throws InvalidQueryArgumentException
      * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function insert(array $objects): array
     {
@@ -167,7 +185,7 @@ class LeadDataExchange extends GeneralDataExchange
      */
     protected function getModel(array $objectData): Lead
     {
-        $objectFields = $this->leadRepository->describe()->getFields();
+        $objectFields     = $this->leadRepository->describe()->getFields();
         $normalizedFields = [];
 
         /**
@@ -178,7 +196,6 @@ class LeadDataExchange extends GeneralDataExchange
             $normalizedFields[$key] = $this->valueNormalizer->normalizeForVtiger($objectFields[$fieldDAO->getName()], $fieldDAO)->getNormalizedValue();
         }
 
-        var_dump($normalizedFields); die();
         return $this->modelFactory->createLead($normalizedFields);
     }
 

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
+use Mautic\LeadBundle\Entity\DoNotContact;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
@@ -59,15 +59,24 @@ final class MauticVtigerTransformer implements TransformerInterface
         $this->accountRepository = $accountRepository;
     }
 
+    /**
+     * @param $vtigerValue
+     *
+     * @return int
+     */
     protected function transformDNC($vtigerValue)
     {
         return $vtigerValue ? DoNotContact::UNSUBSCRIBED : DoNotContact::IS_CONTACTABLE;
     }
 
+    /**
+     * @param $value
+     *
+     * @return mixed
+     */
     protected function transformMultiPicklist($value) {
         var_dump($value);
-        var_dump($this->getCurrentFieldInfo()->getTypeObject());
-        die();
+        var_dump($this->getCurrentFieldInfo());
         return $value;
     }
 
@@ -82,7 +91,7 @@ final class MauticVtigerTransformer implements TransformerInterface
     public function transform($fieldInfo, $value): NormalizedValueDAO
     {
         $this->setCurrentFieldInfo($fieldInfo);
-        $normalizedValue = $this->commonTransform($fieldInfo->getType(), $value->getValue()->getOriginalValue());
+        $normalizedValue = $this->commonTransform($this->getCurrentFieldInfo()->getType()->getName(), $value->getValue()->getOriginalValue());
         return $normalizedValue;
     }
 
