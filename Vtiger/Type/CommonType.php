@@ -16,10 +16,6 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type;
 /**
  * Class MultipicklistType
  *
- * @see
- *
- *
- *
  * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type
  */
 class CommonType
@@ -37,8 +33,7 @@ class CommonType
     /**
      * @return string
      */
-    public function getName()
-    : string
+    public function getName(): string
     {
         return $this->name;
     }

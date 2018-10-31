@@ -150,7 +150,7 @@ class AccountDataExchange extends GeneralDataExchange
      * @param array $ids
      * @param array $objects
      *
-     * @return array
+     * @return UpdatedObjectMappingDAO[]
      * @throws VtigerPluginException
      * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
@@ -166,9 +166,9 @@ class AccountDataExchange extends GeneralDataExchange
     }
 
     /**
-     * @param array $objects
+     * @param Account[] $objects
      *
-     * @return array
+     * @return UpdatedObjectMappingDAO[]
      * @throws VtigerPluginException
      * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
