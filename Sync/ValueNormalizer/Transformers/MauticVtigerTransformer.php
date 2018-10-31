@@ -27,37 +27,9 @@ final class MauticVtigerTransformer implements TransformerInterface
     }
 
     /**
-     * @var LeadRepository
-     */
-    private $leadRepository;
-    /**
-     * @var ContactRepository
-     */
-    private $contactRepository;
-    /**
-     * @var AccountRepository
-     */
-    private $accountRepository;
-
-    /**
      * @var ModuleFieldInfo
      */
     private $currentFieldInfo;
-
-    /**
-     * MauticVtigerTransformer constructor.
-     *
-     * @param LeadRepository    $leadRepository
-     * @param ContactRepository $contactRepository
-     * @param AccountRepository $accountRepository
-     */
-    public function __construct(LeadRepository $leadRepository, ContactRepository $contactRepository, AccountRepository $accountRepository)
-    {
-
-        $this->leadRepository    = $leadRepository;
-        $this->contactRepository = $contactRepository;
-        $this->accountRepository = $accountRepository;
-    }
 
     /**
      * @param $vtigerValue
