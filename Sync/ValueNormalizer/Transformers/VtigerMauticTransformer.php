@@ -40,11 +40,11 @@ final class VtigerMauticTransformer implements TransformerInterface
     }
 
     /**
-     * @param $value
+     * @param \DateTimeInterface $value
      *
      * @return null|string
      */
-    protected function transformDate($value): ?string
+    protected function transformDate(\DateTimeInterface $value): ?string
     {
         return $value->format('Y-m-d');
     }

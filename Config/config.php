@@ -82,7 +82,7 @@ return [
             ],
             'mautic.vtiger_crm.transformer.mautic2vtiger' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\MauticVtigerTransformer::class,
-                'arguments' => ['mautic.vtiger_crm.repository.leads','mautic.vtiger_crm.repository.contacts','mautic.vtiger_crm.repository.accounts'],
+                'arguments' => [],
             ],
             'mautic.vtiger_crm.value_normalizer'          => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer::class,

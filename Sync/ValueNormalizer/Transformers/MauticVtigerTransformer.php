@@ -14,11 +14,9 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
 use Mautic\LeadBundle\Entity\DoNotContact;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
 
 final class MauticVtigerTransformer implements TransformerInterface
 {
@@ -59,7 +57,7 @@ final class MauticVtigerTransformer implements TransformerInterface
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
-    public function transform($fieldInfo, $value): NormalizedValueDAO
+    public function transform($fieldInfo, FieldDAO $value): NormalizedValueDAO
     {
         $this->setCurrentFieldInfo($fieldInfo);
         $normalizedValue = $this->commonTransform($this->getCurrentFieldInfo()->getType()->getName(), $value->getValue()->getOriginalValue());
@@ -89,11 +87,11 @@ final class MauticVtigerTransformer implements TransformerInterface
     }
 
     /**
-     * @param $value
+     * @param \DateTimeInterface $value
      *
-     * @return null|string
+     * @return string
      */
-    protected function transformDate($value): ?string
+    protected function transformDate(\DateTimeInterface $value): string
     {
         $format = $this->getCurrentFieldInfo()->getType()->getFormat();
 

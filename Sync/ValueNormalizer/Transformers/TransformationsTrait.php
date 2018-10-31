@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
@@ -80,14 +81,14 @@ trait TransformationsTrait
     ];
 
     /**
-     * @param string $typeName
-     * @param        $value
+     * @param          $typeName
+     * @param FieldDAO $value
      *
      * @return NormalizedValueDAO
      * @throws InvalidObjectValueException
      * @throws InvalidQueryArgumentException
      */
-    public function transform(string $typeName, $value): NormalizedValueDAO
+    public function transform($typeName, FieldDAO $value): NormalizedValueDAO
     {
         if (!isset($this->transformations[$typeName])) {
             throw new InvalidQueryArgumentException(
