@@ -148,7 +148,7 @@ class AccountDataExchange extends GeneralDataExchange
 
     /**
      * @param array $ids
-     * @param array $objects
+     * @param UpdatedObjectMappingDAO[] $objects
      *
      * @return UpdatedObjectMappingDAO[]
      * @throws VtigerPluginException

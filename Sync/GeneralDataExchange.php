@@ -59,9 +59,9 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     }
 
     /**
-     * @param array  $ids
-     * @param array  $objects
-     * @param string $objectName
+     * @param array       $ids
+     * @param BaseModel[] $objects
+     * @param string      $objectName
      *
      * @return array
      * @throws InvalidQueryArgumentException
@@ -75,7 +75,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
      */
     protected function updateInternal(array $ids, array $objects, string $objectName): array
     {
-        DebugLogger::log($objectName, sprintf('Found %d objects to update to integration with ids %s', count($objects), implode(', ', $ids)), __CLASS__.':'.__FUNCTION__);
+        DebugLogger::log($objectName, sprintf('Found %d objects to update to integration with ids %s', count($objects), implode(', ', $ids)), __CLASS__ . ':' . __FUNCTION__);
 
         $updatedMappedObjects = [];
 
@@ -94,7 +94,8 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
             /* Perform validation */
             try {
                 $this->getValidator()->validate($objectModel);
-            } catch (InvalidObject $e) {
+            }
+            catch (InvalidObject $e) {
                 $this->logInvalidObject($changedObject, $objectName, $e);
                 continue;
             }
@@ -108,9 +109,10 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
 
                 $updatedMappedObjects[] = $newChange;
 
-                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Updated to %s ID %s', $objectName, $integrationObjectId), __CLASS__.':'.__FUNCTION__);
-            } catch (InvalidQueryArgumentException $e) {
-                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Update to %s ID %s failed: %s', $objectName, $integrationObjectId, $e->getMessage()), __CLASS__.':'.__FUNCTION__);
+                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Updated to %s ID %s', $objectName, $integrationObjectId), __CLASS__ . ':' . __FUNCTION__);
+            }
+            catch (InvalidQueryArgumentException $e) {
+                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Update to %s ID %s failed: %s', $objectName, $integrationObjectId, $e->getMessage()), __CLASS__ . ':' . __FUNCTION__);
             }
         }
 
@@ -118,10 +120,10 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     }
 
     /**
-     * @param array  $objects
-     * @param string $objectName
+     * @param BaseModel[] $objects
+     * @param string      $objectName
      *
-     * @return array
+     * @return array|[]
      * @throws InvalidQueryArgumentException
      * @throws VtigerPluginException
      * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
@@ -133,7 +135,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
      */
     protected function insertInternal(array $objects, string $objectName): array
     {
-        DebugLogger::log($objectName, sprintf('Found %d %s to INSERT', $objectName, count($objects)), __CLASS__.':'.__FUNCTION__);
+        DebugLogger::log($objectName, sprintf('Found %d %s to INSERT', $objectName, count($objects)), __CLASS__ . ':' . __FUNCTION__);
 
         $objectMappings = [];
         /** @var ObjectChangeDAO $object */
@@ -156,7 +158,8 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
             /* Perform validation */
             try {
                 $this->getValidator()->validate($objectModel);
-            } catch (InvalidObject $e) {
+            }
+            catch (InvalidObject $e) {
                 $this->logInvalidObject($object, $objectName, $e);
                 continue;
             }
@@ -166,7 +169,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
 
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
-                    sprintf('Created %s ID %s from %s %d', $objectName, $response->getId(), $object->getMappedObject(), $object->getMappedObjectId()), __CLASS__.':'.__FUNCTION__
+                    sprintf('Created %s ID %s from %s %d', $objectName, $response->getId(), $object->getMappedObject(), $object->getMappedObjectId()), __CLASS__ . ':' . __FUNCTION__
                 );
 
                 $objectMapping = new ObjectChangeDAO(
@@ -176,8 +179,9 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
                 $objectMapping->setChangeDateTime($response->getModifiedTime());
 
                 $objectMappings[] = $objectMapping;
-            } catch (InvalidQueryArgumentException $e) {
-                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf("Failed to create %s with error '%s'", $objectName, $e->getMessage()), __CLASS__.':'.__FUNCTION__);
+            }
+            catch (InvalidQueryArgumentException $e) {
+                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf("Failed to create %s with error '%s'", $objectName, $e->getMessage()), __CLASS__ . ':' . __FUNCTION__);
             }
         }
 
@@ -201,12 +205,12 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields, string $objectName): array
     {
         $fullReport = [];
-        $iteration = 0;
+        $iteration  = 0;
         // We must iterate while there is still some result left
         do {
-            $reportQuery = 'SELECT id,modifiedtime,assigned_user_id,'.join(',', $mappedFields)
-                .' FROM '.$objectName.' WHERE modifiedtime > \''.$fromDate->format('Y-m-d H:i:s').'\''
-                .' LIMIT '.$iteration * $this->getVtigerApiQueryLimit().','.$this->getVtigerApiQueryLimit();
+            $reportQuery = 'SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields)
+                . ' FROM ' . $objectName . ' WHERE modifiedtime > \'' . $fromDate->format('Y-m-d H:i:s') . '\''
+                . ' LIMIT ' . $iteration * $this->getVtigerApiQueryLimit() . ',' . $this->getVtigerApiQueryLimit();
 
             $report = $this->getRepository()->query($reportQuery);
 
@@ -234,7 +238,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
                 $object->getMappedObjectId(),
                 $exception->getMessage()
             ),
-            __CLASS__.':'.__FUNCTION__
+            __CLASS__ . ':' . __FUNCTION__
         );
     }
 
