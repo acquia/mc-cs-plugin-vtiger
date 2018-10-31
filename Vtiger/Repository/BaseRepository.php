@@ -221,8 +221,6 @@ abstract class BaseRepository
     }
 
     /**
-     * @todo this is useless you cannot use operators, needa complete rewrite
-     *
      * @param array  $where
      * @param string $columns
      *

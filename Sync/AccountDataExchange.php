@@ -31,7 +31,7 @@ class AccountDataExchange extends GeneralDataExchange
     /**
      * @var string
      */
-    private const OBJECT_NAME = 'Accounts';
+    public const OBJECT_NAME = 'Accounts';
 
     /**
      * @var int

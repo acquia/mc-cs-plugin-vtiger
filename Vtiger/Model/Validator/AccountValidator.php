@@ -40,8 +40,6 @@ class AccountValidator implements ObjectValidatorInterface
     }
 
     /**
-     * @todo Get rid of a BaseModel typehint if possible
-     *
      * @param BaseModel $object
      *
      * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException

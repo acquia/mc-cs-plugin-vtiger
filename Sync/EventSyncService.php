@@ -102,8 +102,6 @@ class EventSyncService
     }
 
     /**
-     * TODO refactor to compare two arrays at once, less iteration!
-     *
      * @param       $mappings
      * @param array $events
      * @param null  $dateFrom
