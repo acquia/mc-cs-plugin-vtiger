@@ -46,7 +46,7 @@ final class VtigerMauticTransformer implements TransformerInterface
      */
     protected function transformDate($value): ?string
     {
-        if (is_null($value) || $value === "") {
+        if (is_null($value) || $value === "" || $value === '0000-00-00') {
             return null;
         }
 

@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
 use Mautic\LeadBundle\Entity\DoNotContact;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 
@@ -88,12 +87,17 @@ final class MauticVtigerTransformer implements TransformerInterface
     }
 
     /**
-     * @param \DateTimeInterface $value
+     * @param $value
      *
      * @return string
      */
-    protected function transformDate(\DateTimeInterface $value): string
+    protected function transformDate($value): ?string
     {
+        return $value;
+        if (is_null($value) || $value === '') {
+            return null;
+        }
+
         $format = $this->getCurrentFieldInfo()->getType()->getFormat();
 
         $formatDictionary = [
@@ -103,8 +107,9 @@ final class MauticVtigerTransformer implements TransformerInterface
         ];
 
         $formatString = str_replace(array_keys($formatDictionary), array_values($formatDictionary), $format);
+        $date = new \DateTime($value);
 
-        return $value->format($formatString);
+        return $date->format($formatString);
     }
 
 }
