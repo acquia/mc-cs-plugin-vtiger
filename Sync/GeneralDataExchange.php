@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
@@ -23,6 +23,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
@@ -44,7 +45,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     protected $vtigerSettingProvider;
 
     /**
-     * @var ValueNormalizerInterface
+     * @var VtigerValueNormalizer
      */
     protected $valueNormalizer;
 
@@ -59,15 +60,23 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     }
 
     /**
-     * @param array             $ids
-     * @param ObjectChangeDAO[] $objects
-     * @param string            $objectName
+     * @param array       $ids
+     * @param BaseModel[] $objects
+     * @param string      $objectName
      *
-     * @return UpdatedObjectMappingDAO[]
+     * @return array
+     * @throws InvalidQueryArgumentException
+     * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     protected function updateInternal(array $ids, array $objects, string $objectName): array
     {
-        DebugLogger::log($objectName, sprintf('Found %d objects to update to integration with ids %s', count($objects), implode(', ', $ids)), __CLASS__.':'.__FUNCTION__);
+        DebugLogger::log($objectName, sprintf('Found %d objects to update to integration with ids %s', count($objects), implode(', ', $ids)), __CLASS__ . ':' . __FUNCTION__);
 
         $updatedMappedObjects = [];
 
@@ -75,14 +84,9 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
         foreach ($objects as $integrationObjectId => $changedObject) {
             $fields = $changedObject->getFields();
 
-            $objectData = ['id' => $changedObject->getObjectId()];
+            $fields['id'] = new FieldDAO('id', new NormalizedValueDAO('string', $changedObject->getObjectId(), $changedObject->getObjectId()));
 
-            foreach ($fields as $field) {
-                /* @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
-                $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
-            }
-
-            $objectModel = $this->getModel($objectData);
+            $objectModel = $this->getModel($fields);
 
             if ($this->vtigerSettingProvider->isOwnerUpdateEnabled() || !$objectModel->getAssignedUserId()) {
                 $objectModel->setAssignedUserId($this->vtigerSettingProvider->getOwner());
@@ -91,7 +95,8 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
             /* Perform validation */
             try {
                 $this->getValidator()->validate($objectModel);
-            } catch (InvalidObject $e) {
+            }
+            catch (InvalidObject $e) {
                 $this->logInvalidObject($changedObject, $objectName, $e);
                 continue;
             }
@@ -105,9 +110,10 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
 
                 $updatedMappedObjects[] = $newChange;
 
-                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Updated to %s ID %s', $objectName, $integrationObjectId), __CLASS__.':'.__FUNCTION__);
-            } catch (InvalidQueryArgumentException $e) {
-                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Update to %s ID %s failed: %s', $objectName, $integrationObjectId, $e->getMessage()), __CLASS__.':'.__FUNCTION__);
+                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Updated to %s ID %s', $objectName, $integrationObjectId), __CLASS__ . ':' . __FUNCTION__);
+            }
+            catch (InvalidQueryArgumentException $e) {
+                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Update to %s ID %s failed: %s', $objectName, $integrationObjectId, $e->getMessage()), __CLASS__ . ':' . __FUNCTION__);
             }
         }
 
@@ -115,30 +121,30 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     }
 
     /**
-     * @param ObjectChangeDAO[] $objects
-     * @param string            $objectName
+     * @param BaseModel[] $objects
+     * @param string      $objectName
      *
-     * @return array|ObjectMapping[]
-     *
+     * @return array|[]
+     * @throws InvalidQueryArgumentException
      * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     protected function insertInternal(array $objects, string $objectName): array
     {
-        DebugLogger::log($objectName, sprintf('Found %d %s to INSERT', $objectName, count($objects)), __CLASS__.':'.__FUNCTION__);
+        DebugLogger::log($objectName, sprintf('Found %d %s to INSERT', $objectName, count($objects)), __CLASS__ . ':' . __FUNCTION__);
 
         $objectMappings = [];
         /** @var ObjectChangeDAO $object */
         foreach ($objects as $object) {
             $fields = $object->getFields();
 
-            $objectData = [];
+            $objectModel = $this->getModel($fields);
 
-            foreach ($fields as $field) {
-                /* @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO $field */
-                $objectData[$field->getName()] = $field->getValue()->getNormalizedValue();
-            }
-
-            $objectModel = $this->getModel($objectData);
             if (!$this->vtigerSettingProvider->getOwner()) {
                 throw new VtigerPluginException('You need to configure owner for new objects');
             }
@@ -147,7 +153,8 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
             /* Perform validation */
             try {
                 $this->getValidator()->validate($objectModel);
-            } catch (InvalidObject $e) {
+            }
+            catch (InvalidObject $e) {
                 $this->logInvalidObject($object, $objectName, $e);
                 continue;
             }
@@ -157,7 +164,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
 
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
-                    sprintf('Created %s ID %s from %s %d', $objectName, $response->getId(), $object->getMappedObject(), $object->getMappedObjectId()), __CLASS__.':'.__FUNCTION__
+                    sprintf('Created %s ID %s from %s %d', $objectName, $response->getId(), $object->getMappedObject(), $object->getMappedObjectId()), __CLASS__ . ':' . __FUNCTION__
                 );
 
                 $objectMapping = new ObjectChangeDAO(
@@ -167,8 +174,9 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
                 $objectMapping->setChangeDateTime($response->getModifiedTime());
 
                 $objectMappings[] = $objectMapping;
-            } catch (InvalidQueryArgumentException $e) {
-                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf("Failed to create %s with error '%s'", $objectName, $e->getMessage()), __CLASS__.':'.__FUNCTION__);
+            }
+            catch (InvalidQueryArgumentException $e) {
+                DebugLogger::log(VtigerCrmIntegration::NAME, sprintf("Failed to create %s with error '%s'", $objectName, $e->getMessage()), __CLASS__ . ':' . __FUNCTION__);
             }
         }
 
@@ -181,16 +189,23 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
      * @param string             $objectName
      *
      * @return array|mixed
+     * @throws InvalidQueryArgumentException
+     * @throws VtigerPluginException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields, string $objectName): array
     {
         $fullReport = [];
-        $iteration = 0;
+        $iteration  = 0;
         // We must iterate while there is still some result left
         do {
-            $reportQuery = 'SELECT id,modifiedtime,assigned_user_id,'.join(',', $mappedFields)
-                .' FROM '.$objectName.' WHERE modifiedtime > \''.$fromDate->format('Y-m-d H:i:s').'\''
-                .' LIMIT '.$iteration * $this->getVtigerApiQueryLimit().','.$this->getVtigerApiQueryLimit();
+            $reportQuery = 'SELECT id,modifiedtime,assigned_user_id,' . join(',', $mappedFields)
+                . ' FROM ' . $objectName . ' WHERE modifiedtime > \'' . $fromDate->format('Y-m-d H:i:s') . '\''
+                . ' LIMIT ' . $iteration * $this->getVtigerApiQueryLimit() . ',' . $this->getVtigerApiQueryLimit();
 
             $report = $this->getRepository()->query($reportQuery);
 
@@ -218,7 +233,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
                 $object->getMappedObjectId(),
                 $exception->getMessage()
             ),
-            __CLASS__.':'.__FUNCTION__
+            __CLASS__ . ':' . __FUNCTION__
         );
     }
 

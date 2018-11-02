@@ -59,6 +59,12 @@ class EventSyncService
      *
      * @throws \Doctrine\DBAL\DBALException
      * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function sync(?\DateTimeInterface $dateFrom, ?\DateTimeInterface $dateTo): void
     {
@@ -96,8 +102,6 @@ class EventSyncService
     }
 
     /**
-     * TODO refactor to compare two arrays at once, less iteration!
-     *
      * @param       $mappings
      * @param array $events
      * @param null  $dateFrom

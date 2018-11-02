@@ -132,7 +132,7 @@ class ObjectFieldMapper
 
     /**
      * @return MappingManualDAO
-     * @throws InvalidQueryArgumentException
+     *
      * @throws ObjectNotSupportedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException

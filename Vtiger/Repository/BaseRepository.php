@@ -91,6 +91,13 @@ abstract class BaseRepository
      * @param string $columns
      *
      * @return array
+     * @throws InvalidQueryArgumentException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function findBy($where = [], $columns = '*'): array
     {
@@ -104,6 +111,12 @@ abstract class BaseRepository
      * @return mixed|null
      *
      * @throws InvalidQueryArgumentException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function findOneBy($where = [], $columns = '*')
     {
@@ -124,6 +137,13 @@ abstract class BaseRepository
      * @param BaseModel $module
      *
      * @return BaseModel
+     * @throws InvalidQueryArgumentException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function update(BaseModel $module): BaseModel
     {
@@ -137,6 +157,13 @@ abstract class BaseRepository
      * @param $query
      *
      * @return array
+     * @throws InvalidQueryArgumentException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function query($query): array
     {
@@ -180,6 +207,7 @@ abstract class BaseRepository
      */
     protected function getEditableFields(): array
     {
+        /** @var ModuleInfo $moduleFields */
         $moduleFields = $this->describe()->getFields();
 
         $fields = [];
@@ -193,12 +221,17 @@ abstract class BaseRepository
     }
 
     /**
-     * @todo this is useless you cannot use operators, needa complete rewrite
-     *
      * @param array  $where
      * @param string $columns
      *
      * @return array
+     * @throws InvalidQueryArgumentException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     protected function findByInternal($where = [], $columns = '*'): array
     {
@@ -234,6 +267,13 @@ abstract class BaseRepository
      * @param BaseModel $module
      *
      * @return BaseModel|Account|Contact|Lead|Event|User
+     * @throws InvalidQueryArgumentException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     protected function createUnified(BaseModel $module): BaseModel
     {

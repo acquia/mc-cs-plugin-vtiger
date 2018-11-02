@@ -13,6 +13,10 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Enum;
 
+use MauticPlugin\MauticVtigerCrmBundle\Sync\AccountDataExchange;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\LeadDataExchange;
+
 /**
  * @todo Do not rename items - that one with Uppercase first letter (e.g. Contacts) are used when calling an API query too - need to rewrite and also check others
  */
@@ -26,7 +30,7 @@ final class CacheEnum
     /**
      * @var string
      */
-    public const ACCOUNT = 'Accounts'; //See @todo on a class
+    public const ACCOUNT = AccountDataExchange::OBJECT_NAME;
 
     /**
      * @var string
@@ -36,7 +40,7 @@ final class CacheEnum
     /**
      * @var string
      */
-    public const CONTACT = 'Contacts'; //See @todo on a class
+    public const CONTACT = ContactDataExchange::OBJECT_NAME;
 
     /**
      * @var string
@@ -46,10 +50,10 @@ final class CacheEnum
     /**
      * @var string
      */
-    public const LEAD = 'Leads'; //See @todo on a class
+    public const LEAD = LeadDataExchange::OBJECT_NAME;
 
     /**
      * @var string
      */
-    public const USER = 'Users'; //See @todo on a class
+    public const USER = 'Users';
 }

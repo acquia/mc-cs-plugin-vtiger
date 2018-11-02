@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Form\Type;
 
 use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
-use MauticPlugin\IntegrationsBundle\Form\Type\ActivityListType;
 use MauticPlugin\MauticVtigerCrmBundle\Enum\SettingsKeyEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 use Symfony\Component\Form\AbstractType;
@@ -41,6 +40,13 @@ class ConfigSyncFeaturesType extends AbstractType
     /**
      * @param FormBuilderInterface $builder
      * @param array                $options
+     *
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -120,6 +126,12 @@ class ConfigSyncFeaturesType extends AbstractType
 
     /**
      * @return array
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     private function getFormOwners(): array
     {

@@ -22,6 +22,13 @@ class EventRepository extends BaseRepository
      * @param Event $module
      *
      * @return Event
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function create(Event $module): Event
     {
@@ -32,9 +39,13 @@ class EventRepository extends BaseRepository
      * @param string $id
      *
      * @return Event
-     *
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function retrieve(string $id): Event
     {
@@ -45,6 +56,13 @@ class EventRepository extends BaseRepository
      * @param $contactId
      *
      * @return array|Event[]
+     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function findByContactId($contactId): array
     {
@@ -57,7 +75,6 @@ class EventRepository extends BaseRepository
      * @return array|Event[]
      *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException

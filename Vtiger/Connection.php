@@ -277,6 +277,7 @@ class Connection
      * @param string|null $accessKey
      *
      * @return Connection
+     * @throws PluginNotConfiguredException
      */
     private function authenticate(string $url = null, string $username = null, string $accessKey = null): Connection
     {

@@ -32,7 +32,6 @@ class ApiInfo
      * @return \Psr\Http\Message\ResponseInterface
      *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
@@ -51,7 +50,6 @@ class ApiInfo
      * @return mixed
      *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
@@ -71,7 +69,6 @@ class ApiInfo
      *
      * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
@@ -92,7 +89,6 @@ class ApiInfo
      * @return mixed
      *
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AuthenticationException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException

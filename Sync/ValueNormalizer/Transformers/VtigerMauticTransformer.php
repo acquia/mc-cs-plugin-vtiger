@@ -15,6 +15,11 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
 use Mautic\LeadBundle\Entity\DoNotContact;
 
+/**
+ * Class VtigerMauticTransformer
+ *
+ * @package MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers
+ */
 final class VtigerMauticTransformer implements TransformerInterface
 {
     use TransformationsTrait;
@@ -23,4 +28,31 @@ final class VtigerMauticTransformer implements TransformerInterface
     {
         return $mauticValue ? DoNotContact::UNSUBSCRIBED : DoNotContact::IS_CONTACTABLE;
     }
+
+    /**
+     * @param $mauticValue
+     *
+     * @return null|string
+     */
+    protected function transformMultiPicklist($mauticValue)
+    {
+        return $this->transformString($mauticValue);
+    }
+
+    /**
+     * @param \DateTimeInterface $value
+     *
+     * @return null|string
+     */
+    protected function transformDate($value): ?string
+    {
+        if (is_null($value) || $value === "" || $value === '0000-00-00') {
+            return null;
+        }
+
+        $dateObject = \DateTime::createFromFormat('Y-m-d', $value);
+
+        return $dateObject->format('Y-m-d');
+    }
+
 }
