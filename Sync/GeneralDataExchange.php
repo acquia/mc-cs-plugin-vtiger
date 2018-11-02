@@ -144,6 +144,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
             $fields = $object->getFields();
 
             $objectModel = $this->getModel($fields);
+
             if (!$this->vtigerSettingProvider->getOwner()) {
                 throw new VtigerPluginException('You need to configure owner for new objects');
             }

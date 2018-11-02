@@ -193,8 +193,9 @@ class LeadDataExchange extends GeneralDataExchange
          * @var FieldDAO $fieldDAO
          */
         foreach ($objectData as $key => $fieldDAO) {
-            $normalizedFields[$key] = $this->valueNormalizer->normalizeForVtiger($objectFields[$fieldDAO->getName()], $fieldDAO)->getNormalizedValue();
+            $normalizedFields[$key] = $this->valueNormalizer->normalizeForVtiger($objectFields[$fieldDAO->getName()], $fieldDAO);
         }
+
 
         return $this->modelFactory->createLead($normalizedFields);
     }

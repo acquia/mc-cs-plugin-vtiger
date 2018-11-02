@@ -51,16 +51,17 @@ final class MauticVtigerTransformer implements TransformerInterface
 
     /**
      * @param $fieldInfo
-     * @param $value
+     * @param mixed $value
      *
      * @return NormalizedValueDAO
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
-    public function transform($fieldInfo, FieldDAO $value): NormalizedValueDAO
+    public function transform($fieldInfo, $value): NormalizedValueDAO
     {
         $this->setCurrentFieldInfo($fieldInfo);
-        $normalizedValue = $this->commonTransform($this->getCurrentFieldInfo()->getType()->getName(), $value->getValue()->getOriginalValue());
+
+        $normalizedValue = $this->commonTransform($this->getCurrentFieldInfo()->getType()->getName(), $value);
 
         return $normalizedValue;
     }
@@ -95,13 +96,13 @@ final class MauticVtigerTransformer implements TransformerInterface
     {
         $format = $this->getCurrentFieldInfo()->getType()->getFormat();
 
-        $dateFormarReplacement = [
+        $formatDictionary = [
             'dd'   => 'd',
             'mm'   => 'm',
             'yyyy' => 'Y',
         ];
 
-        $formatString = str_replace(array_keys($dateFormarReplacement), array_values($dateFormarReplacement), $format);
+        $formatString = str_replace(array_keys($formatDictionary), array_values($formatDictionary), $format);
 
         return $value->format($formatString);
     }

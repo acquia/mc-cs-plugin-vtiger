@@ -18,6 +18,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\Constraints\Date;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\Constraints\MultiChoice;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\CommonType;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\DateType;
@@ -25,6 +26,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\PicklistType;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Time;
 use Symfony\Component\Validator\Validation;
 
 class GeneralValidator
@@ -129,6 +131,10 @@ class GeneralValidator
             case 'string':
             case 'phone':
             case 'text':
+            case 'double':
+            case 'integer':
+            case 'skype':
+            case 'url':
                 break;
             case 'email':
                 $validators[] = new Email();
@@ -149,12 +155,21 @@ class GeneralValidator
                 /** @var PicklistType $typeObject */
                 $validators[] = new Choice(['choices' => $typeObject->getPicklistValuesArray()]);
                 break;
+            case 'multipicklist':
+                /** @var PicklistType $typeObject */
+                $validators[] = new MultiChoice(['choices' => $typeObject->getPicklistValuesArray(), 'multiple' => true]);
+                break;
             case 'date':
                 /** @var DateType $typeObject */
                 $validators[] = new Date(['format'=>$typeObject->getFormat()]);
                 break;
+            case 'currency':
+                break;
+            case 'time':
+                $validators[] = new Time();
+                break;
             default:
-                throw new InvalidObjectException('Unknown field type '. $typeObject->getName());
+                throw new InvalidObjectException('Validation: Unknown field type '. $typeObject->getName());
         }
 
         return $validators;

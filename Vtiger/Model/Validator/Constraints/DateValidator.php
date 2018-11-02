@@ -41,7 +41,7 @@ class DateValidator extends ConstraintValidator
         $formatString  = str_replace(array_keys($dateFormarReplacement), array_values($dateFormarReplacement), $constraint->getFormat());
         $date = \DateTime::createFromFormat($formatString, $value);
 
-        if (!$date->format($formatString) != $value) {
+        if ($date->format($formatString) != $value) {
             if ($this->context instanceof ExecutionContextInterface) {
                 $this->context->buildViolation($constraint->message)
                     ->setParameter('{{ value }}', $this->formatValue($value))

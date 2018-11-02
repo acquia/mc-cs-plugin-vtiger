@@ -44,9 +44,15 @@ final class VtigerMauticTransformer implements TransformerInterface
      *
      * @return null|string
      */
-    protected function transformDate(\DateTimeInterface $value): ?string
+    protected function transformDate($value): ?string
     {
-        return $value->format('Y-m-d');
+        if (is_null($value) || $value === "") {
+            return null;
+        }
+
+        $dateObject = \DateTime::createFromFormat('Y-m-d', $value);
+
+        return $dateObject->format('Y-m-d');
     }
 
 }
