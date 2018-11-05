@@ -89,27 +89,10 @@ final class MauticVtigerTransformer implements TransformerInterface
     /**
      * @param $value
      *
-     * @return string
+     * @return null|string
      */
     protected function transformDate($value): ?string
     {
-        return $value;
-        if (is_null($value) || $value === '') {
-            return null;
-        }
-
-        $format = $this->getCurrentFieldInfo()->getType()->getFormat();
-
-        $formatDictionary = [
-            'dd'   => 'd',
-            'mm'   => 'm',
-            'yyyy' => 'Y',
-        ];
-
-        $formatString = str_replace(array_keys($formatDictionary), array_values($formatDictionary), $format);
-        $date = new \DateTime($value);
-
-        return $date->format($formatString);
+        return is_null($value) ? null : (string) $value;
     }
-
 }
