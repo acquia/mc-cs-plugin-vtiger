@@ -43,7 +43,11 @@ class MultiChoiceValidator extends ConstraintValidator
             return;
         }
 
-        $value = explode('|', $value);
+        $value = explode('|##|', $value);
+        array_walk($value, function(&$element){
+            $element = trim($element);
+        });
+
 
         if ($constraint->multiple && !is_array($value)) {
             throw new UnexpectedTypeException($value, 'array');
