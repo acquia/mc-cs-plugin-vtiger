@@ -143,19 +143,20 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
         foreach ($objects as $object) {
             $fields = $object->getFields();
 
-            $objectModel = $this->getModel($fields);
-
-            if (!$this->vtigerSettingProvider->getOwner()) {
-                throw new VtigerPluginException('You need to configure owner for new objects');
-            }
-            $objectModel->setAssignedUserId($this->vtigerSettingProvider->getOwner());
-
             /* Perform validation */
             try {
+                $objectModel = $this->getModel($fields);
+
+                if (!$this->vtigerSettingProvider->getOwner()) {
+                    throw new VtigerPluginException('You need to configure owner for new objects');
+                }
+                $objectModel->setAssignedUserId($this->vtigerSettingProvider->getOwner());
+
                 $this->getValidator()->validate($objectModel);
             }
             catch (InvalidObject $e) {
                 $this->logInvalidObject($object, $objectName, $e);
+                die();
                 continue;
             }
 

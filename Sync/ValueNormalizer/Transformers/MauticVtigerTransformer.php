@@ -45,12 +45,6 @@ final class MauticVtigerTransformer implements TransformerInterface
      */
     protected function transformMultiPicklist(?string $value): string
     {
-        if (is_null($value)) {
-            return '';
-        }
-        $values = explode('|', $value);
-        $value = join(' |##| ', $values);
-
         return $value;
     }
 
