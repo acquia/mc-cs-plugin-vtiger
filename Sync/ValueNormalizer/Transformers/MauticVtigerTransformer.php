@@ -89,10 +89,10 @@ final class MauticVtigerTransformer implements TransformerInterface
     /**
      * @param $value
      *
-     * @return string
+     * @return null|string
      */
     protected function transformDate($value): ?string
     {
-        return (string) $value;
+        return is_null($value) ? null : (string) $value;
     }
 }
