@@ -199,8 +199,6 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
      */
     protected function getReportPayload(\DateTimeImmutable $fromDate, array $mappedFields, string $objectName): array
     {
-        $description = $this->getRepository()->describe();
-
         $fullReport = [];
         $iteration  = 0;
         // We must iterate while there is still some result left

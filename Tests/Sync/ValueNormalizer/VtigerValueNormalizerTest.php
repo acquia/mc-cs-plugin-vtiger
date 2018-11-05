@@ -68,13 +68,6 @@ class VtigerValueNormalizerTest extends \PHPUnit_Framework_TestCase
         $this->vtigerTypes = ModulesDescriptionProvider::getLeadFieldTypes();
     }
 
-
-    public function testNormalizeForMautic()
-    {
-
-
-    }
-
     public function testNormalizeForVtiger()
     {
         $typeObject       = new \stdClass();
