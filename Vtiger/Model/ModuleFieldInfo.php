@@ -13,10 +13,11 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
+use MauticPlugin\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\CommonType;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\TypeFactory;
 
-class ModuleFieldInfo
+class ModuleFieldInfo implements MappedFieldInfoInterface
 {
     /**
      * @var string
@@ -162,6 +163,11 @@ class ModuleFieldInfo
     public function getDefault(): string
     {
         return $this->default;
+    }
+
+    public function getFormType(): string
+    {
+        return 'string';
     }
 
     /**
