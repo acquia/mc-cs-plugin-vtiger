@@ -121,6 +121,18 @@ class ModuleFieldInfo
     }
 
     /**
+     * @param CommonType $type
+     *
+     * @return ModuleFieldInfo
+     */
+    public function setType(CommonType $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function isUnique(): bool

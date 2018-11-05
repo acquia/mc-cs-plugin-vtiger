@@ -21,7 +21,7 @@ class DateValidator extends ConstraintValidator
     public function validate($value, Constraint $constraint)
     {
         if (!$constraint instanceof Date) {
-            throw new UnexpectedTypeException($constraint, __NAMESPACE__.'\Date');
+            throw new UnexpectedTypeException($constraint, __NAMESPACE__ . '\Date');
         }
 
         if (null === $value || '' === $value) {
@@ -33,28 +33,28 @@ class DateValidator extends ConstraintValidator
         }
 
         $dateFormarReplacement = [
-            'dd'    => 'd',
-            'mm'    => 'm',
-            'yyyy'  => 'Y',
-            'hh'    => 'H',
-            'MM'    => 'i',
-            'ss'    => 's'
+            'dd'   => 'd',
+            'mm'   => 'm',
+            'yyyy' => 'Y',
+            'hh'   => 'H',
+            'MM'   => 'i',
+            'ss'   => 's',
         ];
 
-        $formatString  = str_replace(array_keys($dateFormarReplacement), array_values($dateFormarReplacement), $constraint->getFormat());
-        $date = \DateTime::createFromFormat($formatString, $value);
+        $formatString = str_replace(array_keys($dateFormarReplacement), array_values($dateFormarReplacement), $constraint->getFormat());
+        $date         = \DateTime::createFromFormat($formatString, $value);
 
         if (!$date || ($date->format($formatString) != $value)) {
             if ($this->context instanceof ExecutionContextInterface) {
                 $this->context->buildViolation($constraint->message)
-                    ->setParameter('{{ value }}', $this->formatValue($value))
-                    ->setCode(\Symfony\Component\Validator\Constraints\Date::INVALID_DATE_ERROR)
-                    ->addViolation();
+                              ->setParameter('{{ value }}', $this->formatValue($value))
+                              ->setCode(\Symfony\Component\Validator\Constraints\Date::INVALID_DATE_ERROR)
+                              ->addViolation();
             } else {
                 $this->buildViolation($constraint->message)
-                    ->setParameter('{{ value }}', $this->formatValue($value))
-                    ->setCode(\Symfony\Component\Validator\Constraints\Date::INVALID_DATE_ERROR)
-                    ->addViolation();
+                     ->setParameter('{{ value }}', $this->formatValue($value))
+                     ->setCode(\Symfony\Component\Validator\Constraints\Date::INVALID_DATE_ERROR)
+                     ->addViolation();
             }
         }
     }

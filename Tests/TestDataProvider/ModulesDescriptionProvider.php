@@ -13,10 +13,24 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\TestDataProvider;
 
 
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
+
 class ModulesDescriptionProvider
 {
     public static function getLead() {
         $serialized = file_get_contents(__DIR__ . '/data/serializedLeadDescriptionObject.txt');
         return unserialize($serialized);
+    }
+
+    public static function getLeadFieldTypes() {
+        $leadFields = self::getLead()->getFields();
+
+        $types = [];
+        /** @var ModuleFieldInfo $leadField */
+        foreach ($leadFields as $leadField) {
+            $types[$leadField->getTypeName()] = $leadField->getType();
+        }
+
+        return $types;
     }
 }

@@ -93,7 +93,7 @@ final class MauticVtigerTransformer implements TransformerInterface
      */
     protected function transformDate($value): ?string
     {
-        return $value;
+        return $value;  //  The rest is commented out as the format vtiger provides does not match the format it expects
         if (is_null($value) || $value === '') {
             return null;
         }
@@ -111,5 +111,4 @@ final class MauticVtigerTransformer implements TransformerInterface
 
         return $date->format($formatString);
     }
-
 }
