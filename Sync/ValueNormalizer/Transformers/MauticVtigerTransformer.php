@@ -93,6 +93,21 @@ final class MauticVtigerTransformer implements TransformerInterface
      */
     protected function transformDate($value): ?string
     {
-        return is_null($value) ? null : (string) $value;
+        return is_null($value) ? null : $value instanceof \DateTimeInterface ? $value->format('Y-m-d') : (string) $value;
     }
+
+    /**
+     * @param $value
+     *
+     * @return null|string
+     */
+    protected function transformPicklist($value): ?string
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        return $this->transformString($value);
+    }
+
 }

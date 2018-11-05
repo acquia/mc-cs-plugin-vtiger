@@ -32,16 +32,7 @@ class DateValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, 'string');
         }
 
-        $dateFormarReplacement = [
-            'dd'   => 'd',
-            'mm'   => 'm',
-            'yyyy' => 'Y',
-            'hh'   => 'H',
-            'MM'   => 'i',
-            'ss'   => 's',
-        ];
-
-        $formatString = str_replace(array_keys($dateFormarReplacement), array_values($dateFormarReplacement), $constraint->getFormat());
+        $formatString = "Y-m-d";
         $date         = \DateTime::createFromFormat($formatString, $value);
 
         if (!$date || ($date->format($formatString) != $value)) {
