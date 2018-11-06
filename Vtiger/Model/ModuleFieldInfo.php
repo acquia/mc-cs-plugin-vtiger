@@ -13,11 +13,10 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-use MauticPlugin\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\CommonType;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\TypeFactory;
 
-class ModuleFieldInfo implements MappedFieldInfoInterface
+class ModuleFieldInfo
 {
     /**
      * @var string

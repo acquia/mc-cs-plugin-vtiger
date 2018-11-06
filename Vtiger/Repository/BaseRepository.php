@@ -213,7 +213,7 @@ abstract class BaseRepository
         $fields = [];
         foreach ($moduleFields as $fieldInfo) {
             if ($fieldInfo->isEditable()) {
-                $fields[$fieldInfo->getName()] = $fieldInfo;
+                $fields[] = $fieldInfo;
             }
         }
 
