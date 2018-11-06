@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
 use MauticPlugin\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\CommonType;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\TypeFactory;
 
@@ -60,13 +61,15 @@ class ModuleFieldInfo implements MappedFieldInfoInterface
     private $default;
 
     /**
-     * ModuleFieldInfo constructor.
-     *
-     * @param \stdClass $data
-     *
-     * @throws \Exception
+     * @var FieldDirectionInterface
      */
-    public function __construct(\stdClass $data)
+    private $fieldDirection;
+
+    /**
+     * @param \stdClass               $data
+     * @param FieldDirectionInterface $fieldDirection
+     */
+    public function __construct(\stdClass $data, FieldDirectionInterface $fieldDirection)
     {
         $this->label    = $data->label;
         $this->name     = $data->name;
@@ -78,6 +81,8 @@ class ModuleFieldInfo implements MappedFieldInfoInterface
         $this->setMandatory($data->mandatory, $this->name);
 
         $this->type = TypeFactory::create($data->type);
+
+        $this->fieldDirection = $fieldDirection;
     }
 
     /**
@@ -163,6 +168,30 @@ class ModuleFieldInfo implements MappedFieldInfoInterface
     public function getDefault(): string
     {
         return $this->default;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBidirectionalSyncEnabled(): bool
+    {
+        return $this->fieldDirection->isFieldReadable($this) && $this->fieldDirection->isFieldWritable($this);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isToIntegrationSyncEnabled(): bool
+    {
+        return $this->fieldDirection->isFieldWritable($this);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isToMauticSyncEnabled(): bool
+    {
+        return $this->fieldDirection->isFieldReadable($this);
     }
 
     /**

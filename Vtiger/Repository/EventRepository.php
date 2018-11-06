@@ -15,6 +15,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Event;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionInterface;
 
 class EventRepository extends BaseRepository
 {
@@ -122,5 +123,15 @@ class EventRepository extends BaseRepository
     protected function getModel(array $objectData): Event
     {
         return $this->modelFactory->createEvent($objectData);
+    }
+
+    /**
+     * @return FieldDirectionInterface
+     *
+     * @throws \Exception
+     */
+    protected function getFieldDirection(): FieldDirectionInterface
+    {
+        throw new \Exception('Events has no Fields');
     }
 }

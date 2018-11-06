@@ -105,6 +105,7 @@ return [
                     'mautic.vtiger_crm.connection',
                     'mautic.vtiger_crm.cache.field_cache',
                     'mautic.vtiger_crm.modelFactory',
+                    'mautic.vtiger_crm.fieldDirectionFactory',
                 ],
             ],
             'mautic.vtiger_crm.validator.lead'            => [
@@ -118,6 +119,7 @@ return [
                     'mautic.vtiger_crm.connection',
                     'mautic.vtiger_crm.cache.field_cache',
                     'mautic.vtiger_crm.modelFactory',
+                    'mautic.vtiger_crm.fieldDirectionFactory',
                 ],
             ],
             'mautic.vtiger_crm.cache.field_cache' => [
@@ -137,6 +139,7 @@ return [
                     'mautic.vtiger_crm.connection',
                     'mautic.vtiger_crm.cache.field_cache',
                     'mautic.vtiger_crm.modelFactory',
+                    'mautic.vtiger_crm.fieldDirectionFactory',
                 ],
             ],
             'mautic.vtiger_crm.repository.events'     => [
@@ -145,6 +148,7 @@ return [
                     'mautic.vtiger_crm.connection',
                     'mautic.vtiger_crm.cache.field_cache',
                     'mautic.vtiger_crm.modelFactory',
+                    'mautic.vtiger_crm.fieldDirectionFactory',
                 ],
             ],
             'mautic.vtiger_crm.repository.users'      => [
@@ -153,6 +157,7 @@ return [
                     'mautic.vtiger_crm.connection',
                     'mautic.vtiger_crm.cache.field_cache',
                     'mautic.vtiger_crm.modelFactory',
+                    'mautic.vtiger_crm.fieldDirectionFactory',
                 ],
             ],
             'mautic.vtiger_crm.mapping.field_mapping' => [
@@ -216,6 +221,10 @@ return [
             ],
             'mautic.vtiger_crm.modelFactory'                => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory::class,
+                'arguments' => [],
+            ],
+            'mautic.vtiger_crm.fieldDirectionFactory' => [
+                'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionFactory::class,
                 'arguments' => [],
             ],
         ],
