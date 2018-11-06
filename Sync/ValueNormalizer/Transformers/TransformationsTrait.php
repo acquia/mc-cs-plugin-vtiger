@@ -169,16 +169,6 @@ trait TransformationsTrait
      *
      * @return null|string
      */
-    protected function transformPicklist($value): ?string
-    {
-        return $this->transformString($value);
-    }
-
-    /**
-     * @param $value
-     *
-     * @return null|string
-     */
     protected function transformReference($value): ?string
     {
         return $this->transformString($value);

@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException;
+
 /**
  * Class ModuleInfo.
  *
@@ -183,5 +185,18 @@ class ModuleInfo
     public function getLabelFields(): string
     {
         return $this->labelFields;
+    }
+
+    /**
+     * @param string $fieldName
+     *
+     * @return ModuleFieldInfo
+     * @throws InvalidObjectException
+     */
+    public function getField(string $fieldName): ModuleFieldInfo {
+        if (!isset($this->fields[$fieldName])) {
+            throw new InvalidObjectException('Unknown field info requested: ' . $fieldName);
+        }
+        return $this->fields[$fieldName];
     }
 }

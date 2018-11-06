@@ -189,7 +189,7 @@ class ContactDataExchange extends GeneralDataExchange
 
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
                 // Normalize the value from the API to what Mautic needs
-                $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getTypeName(), $value);
+                $normalizedValue = $this->valueNormalizer->normalizeForMauticTyped($objectFields[$field], $value);
                 $reportFieldDAO  = new FieldDAO($field, $normalizedValue);
 
                 $objectDAO->addField($reportFieldDAO);
@@ -266,7 +266,7 @@ class ContactDataExchange extends GeneralDataExchange
          * @var FieldDAO $fieldDAO
          */
         foreach ($objectData as $key => $fieldDAO) {
-            $normalizedFields[$key] = $this->valueNormalizer->normalizeForVtiger($objectFields[$fieldDAO->getName()], $fieldDAO)->getNormalizedValue();
+            $normalizedFields[$key] = $this->valueNormalizer->normalizeForVtiger($objectFields[$fieldDAO->getName()], $fieldDAO);
         }
 
         return $this->modelFactory->createContact($normalizedFields);
