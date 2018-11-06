@@ -156,7 +156,6 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
             }
             catch (InvalidObject $e) {
                 $this->logInvalidObject($object, $objectName, $e);
-                die();
                 continue;
             }
 
