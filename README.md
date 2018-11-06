@@ -7,12 +7,38 @@
 
  > https://wiki.vtiger.com/index.php/Webservice_reference_manual#Field_Types
 
+
+| Mautic Field Type| VTiger Field Type     | Notes                                                 |
+| -----------------| ------------------    | ------------------------------------------------      |
+| Boolean          | Checkbox              | 													   |
+| Date             | Date                  |                                                       |
+| DateTime         | Date                  |                                                       |
+| Email            | Email                 |                                                       |
+| List - Country   | Picklist              | Needs to have all the countries added in Vtiger       |
+| Locale           | Picklist              | Needs to have all the locale options added in Vtiger  | 
+| Lookup           | Picklist              | Needs to have the same options on both Systems        |
+| Number           | Integer               |                                                       |
+| Number           | Decimal               |                                                       |
+| Number           | Currency              | Two decimals on Mautic side                           |
+| Number           | Percent               |                                                       |
+| Phone            | Phone                 |                                                       |
+| Region           | Picklist              | Needs to have all the region options added in Vtiger  |
+| Select           | Picklist              | Needs to have same options on both Systems            |
+| Select - Multiple| Multi Select Combo Box| Needs to have same options on both systems            |
+| Text             | Text                  |                                                       |
+| Text             | Skype                 |                                                       |
+| Textarea         | Text Area             |                                                       |
+| Time             | Time                  |                                                       |
+| Timezone         | Picklist              | Needs to have all the Timezone Options added in Vtiger| 
+| URL              | URL                   |                                                       |
+
 ### Special fields
 
 #### Picklist
 
 Corresponding select must be defined in Mautic enumerating the Vtiger's picklist values. If unmatched value is found
 the object will be ignored.
+
 
 #### Reference
 
