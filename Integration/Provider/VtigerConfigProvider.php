@@ -19,7 +19,6 @@ use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormAuthInterfa
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormFeaturesInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormInterface;
 use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormSyncInterface;
-use MauticPlugin\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigAuthType;
 use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigSyncFeaturesType;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\BasicTrait;
@@ -81,14 +80,9 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
     /**
      * @param string $object
      *
-     * @return array|MappedFieldInfoInterface[]
+     * @return array
      *
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function getOptionalFieldsForMapping(string $object): array
     {
@@ -96,11 +90,11 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
 
         $optionalFields = [];
         foreach ($fields as $fieldName => $field) {
-            if ($field->isMandatory()) {
+            if ($field['required']) {
                 continue;
             }
 
-            $optionalFields[$fieldName] = $field;
+            $optionalFields[$fieldName] = $field['label'];
         }
 
         return $optionalFields;
@@ -109,14 +103,9 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
     /**
      * @param string $object
      *
-     * @return array|MappedFieldInfoInterface[]
+     * @return array
      *
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     public function getRequiredFieldsForMapping(string $object): array
     {
@@ -124,11 +113,11 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
 
         $requiredFields = [];
         foreach ($fields as $fieldName => $field) {
-            if (!$field->isMandatory()) {
+            if (!$field['required']) {
                 continue;
             }
 
-            $requiredFields[$fieldName] = $field;
+            $requiredFields[$fieldName] = $field['label'];
         }
 
         return $requiredFields;
@@ -157,14 +146,9 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
     /**
      * @param string $object
      *
-     * @return array|MappedFieldInfoInterface[]
+     * @return mixed
      *
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
-     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
      */
     private function getFields(string $object): array
     {
