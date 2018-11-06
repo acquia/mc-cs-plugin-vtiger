@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Mapping;
 
 use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
+use MauticPlugin\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\ObjectMappingDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
@@ -84,7 +85,7 @@ class ObjectFieldMapper
     /**
      * @param string $objectName
      *
-     * @return array
+     * @return array|MappedFieldInfoInterface[]
      *
      * @throws InvalidQueryArgumentException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
@@ -113,21 +114,7 @@ class ObjectFieldMapper
             return [];
         }
 
-        $salesFields = [];
-
-        foreach ($fields as $fieldInfo) {
-            $type                               = 'string';
-            $salesFields[$fieldInfo->getName()] = [
-                'type'        => $type,
-                'label'       => $fieldInfo->getLabel(),
-                'required'    => $fieldInfo->isMandatory(),
-                'optionLabel' => $fieldInfo->getLabel(),
-            ];
-        }
-
-        asort($salesFields);
-
-        return $salesFields;
+        return $fields;
     }
 
     /**
@@ -160,11 +147,11 @@ class ObjectFieldMapper
                     $fieldMapping['mappedField'],
                     $vtigerField,
                     $fieldMapping['syncDirection'],
-                    $availableFields[$vtigerField]['required']
+                    $availableFields[$vtigerField]->isMandatory()
                 );
             }
 
-            if (in_array($vtigerObject, [ContactDataExchange::OBJECT_NAME, LeadDataExchange::OBJECT_NAME])) {
+            if (in_array($vtigerObject, [ContactDataExchange::OBJECT_NAME, LeadDataExchange::OBJECT_NAME], true)) {
                 $objectMapping->addFieldMapping('mautic_internal_dnc_email', 'emailoptout', ObjectMappingDAO::SYNC_BIDIRECTIONALLY, true);
             }
 
