@@ -32,10 +32,9 @@ class DateValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, 'string');
         }
 
-        $formatString = "Y-m-d";
-        $date         = \DateTime::createFromFormat($formatString, $value);
+        $date         = \DateTime::createFromFormat('Y-m-d', $value);
 
-        if (!$date || ($date->format($formatString) != $value)) {
+        if (!$date || ($date->format('Y-m-d') != $value)) {
             if ($this->context instanceof ExecutionContextInterface) {
                 $this->context->buildViolation($constraint->message)
                               ->setParameter('{{ value }}', $this->formatValue($value))
