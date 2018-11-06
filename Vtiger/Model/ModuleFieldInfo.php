@@ -165,11 +165,6 @@ class ModuleFieldInfo implements MappedFieldInfoInterface
         return $this->default;
     }
 
-    public function getFormType(): string
-    {
-        return 'string';
-    }
-
     /**
      * @param \stdClass $data
      */
