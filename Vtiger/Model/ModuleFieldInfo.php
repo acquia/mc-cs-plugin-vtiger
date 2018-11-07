@@ -180,6 +180,24 @@ class ModuleFieldInfo implements MappedFieldInfoInterface
     /**
      * @return bool
      */
+    public function hasTooltip(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @return string
+     *
+     * @throws \Exception
+     */
+    public function getTooltip(): string
+    {
+        throw new \Exception('This field has no tooltip');
+    }
+
+    /**
+     * @return bool
+     */
     public function isBidirectionalSyncEnabled(): bool
     {
         return $this->fieldDirection->isFieldReadable($this) && $this->fieldDirection->isFieldWritable($this);
