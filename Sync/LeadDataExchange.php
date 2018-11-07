@@ -104,7 +104,7 @@ class LeadDataExchange extends GeneralDataExchange
 
         $updated = $this->getReportPayload($fromDateTime, $mappedFields, self::OBJECT_NAME);
 
-        /** @var Contact $object */
+        /** @var Lead $object */
         foreach ($updated as $object) {
             $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new \DateTimeImmutable($object->getModifiedTime()->format('r')));
 
