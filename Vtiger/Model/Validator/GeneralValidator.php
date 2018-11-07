@@ -88,7 +88,7 @@ class GeneralValidator
     private function validateField(ModuleFieldInfo $fieldInfo, $fieldValue): void
     {
         $validators = [];
-        if (!$fieldInfo->isNullable() && $fieldInfo->isMandatory() && null === $fieldValue) {
+        if (!$fieldInfo->isNullable() && $fieldInfo->isRequired() && null === $fieldValue) {
             $validators[] = new NotNull();
         }
 

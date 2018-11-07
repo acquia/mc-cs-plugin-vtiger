@@ -33,7 +33,7 @@ class ModuleFieldInfo implements MappedFieldInfoInterface
     /**
      * @var bool
      */
-    private $mandatory;
+    private $required;
 
     /**
      * @var CommonType
@@ -78,7 +78,7 @@ class ModuleFieldInfo implements MappedFieldInfoInterface
 
         $this->setDefault($data);
         $this->setIsUnique($data);
-        $this->setMandatory($data->mandatory, $this->name);
+        $this->setRequired($data->mandatory, $this->name);
 
         $this->type = TypeFactory::create($data->type);
 
@@ -104,9 +104,9 @@ class ModuleFieldInfo implements MappedFieldInfoInterface
     /**
      * @return bool
      */
-    public function isMandatory(): bool
+    public function isRequired(): bool
     {
-        return $this->mandatory;
+        return $this->required;
     }
 
     /**
@@ -217,11 +217,11 @@ class ModuleFieldInfo implements MappedFieldInfoInterface
     }
 
     /**
-     * @param bool   $mandatory
+     * @param bool   $required
      * @param string $name
      */
-    private function setMandatory(bool $mandatory, string $name): void
+    private function setRequired(bool $required, string $name): void
     {
-        $this->mandatory = $mandatory || 'email' === $name;
+        $this->required = $required || 'email' === $name;
     }
 }
