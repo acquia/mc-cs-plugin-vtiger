@@ -132,7 +132,7 @@ class ContactDataExchange extends GeneralDataExchange
         /** @var Contact $contact */
         foreach ($updated as $key => $contact) {
             if ($contact->isConvertedFromLead()) {
-                $objectDAO = new ObjectDAO(LeadDataExchange::OBJECT_NAME, $contact->getId(), $contact->getModifiedTime());
+                $objectDAO = new ObjectDAO(ContactDataExchange::OBJECT_NAME, $contact->getId(), $contact->getModifiedTime());
                 $objectDAO->addField(
                     new FieldDAO('email', $this->valueNormalizer->normalizeForMautic(NormalizedValueDAO::EMAIL_TYPE, $contact->getEmail()))
                 );
@@ -143,40 +143,23 @@ class ContactDataExchange extends GeneralDataExchange
                         'lead',
                         $objectDAO
                     );
+
+                    // This lead has to be marked as deleted
+                    if ($foundMapping) {
+                        DebugLogger::log(VtigerCrmIntegration::NAME, 'Marking Lead #' . $contact->getId() . ' as deleted');
+                        $objectChangeDAO = new ObjectChangeDAO(
+                            VtigerCrmIntegration::NAME,
+                            LeadDataExchange::OBJECT_NAME,
+                            $contact->getId(),
+                            $foundMapping->getObject(),
+                            $foundMapping->getObjectId()
+                        );
+
+                        $deleted[] = $objectChangeDAO;
+                    }
                 }
                 catch (ObjectDeletedException $e) {
-                    $foundMapping = false;
-                }
-
-
-                // This lead has to be marked as deleted
-                if ($foundMapping) {
-                    DebugLogger::log(VtigerCrmIntegration::NAME, 'Marking Lead #' . $contact->getId() . ' as deleted');
-                    $objectChangeDAO = new ObjectChangeDAO(
-                        VtigerCrmIntegration::NAME,
-                        LeadDataExchange::OBJECT_NAME,
-                        $contact->getId(),
-                        $foundMapping->getObject(),
-                        $foundMapping->getObjectId()
-                    );
-
-                    $mapping = (new ObjectMapping())
-                        ->setIntegration(VtigerCrmIntegration::NAME)
-                        ->setIntegrationObjectName(self::OBJECT_NAME)
-                        ->setIntegrationObjectId($contact->getId())
-                        ->setInternalObjectName($foundMapping->getObject())
-                        ->setInternalObjectId($foundMapping->getObjectId())
-                        ->setLastSyncDate($foundMapping->getChangeDateTime());
-
-                    DebugLogger::log(VtigerCrmIntegration::NAME, 'Remapping Lead to Contact');
-
-                    $this->mappingHelper->saveObjectMappings([
-                        $mapping,
-                    ]);
-
-                    $deleted[] = $objectChangeDAO;
-
-                    unset($updated[$key]);
+                    // We have had a Lead but it is deleted already
                 }
             }
         }
