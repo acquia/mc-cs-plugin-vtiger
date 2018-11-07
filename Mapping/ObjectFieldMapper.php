@@ -147,7 +147,7 @@ class ObjectFieldMapper
                     $fieldMapping['mappedField'],
                     $vtigerField,
                     $fieldMapping['syncDirection'],
-                    $availableFields[$vtigerField]->isRequired()
+                    $availableFields[$vtigerField]->showAsRequired()
                 );
             }
 

@@ -96,7 +96,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
 
         $optionalFields = [];
         foreach ($fields as $fieldName => $field) {
-            if ($field->isRequired()) {
+            if ($field->showAsRequired()) {
                 continue;
             }
 
@@ -124,7 +124,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
 
         $requiredFields = [];
         foreach ($fields as $fieldName => $field) {
-            if (!$field->isRequired()) {
+            if (!$field->showAsRequired()) {
                 continue;
             }
 

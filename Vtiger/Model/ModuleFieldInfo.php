@@ -110,6 +110,14 @@ class ModuleFieldInfo implements MappedFieldInfoInterface
     }
 
     /**
+     * @return bool
+     */
+    public function showAsRequired(): bool
+    {
+        return $this->isRequired();
+    }
+
+    /**
      * @return mixed
      */
     public function getTypeName()
@@ -120,8 +128,7 @@ class ModuleFieldInfo implements MappedFieldInfoInterface
     /**
      * @return CommonType
      */
-    public function getType()
-    : CommonType
+    public function getType(): CommonType
     {
         return $this->type;
     }
