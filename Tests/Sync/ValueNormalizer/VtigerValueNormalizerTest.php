@@ -70,8 +70,6 @@ class VtigerValueNormalizerTest extends \PHPUnit_Framework_TestCase
 
     public function testNormalizeForVtiger()
     {
-        $this->markTestSkipped('Disabled until fixed');
-
         $typeObject       = new \stdClass();
         $typeObject->name = 'string';
 
@@ -93,8 +91,8 @@ class VtigerValueNormalizerTest extends \PHPUnit_Framework_TestCase
                 $originalValue = new NormalizedValueDAO($type, $testValue);
                 $fieldDAO      = new FieldDAO('test_field', $originalValue);
                 $normalized    = $this->valueNormalizer->normalizeForVtiger($fieldInfo, $fieldDAO);
-                $unnormalized  = $this->valueNormalizer->normalizeForMautic($type, $normalized);
-                $this->assertEquals($normalized, $unnormalized->getNormalizedValue(),
+                $unnormalized  = $this->valueNormalizer->normalizeForMauticTyped($fieldInfo, $normalized);
+                $this->assertEquals($testValue, $unnormalized->getNormalizedValue(),
                     sprintf("Transformation for %s type failed %s<>%s<>%s",
                         $type, $testValue, $normalized, $unnormalized->getNormalizedValue()
                     )

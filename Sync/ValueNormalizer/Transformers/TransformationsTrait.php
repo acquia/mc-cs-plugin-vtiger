@@ -199,8 +199,12 @@ trait TransformationsTrait
      *
      * @return string
      */
-    protected function transformCurrency($value): string
+    protected function transformCurrency($value): ?string
     {
+        if (is_null($value)) {
+            return null;
+        }
+        
         return number_format(floatval($value), 2);
     }
 
