@@ -16,9 +16,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 use Mautic\LeadBundle\Entity\DoNotContact;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\PicklistType;
 
 /**
  * Class VtigerMauticTransformer
@@ -46,6 +44,9 @@ final class VtigerMauticTransformer implements TransformerInterface
      */
     protected function transformMultiPicklist($mauticValue)
     {
+        if (is_null($mauticValue)) {
+            return null;
+        }
         $values = explode('|##|', $mauticValue);
         array_walk($values, function(&$element){
             $element = trim($element);

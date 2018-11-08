@@ -45,6 +45,12 @@ final class MauticVtigerTransformer implements TransformerInterface
      */
     protected function transformMultiPicklist(?string $value): string
     {
+        if (is_null($value)) {
+            return '';
+        }
+        $values = explode('|', $value);
+        $value = join(' |##| ', $values);
+
         return $value;
     }
 
@@ -91,8 +97,23 @@ final class MauticVtigerTransformer implements TransformerInterface
      *
      * @return null|string
      */
-    protected function transformDate(?\DateTimeInterface $value): ?string
+    protected function transformDate($value): ?string
     {
-        return is_null($value) ? null : $value->format('Y-m-d');
+        return is_null($value) ? null : $value instanceof \DateTimeInterface ? $value->format('Y-m-d') : (string) $value;
     }
+
+    /**
+     * @param $value
+     *
+     * @return null|string
+     */
+    protected function transformPicklist($value): ?string
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        return $this->transformString($value);
+    }
+
 }
