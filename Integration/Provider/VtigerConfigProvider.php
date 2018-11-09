@@ -135,6 +135,29 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
     }
 
     /**
+     * @param string $object
+     *
+     * @return array|MappedFieldInfoInterface[]
+     *
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
+     * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
+     */
+    public function getAllFieldsForMapping(string $object): array
+    {
+        $requiredFields = $this->getRequiredFieldsForMapping($object);
+        asort($requiredFields);
+
+        $optionalFields = $this->getOptionalFieldsForMapping($object);
+        asort($optionalFields);
+
+        return array_merge($requiredFields, $optionalFields);
+    }
+
+    /**
      * @return array
      */
     public function getSyncConfigObjects(): array
