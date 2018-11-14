@@ -15,6 +15,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\NotificationDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
@@ -23,6 +24,7 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectDeletedException;
 use MauticPlugin\IntegrationsBundle\Sync\Helper\MappingHelper;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
+use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
@@ -40,6 +42,11 @@ class ContactDataExchange extends GeneralDataExchange
      * @var string
      */
     public const OBJECT_NAME = 'Contacts';
+
+    /**
+     * @var string
+     */
+    public const OBJECT_LABEL = 'Contact';
 
     /**
      * @var int
@@ -70,15 +77,20 @@ class ContactDataExchange extends GeneralDataExchange
      * @var ModelFactory
      */
     private $modelFactory;
+    /**
+     * @var ContactNotificationHandler
+     */
+    private $notificationHandler;
 
     /**
-     * @param VtigerSettingProvider    $vtigerSettingProvider
-     * @param ValueNormalizerInterface $valueNormalizer
-     * @param ContactRepository        $contactRepository
-     * @param ContactValidator         $contactValidator
-     * @param MappingHelper            $mappingHelper
-     * @param ObjectFieldMapper        $objectFieldMapper
-     * @param ModelFactory             $modelFactory
+     * @param VtigerSettingProvider      $vtigerSettingProvider
+     * @param ValueNormalizerInterface   $valueNormalizer
+     * @param ContactRepository          $contactRepository
+     * @param ContactValidator           $contactValidator
+     * @param MappingHelper              $mappingHelper
+     * @param ObjectFieldMapper          $objectFieldMapper
+     * @param ModelFactory               $modelFactory
+     * @param ContactNotificationHandler $notificationHandler
      */
     public function __construct(
         VtigerSettingProvider $vtigerSettingProvider,
@@ -87,7 +99,8 @@ class ContactDataExchange extends GeneralDataExchange
         ContactValidator $contactValidator,
         MappingHelper $mappingHelper,
         ObjectFieldMapper $objectFieldMapper,
-        ModelFactory $modelFactory
+        ModelFactory $modelFactory,
+        ContactNotificationHandler $notificationHandler
     )
     {
         parent::__construct($vtigerSettingProvider, $valueNormalizer);
@@ -96,6 +109,7 @@ class ContactDataExchange extends GeneralDataExchange
         $this->mappingHelper     = $mappingHelper;
         $this->objectFieldMapper = $objectFieldMapper;
         $this->modelFactory      = $modelFactory;
+        $this->notificationHandler = $notificationHandler;
     }
 
     /**

@@ -52,6 +52,7 @@ class DataExchange implements SyncDataExchangeInterface
         ContactDataExchange $contactDataExchange,
         LeadDataExchange $leadDataExchange,
         AccountDataExchange $accountDataExchange
+
     ) {
         $this->fieldMapper         = $fieldMapper;
         $this->contactDataExchange = $contactDataExchange;

@@ -25,7 +25,7 @@ class VtigerCrmIntegration extends BasicIntegration implements BasicInterface, I
     use BasicTrait;
 
     const NAME = 'VtigerCrm';
-
+    const DISPLAY_NAME = 'Vtiger CRM';
     /**
      * @return string
      */
