@@ -17,6 +17,11 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 
 class AccountFieldDirection implements FieldDirectionInterface
 {
+    private $readOnlyFields = [
+        'account_id',
+        'emailoptout',
+    ];
+
     /**
      * @inheritdoc
      */
@@ -30,6 +35,6 @@ class AccountFieldDirection implements FieldDirectionInterface
      */
     public function isFieldWritable(ModuleFieldInfo $moduleFieldInfo): bool
     {
-        return true;
+        return !in_array($moduleFieldInfo->getName(), $this->readOnlyFields, true);
     }
 }
