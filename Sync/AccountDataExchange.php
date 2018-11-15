@@ -79,12 +79,14 @@ class AccountDataExchange extends GeneralDataExchange
      * @param \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
      * @param ReportDAO                                                        $syncReport
      *
-     * @return ReportDAO|mixed
+     * @return ReportDAO
      *
      * @throws \Exception
      */
-    public function getObjectSyncReport(\MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject, ReportDAO $syncReport)
-    {
+    public function getObjectSyncReport(
+        \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
+        ReportDAO $syncReport
+    ): ReportDAO {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
         $objectFields = $this->accountRepository->describe()->getFields();

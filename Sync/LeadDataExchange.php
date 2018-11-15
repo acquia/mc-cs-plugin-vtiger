@@ -96,8 +96,7 @@ class LeadDataExchange extends GeneralDataExchange
     public function getObjectSyncReport(
         \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
         ReportDAO $syncReport
-    ): ReportDAO
-    {
+    ): ReportDAO {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
         $objectFields = $this->leadRepository->describe()->getFields();
