@@ -17,6 +17,7 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
+use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
 use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
@@ -38,26 +39,35 @@ class DataExchange implements SyncDataExchangeInterface
      */
     private $leadDataExchange;
 
-    /** @var AccountDataExchange */
+    /**
+     * @var AccountDataExchange
+     */
     private $accountDataExchange;
 
     /**
-     * @param ObjectFieldMapper   $fieldMapper
+     * @var ContactNotificationHandler
+     */
+    private $contactNotificationHandler;
+
+    /**
+     * @param ObjectFieldMapper $fieldMapper
      * @param ContactDataExchange $contactDataExchange
-     * @param LeadDataExchange    $leadDataExchange
+     * @param LeadDataExchange $leadDataExchange
      * @param AccountDataExchange $accountDataExchange
+     * @param ContactNotificationHandler $contactNotificationHandler
      */
     public function __construct(
         ObjectFieldMapper $fieldMapper,
         ContactDataExchange $contactDataExchange,
         LeadDataExchange $leadDataExchange,
-        AccountDataExchange $accountDataExchange
-
+        AccountDataExchange $accountDataExchange,
+        ContactNotificationHandler $contactNotificationHandler
     ) {
         $this->fieldMapper         = $fieldMapper;
         $this->contactDataExchange = $contactDataExchange;
         $this->leadDataExchange    = $leadDataExchange;
         $this->accountDataExchange = $accountDataExchange;
+        $this->contactNotificationHandler = $contactNotificationHandler;
     }
 
     /**

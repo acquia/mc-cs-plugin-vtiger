@@ -15,7 +15,6 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\NotificationDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
@@ -77,6 +76,7 @@ class ContactDataExchange extends GeneralDataExchange
      * @var ModelFactory
      */
     private $modelFactory;
+
     /**
      * @var ContactNotificationHandler
      */

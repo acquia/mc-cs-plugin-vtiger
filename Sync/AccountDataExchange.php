@@ -18,6 +18,7 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
@@ -55,24 +56,32 @@ class AccountDataExchange extends GeneralDataExchange
     private $modelFactory;
 
     /**
-     * @param VtigerSettingProvider    $vtigerSettingProvider
+     * @var ContactNotificationHandler
+     */
+    private $contactNotificationHandler;
+
+    /**
+     * @param VtigerSettingProvider $vtigerSettingProvider
      * @param ValueNormalizerInterface $valueNormalizer
-     * @param AccountRepository        $accountRepository
-     * @param AccountValidator         $accountValidator
-     * @param ModelFactory             $modelFactory
+     * @param AccountRepository $accountRepository
+     * @param AccountValidator $accountValidator
+     * @param ModelFactory $modelFactory
+     * @param ContactNotificationHandler $contactNotificationHandler
      */
     public function __construct(
         VtigerSettingProvider $vtigerSettingProvider,
         ValueNormalizerInterface $valueNormalizer,
         AccountRepository $accountRepository,
         AccountValidator $accountValidator,
-        ModelFactory $modelFactory
+        ModelFactory $modelFactory,
+        ContactNotificationHandler $contactNotificationHandler
     )
     {
         parent::__construct($vtigerSettingProvider, $valueNormalizer);
         $this->accountRepository = $accountRepository;
         $this->accountValidator  = $accountValidator;
         $this->modelFactory      = $modelFactory;
+        $this->contactNotificationHandler = $contactNotificationHandler;
     }
 
     /**

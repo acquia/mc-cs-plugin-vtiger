@@ -190,7 +190,7 @@ return [
                     'mautic.integrations.helper.sync_mapping',
                     'mautic.vtiger_crm.mapping.field_mapping',
                     'mautic.vtiger_crm.modelFactory',
-                    'mautic.integrations.sync.notification.handler_contact'
+                    'mautic.integrations.sync.notification.handler_contact',
                 ],
             ],
             'mautic.vtiger_crm.sync.data_exchange_leads'           => [
@@ -201,7 +201,7 @@ return [
                     'mautic.vtiger_crm.repository.leads',
                     'mautic.vtiger_crm.validator.lead',
                     'mautic.vtiger_crm.modelFactory',
-                    'mautic.integrations.sync.notification.handler_contact'
+                    'mautic.integrations.sync.notification.handler_contact',
                 ],
             ],
             'mautic.vtiger_crm.sync.data_exchange_accounts'        => [
@@ -212,6 +212,7 @@ return [
                     'mautic.vtiger_crm.repository.accounts',
                     'mautic.vtiger_crm.validator.account',
                     'mautic.vtiger_crm.modelFactory',
+                    'mautic.integrations.sync.notification.handler_contact',
                 ],
             ],
             'mautic.vtiger_crm.lead_event_supplier'                => [
