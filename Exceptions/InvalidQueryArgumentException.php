@@ -15,7 +15,9 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Exceptions;
 
 class InvalidQueryArgumentException extends SessionException
 {
-    /** @var string  */
+    /**
+     * @var string
+     */
     private $incomingMessage;
 
     /**
@@ -38,7 +40,8 @@ class InvalidQueryArgumentException extends SessionException
     /**
      * @return string
      */
-    public function getIncomingMessage() {
+    public function getIncomingMessage()
+    {
         return $this->incomingMessage;
     }
 
