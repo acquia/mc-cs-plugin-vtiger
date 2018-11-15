@@ -173,7 +173,7 @@ class DataExchangeTest extends \PHPUnit_Framework_TestCase
         $this->requestDAO->addObject(new ObjectDAO(ContactDataExchange::OBJECT_NAME));
     }
 
-    public function testGetSyncReportContact()
+    public function testSyncReportIsBuiltCorrectlyForContacts()
     {
         $this->contactReport = $this->dataExchange->getSyncReport($this->requestDAO);
         $contactReport = $this->contactReport->getObjects(ContactDataExchange::OBJECT_NAME);
@@ -199,14 +199,12 @@ class DataExchangeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($contactArray, $updatesArray);
     }
 
-    public function testExecuteSyncOrderContact()
+    public function testContactDataExchangeMethodsGetCalled()
     {
         $this->contactDataExchange->expects($this->exactly(1))->method('update');
         $this->contactDataExchange->expects($this->exactly(1))->method('insert');
 
-        $syncOrder = $this->getSyncOrder(ContactDataExchange::OBJECT_NAME);
-
-        $this->assertNull($this->dataExchange->executeSyncOrder($syncOrder));
+        $this->getSyncOrder(ContactDataExchange::OBJECT_NAME);
     }
 
     /**
