@@ -199,7 +199,7 @@ class DataExchangeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($contactArray, $updatesArray);
     }
 
-    public function testContactDataExchangeMethodsGetCalled()
+    public function testExecuteSyncOrderContact()
     {
         $this->contactDataExchange->expects($this->exactly(1))->method('update');
         $this->contactDataExchange->expects($this->exactly(1))->method('insert');
