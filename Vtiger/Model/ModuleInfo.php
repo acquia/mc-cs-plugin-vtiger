@@ -14,12 +14,9 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionInterface;
 
 /**
- * Class ModuleInfo.
- *
- * @see
- *
  * +"label": "Contacts"
  * +"name": "Contacts"
  * +"createable": true
@@ -85,13 +82,10 @@ class ModuleInfo
     private $labelFields;
 
     /**
-     * ModuleInfo constructor.
-     *
-     * @param \stdClass $data
-     *
-     * @throws \Exception
+     * @param \stdClass               $data
+     * @param FieldDirectionInterface $fieldDirection
      */
-    public function __construct(\stdClass $data)
+    public function __construct(\stdClass $data, FieldDirectionInterface $fieldDirection)
     {
         $this->label        = $data->label;
         $this->name         = $data->name;
@@ -99,11 +93,11 @@ class ModuleInfo
         $this->updateable   = $data->updateable;
         $this->deleteable   = $data->deleteable;
         $this->retrieveable = $data->retrieveable;
-        foreach ($data->fields as $key=>$fieldInfo) {
-            $this->fields[$fieldInfo->name] = new ModuleFieldInfo($fieldInfo);
+        foreach ($data->fields as $key => $fieldInfo) {
+            $this->fields[$fieldInfo->name] = new ModuleFieldInfo($fieldInfo, $fieldDirection);
         }
         $this->idPrefix        = $data->idPrefix;
-        $this->allowDuplicates = isset($data->allowDuplicates) ? $data->allowDuplicates : true;
+        $this->allowDuplicates = $data->allowDuplicates ?? true;
         $this->labelFields     = $data->labelFields;
     }
 

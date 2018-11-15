@@ -16,10 +16,8 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\CachedItemNotFoundException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionInterface;
 
-/**
- * Class AccountRepository.
- */
 class AccountRepository extends BaseRepository
 {
     /**
@@ -121,5 +119,13 @@ class AccountRepository extends BaseRepository
     protected function getModel(array $objectData): Account
     {
         return $this->modelFactory->createAccount($objectData);
+    }
+
+    /**
+     * @return FieldDirectionInterface
+     */
+    protected function getFieldDirection(): FieldDirectionInterface
+    {
+        return $this->fieldDirectionFactory->getAccountFieldDirection();
     }
 }

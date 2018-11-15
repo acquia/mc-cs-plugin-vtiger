@@ -15,18 +15,10 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionInterface;
 
-/**
- * Class LeadRepository.
- */
 class LeadRepository extends BaseRepository
 {
-    private $excludedFields = [
-        'leadsource', 'contact_id', 'donotcall', 'emailoptout', 'assigned_user_id', 'modifiedby', 'imagename', 'isconvertedfromlead',
-    ];
-
-
     /**
      * @param Lead $module
      *
@@ -70,26 +62,6 @@ class LeadRepository extends BaseRepository
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function getMappableFields(): array
-    {
-        $mappable = $this->getEditableFields();
-
-        /**
-         * @var int
-         * @var ModuleFieldInfo $field
-         */
-        foreach ($mappable as $key=>$field) {
-            if (in_array($field->getName(), $this->excludedFields)) {
-                unset($mappable[$key]);
-            }
-        }
-
-        return $mappable;
-    }
-
-    /**
      * @param array $objectData
      *
      * @return Lead
@@ -97,5 +69,13 @@ class LeadRepository extends BaseRepository
     protected function getModel(array $objectData): Lead
     {
         return $this->modelFactory->createLead($objectData);
+    }
+
+    /**
+     * @return FieldDirectionInterface
+     */
+    protected function getFieldDirection(): FieldDirectionInterface
+    {
+        return $this->fieldDirectionFactory->getLeadFieldDirection();
     }
 }

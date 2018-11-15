@@ -27,6 +27,8 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionFactory;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 
 /**
@@ -48,15 +50,27 @@ abstract class BaseRepository
     protected $modelFactory;
 
     /**
-     * @param Connection   $connection
-     * @param FieldCache   $fieldCache
-     * @param ModelFactory $modelFactory
+     * @var FieldDirectionFactory
      */
-    public function __construct(Connection $connection, FieldCache $fieldCache, ModelFactory $modelFactory)
+    protected $fieldDirectionFactory;
+
+    /**
+     * @param Connection            $connection
+     * @param FieldCache            $fieldCache
+     * @param ModelFactory          $modelFactory
+     * @param FieldDirectionFactory $fieldDirectionFactory
+     */
+    public function __construct(
+        Connection $connection,
+        FieldCache $fieldCache,
+        ModelFactory $modelFactory,
+        FieldDirectionFactory $fieldDirectionFactory
+    )
     {
-        $this->connection   = $connection;
-        $this->fieldCache   = $fieldCache;
-        $this->modelFactory = $modelFactory;
+        $this->connection            = $connection;
+        $this->fieldCache            = $fieldCache;
+        $this->modelFactory          = $modelFactory;
+        $this->fieldDirectionFactory = $fieldDirectionFactory;
     }
 
     /**
@@ -78,8 +92,11 @@ abstract class BaseRepository
         } catch (CachedItemNotFoundException $e) {
         }
 
+        $fieldDirection = $this->getFieldDirection();
+
         $moduleInfo = new ModuleInfo(
-            $this->connection->get('describe', ['elementType' => $key])
+            $this->connection->get('describe', ['elementType' => $key]),
+            $fieldDirection
         );
         $this->fieldCache->setModuleInfo($key, $moduleInfo);
 
@@ -213,7 +230,7 @@ abstract class BaseRepository
         $fields = [];
         foreach ($moduleFields as $fieldInfo) {
             if ($fieldInfo->isEditable()) {
-                $fields[] = $fieldInfo;
+                $fields[$fieldInfo->getName()] = $fieldInfo;
             }
         }
 
@@ -293,4 +310,9 @@ abstract class BaseRepository
      * @return BaseModel|Contact|Account|Lead
      */
     abstract protected function getModel(array $objectData);
+
+    /**
+     * @return FieldDirectionInterface
+     */
+    abstract protected function getFieldDirection(): FieldDirectionInterface;
 }

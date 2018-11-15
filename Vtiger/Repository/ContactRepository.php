@@ -15,17 +15,10 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 
 use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionInterface;
 
-/**
- * Class ContactRepository.
- */
 class ContactRepository extends BaseRepository
 {
-    private $excludedFields = [
-        'leadsource', 'contact_id', 'donotcall', 'emailoptout', 'assigned_user_id', 'modifiedby', 'imagename', 'isconvertedfromlead',
-    ];
-
     /**
      * @param Contact $module
      *
@@ -59,26 +52,6 @@ class ContactRepository extends BaseRepository
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function getMappableFields(): array
-    {
-        $mappable = $this->getEditableFields();
-
-        /**
-         * @var int
-         * @var ModuleFieldInfo $field
-         */
-        foreach ($mappable as $key=>$field) {
-            if (in_array($field->getName(), $this->excludedFields)) {
-                unset($mappable[$key]);
-            }
-        }
-
-        return $mappable;
-    }
-
-    /**
      * @return string
      */
     public function getModuleFromRepositoryName(): string
@@ -94,5 +67,13 @@ class ContactRepository extends BaseRepository
     protected function getModel(array $objectData): Contact
     {
         return $this->modelFactory->createContact($objectData);
+    }
+
+    /**
+     * @return FieldDirectionInterface
+     */
+    protected function getFieldDirection(): FieldDirectionInterface
+    {
+        return $this->fieldDirectionFactory->getContactFieldDirection();
     }
 }

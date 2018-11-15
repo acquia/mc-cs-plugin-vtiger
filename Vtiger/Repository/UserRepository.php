@@ -16,6 +16,7 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository;
 use MauticPlugin\MauticVtigerCrmBundle\Enum\CacheEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\CachedItemNotFoundException;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\User;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionInterface;
 
 /**
  * Class UserRepository.
@@ -106,5 +107,15 @@ class UserRepository extends BaseRepository
     protected function getModel(array $objectData): User
     {
         return $this->modelFactory->createUser($objectData);
+    }
+
+    /**
+     * @return FieldDirectionInterface
+     *
+     * @throws \Exception
+     */
+    protected function getFieldDirection(): FieldDirectionInterface
+    {
+        throw new \Exception('User has no Fields');
     }
 }

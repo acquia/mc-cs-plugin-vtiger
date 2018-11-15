@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
+use MauticPlugin\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\CommonType;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\TypeFactory;
 
-class ModuleFieldInfo
+class ModuleFieldInfo implements MappedFieldInfoInterface
 {
     /**
      * @var string
@@ -31,7 +33,7 @@ class ModuleFieldInfo
     /**
      * @var bool
      */
-    private $mandatory;
+    private $required;
 
     /**
      * @var CommonType
@@ -59,13 +61,15 @@ class ModuleFieldInfo
     private $default;
 
     /**
-     * ModuleFieldInfo constructor.
-     *
-     * @param \stdClass $data
-     *
-     * @throws \Exception
+     * @var FieldDirectionInterface
      */
-    public function __construct(\stdClass $data)
+    private $fieldDirection;
+
+    /**
+     * @param \stdClass               $data
+     * @param FieldDirectionInterface $fieldDirection
+     */
+    public function __construct(\stdClass $data, FieldDirectionInterface $fieldDirection)
     {
         $this->label    = $data->label;
         $this->name     = $data->name;
@@ -74,9 +78,11 @@ class ModuleFieldInfo
 
         $this->setDefault($data);
         $this->setIsUnique($data);
-        $this->setMandatory($data->mandatory, $this->name);
+        $this->setRequired($data->mandatory, $this->name);
 
         $this->type = TypeFactory::create($data->type);
+
+        $this->fieldDirection = $fieldDirection;
     }
 
     /**
@@ -98,9 +104,17 @@ class ModuleFieldInfo
     /**
      * @return bool
      */
-    public function isMandatory(): bool
+    public function isRequired(): bool
     {
-        return $this->mandatory;
+        return $this->required;
+    }
+
+    /**
+     * @return bool
+     */
+    public function showAsRequired(): bool
+    {
+        return $this->isRequired();
     }
 
     /**
@@ -114,8 +128,7 @@ class ModuleFieldInfo
     /**
      * @return CommonType
      */
-    public function getType()
-    : CommonType
+    public function getType(): CommonType
     {
         return $this->type;
     }
@@ -165,6 +178,48 @@ class ModuleFieldInfo
     }
 
     /**
+     * @return bool
+     */
+    public function hasTooltip(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @return string
+     *
+     * @throws \Exception
+     */
+    public function getTooltip(): string
+    {
+        throw new \Exception('This field has no tooltip');
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBidirectionalSyncEnabled(): bool
+    {
+        return $this->fieldDirection->isFieldReadable($this) && $this->fieldDirection->isFieldWritable($this);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isToIntegrationSyncEnabled(): bool
+    {
+        return $this->fieldDirection->isFieldWritable($this);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isToMauticSyncEnabled(): bool
+    {
+        return $this->fieldDirection->isFieldReadable($this);
+    }
+
+    /**
      * @param \stdClass $data
      */
     private function setDefault(\stdClass $data): void
@@ -187,11 +242,11 @@ class ModuleFieldInfo
     }
 
     /**
-     * @param bool   $mandatory
+     * @param bool   $required
      * @param string $name
      */
-    private function setMandatory(bool $mandatory, string $name): void
+    private function setRequired(bool $required, string $name): void
     {
-        $this->mandatory = $mandatory || 'email' === $name;
+        $this->required = $required || 'email' === $name;
     }
 }
