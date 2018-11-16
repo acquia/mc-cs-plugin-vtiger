@@ -88,6 +88,7 @@ class ObjectFieldMapper
      * @return array|MappedFieldInfoInterface[]
      *
      * @throws InvalidQueryArgumentException
+     * @throws PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
@@ -96,22 +97,18 @@ class ObjectFieldMapper
      */
     public function getObjectFields(string $objectName): array
     {
-        try {
-            switch ($objectName) {
-                case 'Contacts':
-                    $fields = $this->contactRepository->getMappableFields();
-                    break;
-                case 'Leads':
-                    $fields = $this->leadRepository->getMappableFields();
-                    break;
-                case 'Accounts':
-                    $fields = $this->accountRepository->getMappableFields();
-                    break;
-                default:
-                    throw new InvalidQueryArgumentException('Unknown object '.$objectName);
-            }
-        } catch (PluginNotConfiguredException $e) {
-            return [];
+        switch ($objectName) {
+            case 'Contacts':
+                $fields = $this->contactRepository->getMappableFields();
+                break;
+            case 'Leads':
+                $fields = $this->leadRepository->getMappableFields();
+                break;
+            case 'Accounts':
+                $fields = $this->accountRepository->getMappableFields();
+                break;
+            default:
+                throw new InvalidQueryArgumentException('Unknown object '.$objectName);
         }
 
         return $fields;
@@ -119,8 +116,9 @@ class ObjectFieldMapper
 
     /**
      * @return MappingManualDAO
-     *
+     * @throws InvalidQueryArgumentException
      * @throws ObjectNotSupportedException
+     * @throws PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
@@ -137,7 +135,12 @@ class ObjectFieldMapper
                 $vtigerObject
             );
 
-            $availableFields = $this->getObjectFields($vtigerObject);
+            try {
+                $availableFields = $this->getObjectFields($vtigerObject);
+            } catch (PluginNotConfiguredException $exception) {
+                continue;
+            }
+
             foreach ($this->settingProvider->getFieldMappings($vtigerObject) as $vtigerField => $fieldMapping) {
                 if (!isset($availableFields[$vtigerField])) {
                     continue;
