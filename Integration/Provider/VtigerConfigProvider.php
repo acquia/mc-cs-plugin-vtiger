@@ -37,11 +37,6 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
     private $fieldMapping;
 
     /**
-     * @var array
-     */
-    private $fields = [];
-
-    /**
      * VtigerConfigProvider constructor.
      *
      * @param ObjectFieldMapper $fieldMapping
@@ -191,13 +186,9 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      */
     private function getFields(string $object): array
     {
-        if (isset($this->fields[$object])) {
-            return $this->fields[$object];
-        }
+        $fields = $this->fieldMapping->getObjectFields($object);
+        unset($fields['assigned_user_id']);
 
-        $this->fields[$object] = $this->fieldMapping->getObjectFields($object);
-        unset($this->fields[$object]['assigned_user_id']);
-
-        return $this->fields[$object];
+        return $fields;
     }
 }
