@@ -25,6 +25,8 @@ use MauticPlugin\IntegrationsBundle\Sync\Helper\MappingHelper;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
@@ -184,25 +186,37 @@ class ContactDataExchange extends GeneralDataExchange
             $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new \DateTimeImmutable($object->getModifiedTime()->format('r')));
 
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
-                // Normalize the value from the API to what Mautic needs
-                $normalizedValue = $this->valueNormalizer->normalizeForMauticTyped($objectFields[$field], $value);
-                $reportFieldDAO  = new FieldDAO($field, $normalizedValue);
+                try {
+                    // Normalize the value from the API to what Mautic needs
+                    $normalizedValue = $this->valueNormalizer->normalizeForMauticTyped($objectFields[$field], $value);
+                    $reportFieldDAO = new FieldDAO($field, $normalizedValue);
 
-                $objectDAO->addField($reportFieldDAO);
+                    $objectDAO->addField($reportFieldDAO);
+
+                    $objectDAO->addField(
+                        new FieldDAO(
+                            'mautic_internal_dnc_email',
+                            $this->valueNormalizer->normalizeForMautic(TransformerInterface::DNC_TYPE, $object->getEmailOptout())
+                        )
+                    );
+                    $objectDAO->addField(
+                        new FieldDAO(
+                            'mautic_internal_dnc_sms',
+                            $this->valueNormalizer->normalizeForMautic(TransformerInterface::DNC_TYPE, $object->getEmailOptout())
+                        )
+                    );
+                }
+                catch (InvalidQueryArgumentException $e) {
+                    DebugLogger::log(VtigerCrmIntegration::NAME,
+                        sprintf('%s for %s %s', $e->getMessage(), self::OBJECT_NAME, $object->getId())
+                    );
+                    printf("%s for %s %s\n", $e->getIncomingMessage(), self::OBJECT_NAME, $object->getId());
+                }
+                catch (InvalidObjectValueException $e) {
+                    DebugLogger::log(VtigerCrmIntegration::NAME, $e->getMessage());
+                    continue(2);
+                }
             }
-
-            $objectDAO->addField(
-                new FieldDAO(
-                    'mautic_internal_dnc_email',
-                    $this->valueNormalizer->normalizeForMautic(TransformerInterface::DNC_TYPE, $object->getEmailOptout())
-                )
-            );
-            $objectDAO->addField(
-                new FieldDAO(
-                    'mautic_internal_dnc_sms',
-                    $this->valueNormalizer->normalizeForMautic(TransformerInterface::DNC_TYPE, $object->getEmailOptout())
-                )
-            );
 
             $syncReport->addObject($objectDAO);
         }

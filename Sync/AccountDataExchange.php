@@ -18,10 +18,14 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\AccountValidator;
@@ -107,17 +111,29 @@ class AccountDataExchange extends GeneralDataExchange
             $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new \DateTimeImmutable($object->getModifiedTime()->format('r')));
 
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
-                if (!isset($objectFields[$field])) {
-                    // If the present value is not described it should be processed as string
-                    $normalizedValue = $this->valueNormalizer->normalizeForMautic(NormalizedValueDAO::STRING_TYPE, $value);
-                } else {
-                    // Normalize the value from the API to what Mautic needs
-                    $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getTypeName(), $value);
+                try {
+                    if (!isset($objectFields[$field])) {
+                        // If the present value is not described it should be processed as string
+                        $normalizedValue = $this->valueNormalizer->normalizeForMautic(NormalizedValueDAO::STRING_TYPE, $value);
+                    } else {
+                        // Normalize the value from the API to what Mautic needs
+                        $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getTypeName(), $value);
+                    }
+
+                    $reportFieldDAO = new FieldDAO($field, $normalizedValue);
+
+                    $objectDAO->addField($reportFieldDAO);
                 }
-
-                $reportFieldDAO = new FieldDAO($field, $normalizedValue);
-
-                $objectDAO->addField($reportFieldDAO);
+                catch (InvalidQueryArgumentException $e) {
+                    DebugLogger::log(VtigerCrmIntegration::NAME,
+                        sprintf('%s for %s %s', $e->getMessage(), self::OBJECT_NAME, $object->getId())
+                    );
+                    printf("%s for %s %s\n", $e->getIncomingMessage(), self::OBJECT_NAME, $object->getId());
+                }
+                catch (InvalidObjectValueException $e) {
+                    DebugLogger::log(VtigerCrmIntegration::NAME, $e->getMessage());
+                    continue(2);
+                }
             }
 
             $syncReport->addObject($objectDAO);

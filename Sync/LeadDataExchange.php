@@ -129,10 +129,8 @@ class LeadDataExchange extends GeneralDataExchange
                     );
                     printf("%s for %s %s\n", $e->getIncomingMessage(), self::OBJECT_NAME, $object->getId());
                 }
-                catch (InvalidObjectValueException $exception) {
-                    DebugLogger::log(VtigerCrmIntegration::NAME,
-                        $exception->getMessage()
-                    );
+                catch (InvalidObjectValueException $e) {
+                    DebugLogger::log(VtigerCrmIntegration::NAME, $e->getMessage());
                     continue(2);
                 }
             }
