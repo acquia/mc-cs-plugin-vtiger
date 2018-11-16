@@ -281,15 +281,10 @@ class Connection
      */
     private function authenticate(string $url = null, string $username = null, string $accessKey = null): Connection
     {
-        if ($url || $username || $accessKey) {
-            $this->setCredentials($url, $username, $accessKey);
-        } else {
-            $this->setCredentials($url, $username, $accessKey);
-        }
+        $this->setCredentials($url, $username, $accessKey);
 
         try {
             $credentials = $this->credentials;
-
             if (is_null($credentials)) {
                 throw new SessionException('No authentication credentials supplied');
             }
@@ -317,7 +312,7 @@ class Connection
 
             $this->sessionId = $loginResponse->sessionName;
         } catch (\Exception $e) {
-            throw new PluginNotConfiguredException('Failed to authenticate. '.$e->getMessage());
+            throw new PluginNotConfiguredException($e->getMessage());
         }
 
         return $this;
