@@ -14,12 +14,13 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\NotificationDAOFactory;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
-use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
+use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\AccountNotificationHandler;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
@@ -60,17 +61,13 @@ class AccountDataExchange extends GeneralDataExchange
     private $modelFactory;
 
     /**
-     * @var ContactNotificationHandler
-     */
-    private $contactNotificationHandler;
-
-    /**
      * @param VtigerSettingProvider $vtigerSettingProvider
      * @param ValueNormalizerInterface $valueNormalizer
      * @param AccountRepository $accountRepository
      * @param AccountValidator $accountValidator
      * @param ModelFactory $modelFactory
-     * @param ContactNotificationHandler $contactNotificationHandler
+     * @param NotificationDAOFactory $notificationDAOFactory
+     * @param AccountNotificationHandler $notificationHandler
      */
     public function __construct(
         VtigerSettingProvider $vtigerSettingProvider,
@@ -78,14 +75,13 @@ class AccountDataExchange extends GeneralDataExchange
         AccountRepository $accountRepository,
         AccountValidator $accountValidator,
         ModelFactory $modelFactory,
-        ContactNotificationHandler $contactNotificationHandler
-    )
-    {
-        parent::__construct($vtigerSettingProvider, $valueNormalizer);
+        NotificationDAOFactory $notificationDAOFactory,
+        AccountNotificationHandler $notificationHandler
+    ){
+        parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationDAOFactory, $notificationHandler);
         $this->accountRepository = $accountRepository;
         $this->accountValidator  = $accountValidator;
         $this->modelFactory      = $modelFactory;
-        $this->contactNotificationHandler = $contactNotificationHandler;
     }
 
     /**

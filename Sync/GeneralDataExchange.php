@@ -14,9 +14,11 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\NotificationDAOFactory;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
+use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\HandlerInterface;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\Validation\InvalidObject;
@@ -50,13 +52,31 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     protected $valueNormalizer;
 
     /**
-     * @param VtigerSettingProvider    $vtigerSettingProvider
-     * @param ValueNormalizerInterface $valueNormalizer
+     * @var NotificationDAOFactory
      */
-    public function __construct(VtigerSettingProvider $vtigerSettingProvider, ValueNormalizerInterface $valueNormalizer)
-    {
+    private $notificationDAOFactory;
+
+    /**
+     * @var HandlerInterface
+     */
+    private $notificationHandler;
+
+    /**
+     * @param VtigerSettingProvider $vtigerSettingProvider
+     * @param ValueNormalizerInterface $valueNormalizer
+     * @param NotificationDAOFactory $notificationDAOFactory
+     * @param HandlerInterface $notificationHandler
+     */
+    public function __construct(
+        VtigerSettingProvider $vtigerSettingProvider,
+        ValueNormalizerInterface $valueNormalizer,
+        NotificationDAOFactory $notificationDAOFactory,
+        HandlerInterface $notificationHandler
+    ){
         $this->vtigerSettingProvider = $vtigerSettingProvider;
         $this->valueNormalizer       = $valueNormalizer;
+        $this->notificationDAOFactory = $notificationDAOFactory;
+        $this->notificationHandler = $notificationHandler;
     }
 
     /**
@@ -224,6 +244,12 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
      */
     private function logInvalidObject(ObjectChangeDAO $object, string $objectName, InvalidObject $exception): void
     {
+        $this->notificationHandler->writeEntry(
+            $this->notificationDAOFactory->create($object, $exception->getMessage()),
+            VtigerCrmIntegration::NAME,
+            $objectName
+        );
+
         DebugLogger::log(
             VtigerCrmIntegration::NAME,
             sprintf(
