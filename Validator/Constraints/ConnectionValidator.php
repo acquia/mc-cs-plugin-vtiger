@@ -43,6 +43,7 @@ class ConnectionValidator extends ConstraintValidator
     /**
      * Check if connection credentials are valid
      *
+     *
      * @param mixed $value
      * @param Constraint $constraint
      */
@@ -50,11 +51,6 @@ class ConnectionValidator extends ConstraintValidator
     {
         /** @var Integration */
         $integration = $this->context->getRoot()->getData();
-
-        if (!$integration->getIsPublished()) {
-            // Plugin not enabled
-            return;
-        }
 
         $formData = $integration->getApiKeys();
 
