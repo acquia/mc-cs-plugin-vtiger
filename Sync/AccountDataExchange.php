@@ -33,6 +33,9 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\AccountValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 
+/**
+ * This synchronizes data between vTiger organization named on API as Account and in Mautic named as Company
+ */
 class AccountDataExchange extends GeneralDataExchange
 {
     /**
