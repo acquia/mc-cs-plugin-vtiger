@@ -19,13 +19,13 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
-use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\AccountNotificationHandler;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
+use MauticPlugin\MauticVtigerCrmBundle\Sync\Notification\Handler\AccountNotificationHandler;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\AccountValidator;
@@ -33,7 +33,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 
 /**
- * This synchronizes data between vTiger organization named on API as Account and in Mautic named as Company
+ * This synchronizes data between vTiger Organization named on API as Account and in Mautic named as Company
  */
 class AccountDataExchange extends GeneralDataExchange
 {
