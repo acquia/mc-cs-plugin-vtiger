@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\NotificationDAOFactory;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
@@ -69,7 +68,6 @@ class AccountDataExchange extends GeneralDataExchange
      * @param AccountRepository $accountRepository
      * @param AccountValidator $accountValidator
      * @param ModelFactory $modelFactory
-     * @param NotificationDAOFactory $notificationDAOFactory
      * @param AccountNotificationHandler $notificationHandler
      */
     public function __construct(
@@ -78,10 +76,9 @@ class AccountDataExchange extends GeneralDataExchange
         AccountRepository $accountRepository,
         AccountValidator $accountValidator,
         ModelFactory $modelFactory,
-        NotificationDAOFactory $notificationDAOFactory,
         AccountNotificationHandler $notificationHandler
     ){
-        parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationDAOFactory, $notificationHandler);
+        parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationHandler);
         $this->accountRepository = $accountRepository;
         $this->accountValidator  = $accountValidator;
         $this->modelFactory      = $modelFactory;

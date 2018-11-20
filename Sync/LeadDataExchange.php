@@ -15,7 +15,6 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\NotificationDAOFactory;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
@@ -66,7 +65,6 @@ class LeadDataExchange extends GeneralDataExchange
      * @param LeadRepository $leadRepository
      * @param LeadValidator $leadValidator
      * @param ModelFactory $modelFactory
-     * @param NotificationDAOFactory $notificationDAOFactory
      * @param ContactNotificationHandler $notificationHandler
      */
     public function __construct(
@@ -75,10 +73,9 @@ class LeadDataExchange extends GeneralDataExchange
         LeadRepository $leadRepository,
         LeadValidator $leadValidator,
         ModelFactory $modelFactory,
-        NotificationDAOFactory $notificationDAOFactory,
         ContactNotificationHandler $notificationHandler
     ){
-        parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationDAOFactory, $notificationHandler);
+        parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationHandler);
         $this->leadRepository = $leadRepository;
         $this->leadValidator  = $leadValidator;
         $this->modelFactory   = $modelFactory;

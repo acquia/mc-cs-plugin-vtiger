@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\NotificationDAOFactory;
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\NotificationDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
@@ -52,11 +52,6 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     protected $valueNormalizer;
 
     /**
-     * @var NotificationDAOFactory
-     */
-    private $notificationDAOFactory;
-
-    /**
      * @var HandlerInterface
      */
     private $notificationHandler;
@@ -64,18 +59,15 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     /**
      * @param VtigerSettingProvider $vtigerSettingProvider
      * @param ValueNormalizerInterface $valueNormalizer
-     * @param NotificationDAOFactory $notificationDAOFactory
      * @param HandlerInterface $notificationHandler
      */
     public function __construct(
         VtigerSettingProvider $vtigerSettingProvider,
         ValueNormalizerInterface $valueNormalizer,
-        NotificationDAOFactory $notificationDAOFactory,
         HandlerInterface $notificationHandler
     ){
         $this->vtigerSettingProvider = $vtigerSettingProvider;
         $this->valueNormalizer       = $valueNormalizer;
-        $this->notificationDAOFactory = $notificationDAOFactory;
         $this->notificationHandler = $notificationHandler;
     }
 
@@ -245,7 +237,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
     private function logInvalidObject(ObjectChangeDAO $object, string $objectName, InvalidObject $exception): void
     {
         $this->notificationHandler->writeEntry(
-            $this->notificationDAOFactory->create($object, $exception->getMessage()),
+            new NotificationDAO($object, $exception->getMessage()),
             VtigerCrmIntegration::NAME,
             $objectName
         );

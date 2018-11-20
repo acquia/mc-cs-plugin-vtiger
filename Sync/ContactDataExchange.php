@@ -15,7 +15,6 @@ namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
 use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\NotificationDAOFactory;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
@@ -88,7 +87,6 @@ class ContactDataExchange extends GeneralDataExchange
      * @param MappingHelper $mappingHelper
      * @param ObjectFieldMapper $objectFieldMapper
      * @param ModelFactory $modelFactory
-     * @param NotificationDAOFactory $notificationDAOFactory
      * @param ContactNotificationHandler $notificationHandler
      */
     public function __construct(
@@ -99,10 +97,9 @@ class ContactDataExchange extends GeneralDataExchange
         MappingHelper $mappingHelper,
         ObjectFieldMapper $objectFieldMapper,
         ModelFactory $modelFactory,
-        NotificationDAOFactory $notificationDAOFactory,
         ContactNotificationHandler $notificationHandler
     ){
-        parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationDAOFactory, $notificationHandler);
+        parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationHandler);
         $this->contactRepository = $contactRepository;
         $this->contactValidator  = $contactValidator;
         $this->mappingHelper     = $mappingHelper;
