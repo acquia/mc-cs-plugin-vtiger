@@ -12,8 +12,8 @@ declare(strict_types=1);
  */
 
 return [
-    'name'        => 'vTiger CRM',
-    'description' => 'Enables VTiger CRM integration',
+    'name'        => 'Vtiger CRM',
+    'description' => 'Enables Vtiger CRM integration',
     'version'     => '2.0',
     'author'      => 'Mautic',
     'services'    => [
