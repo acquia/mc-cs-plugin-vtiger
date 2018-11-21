@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle;
 
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
-use MauticPlugin\MauticVtigerCrmBundle\DependencyInjection\Compiler\SyncIntegrationsPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -24,6 +23,5 @@ class MauticVtigerCrmBundle extends PluginBundleBase
 {
     public function build(ContainerBuilder $container)
     {
-        $container->addCompilerPass(new SyncIntegrationsPass());
     }
 }
