@@ -28,6 +28,6 @@ trait BasicTrait
      */
     public function getDisplayName(): string
     {
-        return 'vTiger';
+        return 'Vtiger';
     }
 }

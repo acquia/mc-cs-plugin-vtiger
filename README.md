@@ -1,4 +1,4 @@
-# VTigerCRM bundle
+# VtigerCRM bundle
 
  > This bundle is a replacement for standing Vtiger implementation
  
@@ -8,7 +8,7 @@
  > https://wiki.vtiger.com/index.php/Webservice_reference_manual#Field_Types
 
 
-| Mautic Field Type| VTiger Field Type     | Notes                                                 |
+| Mautic Field Type| Vtiger Field Type     | Notes                                                 |
 | -----------------| ------------------    | ------------------------------------------------      |
 | Boolean          | Checkbox              | 													   |
 | Date             | Date                  |                                                       |
