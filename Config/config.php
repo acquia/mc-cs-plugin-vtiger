@@ -212,7 +212,7 @@ return [
                     'mautic.vtiger_crm.repository.accounts',
                     'mautic.vtiger_crm.validator.account',
                     'mautic.vtiger_crm.modelFactory',
-                    'mautic.integrations.vtiger_crm.sync.notification.handler_account',
+                    'mautic.integrations.sync.notification.handler_company',
                 ],
             ],
             'mautic.vtiger_crm.lead_event_supplier'                => [
@@ -255,15 +255,6 @@ return [
                 'arguments' => [
                     'mautic.vtiger_crm.mapping.field_mapping',
                 ],
-            ],
-            'mautic.integrations.vtiger_crm.sync.notification.handler_account' => [
-                'class' => \MauticPlugin\MauticVtigerCrmBundle\Sync\Notification\Handler\AccountNotificationHandler::class,
-                'arguments' => [
-                    'mautic.integrations.sync.notification.writer',
-                    'mautic.integrations.sync.notification.helper_user_notification',
-                    'mautic.user.repository',
-                ],
-                'tag' => 'mautic.sync.notification_handler',
             ],
         ],
     ],

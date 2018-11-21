@@ -19,13 +19,13 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
+use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\CompanyNotificationHandler;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-use MauticPlugin\MauticVtigerCrmBundle\Sync\Notification\Handler\AccountNotificationHandler;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\AccountValidator;
@@ -68,7 +68,7 @@ class AccountDataExchange extends GeneralDataExchange
      * @param AccountRepository $accountRepository
      * @param AccountValidator $accountValidator
      * @param ModelFactory $modelFactory
-     * @param AccountNotificationHandler $notificationHandler
+     * @param CompanyNotificationHandler $notificationHandler
      */
     public function __construct(
         VtigerSettingProvider $vtigerSettingProvider,
@@ -76,7 +76,7 @@ class AccountDataExchange extends GeneralDataExchange
         AccountRepository $accountRepository,
         AccountValidator $accountValidator,
         ModelFactory $modelFactory,
-        AccountNotificationHandler $notificationHandler
+        CompanyNotificationHandler $notificationHandler
     ){
         parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationHandler);
         $this->accountRepository = $accountRepository;
