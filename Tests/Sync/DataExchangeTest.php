@@ -19,6 +19,7 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
@@ -82,6 +83,11 @@ class DataExchangeTest extends \PHPUnit_Framework_TestCase
      * @var \PHPUnit_Framework_MockObject_MockObject|AccountDataExchange
      */
     private $accountDataExchange;
+
+    /**
+     * @var \PHPUnit_Framework_MockObject_MockObject|ContactNotificationHandler
+     */
+    private $contactNotificationHandler;
 
     /**
      * @var RequestDAO
@@ -161,12 +167,14 @@ class DataExchangeTest extends \PHPUnit_Framework_TestCase
 
         $this->leadDataExchange    = $this->createMock(LeadDataExchange::class);
         $this->accountDataExchange = $this->createMock(AccountDataExchange::class);
+        $this->contactNotificationHandler = $this->createMock(ContactNotificationHandler::class);
 
         $this->dataExchange = new DataExchange(
             $objectFieldMapper,
             $this->contactDataExchange,
             $this->leadDataExchange,
-            $this->accountDataExchange
+            $this->accountDataExchange,
+            $this->contactNotificationHandler
         );
 
         $this->requestDAO = new RequestDAO(0, false, VtigerCrmIntegration::NAME);

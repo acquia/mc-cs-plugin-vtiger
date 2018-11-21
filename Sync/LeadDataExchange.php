@@ -20,13 +20,13 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
+use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
-use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Lead;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\LeadValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
@@ -60,21 +60,22 @@ class LeadDataExchange extends GeneralDataExchange
     private $modelFactory;
 
     /**
-     * @param VtigerSettingProvider    $vtigerSettingProvider
+     * @param VtigerSettingProvider $vtigerSettingProvider
      * @param ValueNormalizerInterface $valueNormalizer
-     * @param LeadRepository           $leadRepository
-     * @param LeadValidator            $leadValidator
-     * @param ModelFactory             $modelFactory
+     * @param LeadRepository $leadRepository
+     * @param LeadValidator $leadValidator
+     * @param ModelFactory $modelFactory
+     * @param ContactNotificationHandler $notificationHandler
      */
     public function __construct(
         VtigerSettingProvider $vtigerSettingProvider,
         ValueNormalizerInterface $valueNormalizer,
         LeadRepository $leadRepository,
         LeadValidator $leadValidator,
-        ModelFactory $modelFactory
-    )
-    {
-        parent::__construct($vtigerSettingProvider, $valueNormalizer);
+        ModelFactory $modelFactory,
+        ContactNotificationHandler $notificationHandler
+    ){
+        parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationHandler);
         $this->leadRepository = $leadRepository;
         $this->leadValidator  = $leadValidator;
         $this->modelFactory   = $modelFactory;
@@ -96,8 +97,7 @@ class LeadDataExchange extends GeneralDataExchange
     public function getObjectSyncReport(
         \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
         ReportDAO $syncReport
-    ): ReportDAO
-    {
+    ): ReportDAO {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
         $objectFields = $this->leadRepository->describe()->getFields();
@@ -122,10 +122,8 @@ class LeadDataExchange extends GeneralDataExchange
                     );
                     printf("%s for %s %s\n", $e->getIncomingMessage(), self::OBJECT_NAME, $object->getId());
                 }
-                catch (InvalidObjectValueException $exception) {
-                    DebugLogger::log(VtigerCrmIntegration::NAME,
-                        $exception->getMessage()
-                    );
+                catch (InvalidObjectValueException $e) {
+                    DebugLogger::log(VtigerCrmIntegration::NAME, $e->getMessage());
                     continue(2);
                 }
             }

@@ -18,15 +18,23 @@ use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
+use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\CompanyNotificationHandler;
 use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
+use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
+use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Account;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\BaseModel;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\AccountValidator;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory;
 
+/**
+ * This synchronizes data between vTiger Organization named on API as Account and in Mautic named as Company
+ */
 class AccountDataExchange extends GeneralDataExchange
 {
     /**
@@ -55,21 +63,22 @@ class AccountDataExchange extends GeneralDataExchange
     private $modelFactory;
 
     /**
-     * @param VtigerSettingProvider    $vtigerSettingProvider
+     * @param VtigerSettingProvider $vtigerSettingProvider
      * @param ValueNormalizerInterface $valueNormalizer
-     * @param AccountRepository        $accountRepository
-     * @param AccountValidator         $accountValidator
-     * @param ModelFactory             $modelFactory
+     * @param AccountRepository $accountRepository
+     * @param AccountValidator $accountValidator
+     * @param ModelFactory $modelFactory
+     * @param CompanyNotificationHandler $notificationHandler
      */
     public function __construct(
         VtigerSettingProvider $vtigerSettingProvider,
         ValueNormalizerInterface $valueNormalizer,
         AccountRepository $accountRepository,
         AccountValidator $accountValidator,
-        ModelFactory $modelFactory
-    )
-    {
-        parent::__construct($vtigerSettingProvider, $valueNormalizer);
+        ModelFactory $modelFactory,
+        CompanyNotificationHandler $notificationHandler
+    ){
+        parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationHandler);
         $this->accountRepository = $accountRepository;
         $this->accountValidator  = $accountValidator;
         $this->modelFactory      = $modelFactory;
@@ -79,12 +88,14 @@ class AccountDataExchange extends GeneralDataExchange
      * @param \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
      * @param ReportDAO                                                        $syncReport
      *
-     * @return ReportDAO|mixed
+     * @return ReportDAO
      *
      * @throws \Exception
      */
-    public function getObjectSyncReport(\MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject, ReportDAO $syncReport)
-    {
+    public function getObjectSyncReport(
+        \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
+        ReportDAO $syncReport
+    ): ReportDAO {
         $fromDateTime = $requestedObject->getFromDateTime();
         $mappedFields = $requestedObject->getFields();
         $objectFields = $this->accountRepository->describe()->getFields();
@@ -96,17 +107,29 @@ class AccountDataExchange extends GeneralDataExchange
             $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new \DateTimeImmutable($object->getModifiedTime()->format('r')));
 
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
-                if (!isset($objectFields[$field])) {
-                    // If the present value is not described it should be processed as string
-                    $normalizedValue = $this->valueNormalizer->normalizeForMautic(NormalizedValueDAO::STRING_TYPE, $value);
-                } else {
-                    // Normalize the value from the API to what Mautic needs
-                    $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getTypeName(), $value);
+                try {
+                    if (!isset($objectFields[$field])) {
+                        // If the present value is not described it should be processed as string
+                        $normalizedValue = $this->valueNormalizer->normalizeForMautic(NormalizedValueDAO::STRING_TYPE, $value);
+                    } else {
+                        // Normalize the value from the API to what Mautic needs
+                        $normalizedValue = $this->valueNormalizer->normalizeForMautic($objectFields[$field]->getTypeName(), $value);
+                    }
+
+                    $reportFieldDAO = new FieldDAO($field, $normalizedValue);
+
+                    $objectDAO->addField($reportFieldDAO);
                 }
-
-                $reportFieldDAO = new FieldDAO($field, $normalizedValue);
-
-                $objectDAO->addField($reportFieldDAO);
+                catch (InvalidQueryArgumentException $e) {
+                    DebugLogger::log(VtigerCrmIntegration::NAME,
+                        sprintf('%s for %s %s', $e->getMessage(), self::OBJECT_NAME, $object->getId())
+                    );
+                    printf("%s for %s %s\n", $e->getIncomingMessage(), self::OBJECT_NAME, $object->getId());
+                }
+                catch (InvalidObjectValueException $e) {
+                    DebugLogger::log(VtigerCrmIntegration::NAME, $e->getMessage());
+                    continue(2);
+                }
             }
 
             $syncReport->addObject($objectDAO);

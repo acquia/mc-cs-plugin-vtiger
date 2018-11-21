@@ -23,9 +23,9 @@ interface ObjectSyncDataExchangeInterface
      * @param ObjectDAO $requestedObject
      * @param ReportDAO $syncReport
      *
-     * @return mixed
+     * @return ReportDAO
      */
-    public function getObjectSyncReport(ObjectDAO $requestedObject, ReportDAO $syncReport);
+    public function getObjectSyncReport(ObjectDAO $requestedObject, ReportDAO $syncReport): ReportDAO;
 
     /**
      * @param array $ids
