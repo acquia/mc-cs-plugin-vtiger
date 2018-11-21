@@ -86,11 +86,11 @@ final class VtigerValueNormalizer implements ValueNormalizerInterface
      * @param ModuleFieldInfo $fieldInfo
      * @param FieldDAO        $fieldDAO
      *
-     * @return NormalizedValueDAO
+     * @return mixed
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
-    public function normalizeForVtiger(ModuleFieldInfo $fieldInfo, FieldDAO $fieldDAO): NormalizedValueDAO
+    public function normalizeForVtiger(ModuleFieldInfo $fieldInfo, FieldDAO $fieldDAO)
     {
         return $this->m2vTransformer->transform($fieldInfo, $fieldDAO->getValue()->getOriginalValue())->getNormalizedValue();
     }
