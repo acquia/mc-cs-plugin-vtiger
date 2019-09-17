@@ -62,5 +62,76 @@ pipeline {
         }
       }
     }
+    stage('Automerge to beta') {
+      when {
+        changeRequest target: 'staging'
+      }
+      steps {
+        script {
+          def githubPR = httpRequest acceptType: 'APPLICATION_JSON', authentication: 'c6c13656-2d08-4391-b324-95085e23ce59', url: "https://api.github.com/repos/mautic-inc/plugin-vtiger/pulls/${CHANGE_ID}", validResponseCodes: '200'
+          def githubPRObject = readJSON text: githubPR.getContent()
+
+          echo "Title: "+githubPRObject.title
+          if(githubPRObject.title ==~ /(?i).*(^|[^a-z])wip($|[^a-z]).*/) {
+            echo "PR still WIP. Failing the build to prevent accidental merge"
+            error("PR still WIP. Failing the build to prevent accidental merge")
+          }
+          else {
+            echo "Merging PR to beta"
+            withEnv(["PRNUMBER=${CHANGE_ID}"]) {
+            sshagent (credentials: ['1a066462-6d24-4247-bef6-1da084c8f484']) {
+            dir('plugins/MauticVtigerCrmBundle') {
+              sh '''
+                git config --global user.email "9725490+mautibot@users.noreply.github.com"
+                git config --global user.name "Jenkins"
+                gitsha="$(git rev-parse HEAD)"
+                if [ "$(git --no-pager show -s HEAD --format='%ae')" = "nobody@nowhere" ]; then
+                    echo "Skipping Jenkinse's merge commit which we do not need"
+                    gitsha="$(git rev-parse HEAD~1)"
+                fi
+                git remote set-branches --add origin beta
+                git fetch -q
+                git checkout origin/beta
+                git merge -m "Merge commit '$gitsha' from PR $PRNUMBER into beta" "$gitsha"
+                git push origin HEAD:beta
+                git checkout "$gitsha"
+              '''
+            }}}
+          }
+        }
+      }
+    }
+    stage('Fill Hash') {
+      when {
+        not {
+          changeRequest()
+        }
+        anyOf {
+          branch 'beta'
+          branch 'staging';         
+        }
+      }
+      steps {
+        script {
+          echo "Updating MauticVtigerCrmBundle submodule in mautic-cloud repo (branch ${BRANCH_NAME})"
+          sshagent (credentials: ['1a066462-6d24-4247-bef6-1da084c8f484']) {
+            sh '''
+              git config --global user.email "9725490+mautibot@users.noreply.github.com"
+              git config --global user.name "Jenkins"
+              git clone git@github.com:mautic-inc/mautic-cloud.git -b $BRANCH_NAME
+              cd mautic-cloud
+              git submodule update --init --recursive plugins/MauticVtigerCrmBundle/
+              cd plugins/MauticVtigerCrmBundle/
+              git pull origin $BRANCH_NAME
+              SUBMODULE_COMMIT=$(git log -1 | awk 'NR==1{print $2}')
+              cd ../..
+              git add plugins/MauticVtigerCrmBundle
+              git commit -m "MauticVtigerCrmBundle updated with commit $SUBMODULE_COMMIT"
+              git push
+            '''
+          }
+        }
+      }
+    }
   }
 }
