@@ -80,7 +80,10 @@ pipeline {
             echo "Merging PR to beta"
             withEnv(["PRNUMBER=${CHANGE_ID}"]) {
             sshagent (credentials: ['1a066462-6d24-4247-bef6-1da084c8f484']) {
+            dir('plugins/MauticVtigerCrmBundle') {
               sh '''
+                git config --global user.email "9725490+mautibot@users.noreply.github.com"
+                git config --global user.name "Jenkins"
                 gitsha="$(git rev-parse HEAD)"
                 if [ "$(git --no-pager show -s HEAD --format='%ae')" = "nobody@nowhere" ]; then
                     echo "Skipping Jenkinse's merge commit which we do not need"
@@ -93,7 +96,7 @@ pipeline {
                 git push origin HEAD:beta
                 git checkout "$gitsha"
               '''
-            }}
+            }}}
           }
         }
       }
@@ -105,7 +108,7 @@ pipeline {
         }
         anyOf {
           branch 'beta'
-          branch 'staging';          
+          branch 'staging';         
         }
       }
       steps {
