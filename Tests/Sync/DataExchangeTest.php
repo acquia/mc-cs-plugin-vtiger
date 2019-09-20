@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\Sync;
 
+use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\InputOptionsDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
 use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
@@ -177,7 +178,12 @@ class DataExchangeTest extends \PHPUnit_Framework_TestCase
             $this->contactNotificationHandler
         );
 
-        $this->requestDAO = new RequestDAO(0, false, VtigerCrmIntegration::NAME);
+        $this->requestDAO = new RequestDAO(
+            VtigerCrmIntegration::NAME,
+            1,
+            new InputOptionsDAO(['integration' => VtigerCrmIntegration::NAME])
+        );
+        
         $this->requestDAO->addObject(new ObjectDAO(ContactDataExchange::OBJECT_NAME));
     }
 
