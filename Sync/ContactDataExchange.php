@@ -179,6 +179,11 @@ class ContactDataExchange extends GeneralDataExchange
             $objectDAO = new ObjectDAO(self::OBJECT_NAME, $object->getId(), new \DateTimeImmutable($object->getModifiedTime()->format('r')));
 
             foreach ($object->dehydrate($mappedFields) as $field => $value) {
+                // The 'reference' key doesn't seem to exist every time. Based on readme it's used only for owners. Skip it.
+                if (!isset($objectFields[$field])) {
+                    continue;
+                }
+
                 try {
                     // Normalize the value from the API to what Mautic needs
                     $normalizedValue = $this->valueNormalizer->normalizeForMauticTyped($objectFields[$field], $value);
