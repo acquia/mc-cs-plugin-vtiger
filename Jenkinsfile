@@ -1,4 +1,5 @@
 def REPO_NAME = env.JOB_NAME.split("/")[0]
+def SUBMODULE_NAME = "MauticVtigerCrmBundle"
 
 pipeline {
   options {
@@ -114,22 +115,25 @@ pipeline {
       }
       steps {
         script {
-          echo "Updating MauticVtigerCrmBundle submodule in mautic-cloud repo (branch ${BRANCH_NAME})"
+          echo "Updating ${SUBMODULE_NAME} submodule in mautic-cloud repo (branch ${BRANCH_NAME})"
           sshagent (credentials: ['1a066462-6d24-4247-bef6-1da084c8f484']) {
             sh '''
               git config --global user.email "9725490+mautibot@users.noreply.github.com"
               git config --global user.name "Jenkins"
               git clone git@github.com:mautic-inc/mautic-cloud.git -b $BRANCH_NAME
               cd mautic-cloud
-              if [ -n "$(grep MauticVtigerCrmBundle .gitmodules)" ]; then
-                git submodule update --init --recursive plugins/MauticVtigerCrmBundle/
-                cd plugins/MauticVtigerCrmBundle/
-                git pull origin $BRANCH_NAME
+              if [ -n "$(grep '''+SUBMODULE_NAME+''' .gitmodules)" ]; then
+                CLOUD_COMMIT=$(git submodule status plugins/'''+SUBMODULE_NAME+''' | awk '{print $1}' | cut -c2-41)
+                git submodule update --init --recursive plugins/'''+SUBMODULE_NAME+'''/
+                cd plugins/'''+SUBMODULE_NAME+'''/
+                git reset --hard origin/$BRANCH_NAME
                 SUBMODULE_COMMIT=$(git log -1 | awk 'NR==1{print $2}')
-                cd ../..
-                git add plugins/MauticVtigerCrmBundle
-                git commit -m "MauticVtigerCrmBundle updated with commit $SUBMODULE_COMMIT"
-                git push
+                if [ "$CLOUD_COMMIT" != "$SUBMODULE_COMMIT" ]; then
+                  cd ../..
+                  git add plugins/'''+SUBMODULE_NAME+'''
+                  git commit -m "'''+SUBMODULE_NAME+''' updated with commit $SUBMODULE_COMMIT"
+                  git push
+                fi
               fi
             '''
           }
