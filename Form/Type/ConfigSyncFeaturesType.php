@@ -55,14 +55,15 @@ class ConfigSyncFeaturesType extends AbstractType
             ChoiceType::class,
             [
                 'choices'     => [
-                    'updateOwner' => 'mautic.plugin.vtiger.updateOwner',
+                    'mautic.plugin.vtiger.updateOwner' => 'updateOwner',
                 ],
-                'expanded'    => true,
-                'multiple'    => true,
-                'label'       => 'mautic.plugin.vtiger.form.updateOwner',
-                'label_attr'  => ['class' => 'control-label'],
-                'empty_value' => false,
-                'required'    => false,
+                'choices_as_values' => true,
+                'expanded'          => true,
+                'multiple'          => true,
+                'label'             => 'mautic.plugin.vtiger.form.updateOwner',
+                'label_attr'        => ['class' => 'control-label'],
+                'empty_value'       => false,
+                'required'          => false,
             ]
         );
 
@@ -71,11 +72,12 @@ class ConfigSyncFeaturesType extends AbstractType
             ChoiceType::class,
             [
                 'choices'     => [
-                    'updateDncByDate' => 'mautic.integrations.update.dnc.by.date',
+                    'mautic.integrations.update.dnc.by.date'  => 'updateDncByDate',
                 ],
-                'expanded'    => true,
-                'multiple'    => true,
-                'label'       => 'mautic.integrations.form.update.dnc.by.date.label',
+                'choices_as_values' => true,
+                'expanded'          => true,
+                'multiple'          => true,
+                'label'             => 'mautic.integrations.form.update.dnc.by.date.label',
                 'label_attr'  => ['class' => 'control-label'],
                 'empty_value' => false,
                 'required'    => false,
@@ -86,9 +88,10 @@ class ConfigSyncFeaturesType extends AbstractType
             SettingsKeyEnum::OWNER,
             ChoiceType::class,
             [
-                'choices'    => $this->getFormOwners(),
-                'label'      => 'mautic.plugin.vtiger.form.owner',
-                'label_attr' => [
+                'choices'           => $this->getFormOwners(),
+                'choices_as_values' => true,
+                'label'             => 'mautic.plugin.vtiger.form.owner',
+                'label_attr'        => [
                     'class' => 'control-label',
                 ],
                 'multiple'   => false,
@@ -101,15 +104,16 @@ class ConfigSyncFeaturesType extends AbstractType
             ChoiceType::class,
             [
                 'choices'    => [
-                    SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_LEAD    => 'mautic.plugin.vtiger.form.push_mautic_contact_as_lead',
-                    SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_CONTACT => 'mautic.plugin.vtiger.form.push_mautic_contact_as_contact',
+                    'mautic.plugin.vtiger.form.push_mautic_contact_as_lead'    => SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_LEAD ,
+                    'mautic.plugin.vtiger.form.push_mautic_contact_as_contact' => SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_CONTACT,
                 ],
-                'label'      => 'mautic.plugin.vtiger.form.push_mautic_contact_as',
-                'label_attr' => [
+                'choices_as_values' => true,
+                'label'             => 'mautic.plugin.vtiger.form.push_mautic_contact_as',
+                'label_attr'        => [
                     'class' => 'control-label',
                 ],
-                'multiple'   => false,
-                'required'   => true,
+                'multiple' => false,
+                'required' => true,
             ]
         );
 
@@ -142,7 +146,7 @@ class ConfigSyncFeaturesType extends AbstractType
         }
         $ownersArray = [];
         foreach ($owners as $owner) {
-            $ownersArray[$owner->getId()] = (string) $owner;
+            $ownersArray[(string) $owner] = $owner->getId();
         }
 
         return $ownersArray;
