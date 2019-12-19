@@ -104,7 +104,7 @@ class ConfigSyncFeaturesType extends AbstractType
             ChoiceType::class,
             [
                 'choices'    => [
-                    'mautic.plugin.vtiger.form.push_mautic_contact_as_lead' => SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_LEAD ,
+                    'mautic.plugin.vtiger.form.push_mautic_contact_as_lead'    => SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_LEAD ,
                     'mautic.plugin.vtiger.form.push_mautic_contact_as_contact' => SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_CONTACT,
                 ],
                 'choices_as_values' => true,
