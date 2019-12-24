@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Mapping;
 
-use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
-use MauticPlugin\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\ObjectMappingDAO;
-use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
-use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
+use Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException;
+use Mautic\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
+use Mautic\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Mapping\ObjectMappingDAO;
+use Mautic\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
+use Mautic\IntegrationsBundle\Sync\SyncDataExchange\MauticSyncDataExchange;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;

@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Integration\Provider;
 
 use Mautic\PluginBundle\Entity\Integration;
-use MauticPlugin\IntegrationsBundle\Exception\IntegrationNotFoundException;
-use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
-use MauticPlugin\IntegrationsBundle\Helper\IntegrationsHelper;
+use Mautic\IntegrationsBundle\Exception\IntegrationNotFoundException;
+use Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException;
+use Mautic\IntegrationsBundle\Helper\IntegrationsHelper;
 use MauticPlugin\MauticVtigerCrmBundle\Enum\SettingsKeyEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model;
 
-use MauticPlugin\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
+use Mautic\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\CommonType;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\TypeFactory;

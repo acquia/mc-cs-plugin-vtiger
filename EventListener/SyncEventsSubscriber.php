@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\EventListener;
 
-use MauticPlugin\IntegrationsBundle\Event\SyncEvent;
-use MauticPlugin\IntegrationsBundle\IntegrationEvents;
+use Mautic\IntegrationsBundle\Event\SyncEvent;
+use Mautic\IntegrationsBundle\IntegrationEvents;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -51,7 +51,7 @@ class SyncEventsSubscriber implements EventSubscriberInterface
      * @param SyncEvent $event
      *
      * @throws \Doctrine\DBAL\DBALException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
