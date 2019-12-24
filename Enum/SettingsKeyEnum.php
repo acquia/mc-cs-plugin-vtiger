@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Enum;
 
-use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormFeaturesInterface;
+use Mautic\IntegrationsBundle\Integration\Interfaces\ConfigFormFeaturesInterface;
 
 final class SettingsKeyEnum
 {

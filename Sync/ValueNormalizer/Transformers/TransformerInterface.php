@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers;
 
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
 
 interface TransformerInterface
 {

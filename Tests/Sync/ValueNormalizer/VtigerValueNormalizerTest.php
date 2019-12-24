@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\Sync\ValueNormalizer;
 
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Order\FieldDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\MauticVtigerTransformer;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\VtigerMauticTransformer;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer;

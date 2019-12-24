@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\EventListener;
 
-use MauticPlugin\IntegrationsBundle\Event\FormLoadEvent;
-use MauticPlugin\IntegrationsBundle\IntegrationEvents;
+use Mautic\IntegrationsBundle\Event\FormLoadEvent;
+use Mautic\IntegrationsBundle\IntegrationEvents;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

@@ -13,15 +13,15 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use MauticPlugin\IntegrationsBundle\Entity\ObjectMapping;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
-use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
-use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
-use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
+use Mautic\IntegrationsBundle\Entity\ObjectMapping;
+use Mautic\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
+use Mautic\IntegrationsBundle\Sync\Logger\DebugLogger;
+use Mautic\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
+use Mautic\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
@@ -82,20 +82,20 @@ class LeadDataExchange extends GeneralDataExchange
     }
 
     /**
-     * @param \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
+     * @param \Mautic\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
      * @param ReportDAO                                                        $syncReport
      *
      * @return ReportDAO
      * @throws InvalidQueryArgumentException
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      */
     public function getObjectSyncReport(
-        \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
+        \Mautic\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
         ReportDAO $syncReport
     ): ReportDAO {
         $fromDateTime = $requestedObject->getFromDateTime();
@@ -141,7 +141,7 @@ class LeadDataExchange extends GeneralDataExchange
      * @return UpdatedObjectMappingDAO[]
      * @throws InvalidQueryArgumentException
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
@@ -159,7 +159,7 @@ class LeadDataExchange extends GeneralDataExchange
      * @return array|ObjectMapping[]
      * @throws InvalidQueryArgumentException
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
@@ -181,7 +181,7 @@ class LeadDataExchange extends GeneralDataExchange
      * @return Lead
      * @throws InvalidQueryArgumentException
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException

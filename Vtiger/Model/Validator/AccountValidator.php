@@ -42,7 +42,7 @@ class AccountValidator implements ObjectValidatorInterface
     /**
      * @param BaseModel $object
      *
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException

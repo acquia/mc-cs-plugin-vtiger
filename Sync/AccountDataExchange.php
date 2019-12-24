@@ -13,14 +13,14 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
-use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
-use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\CompanyNotificationHandler;
-use MauticPlugin\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
+use Mautic\IntegrationsBundle\Sync\DAO\Mapping\UpdatedObjectMappingDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+use Mautic\IntegrationsBundle\Sync\Logger\DebugLogger;
+use Mautic\IntegrationsBundle\Sync\Notification\Handler\CompanyNotificationHandler;
+use Mautic\IntegrationsBundle\Sync\ValueNormalizer\ValueNormalizerInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException;
@@ -85,7 +85,7 @@ class AccountDataExchange extends GeneralDataExchange
     }
 
     /**
-     * @param \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
+     * @param \Mautic\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject
      * @param ReportDAO                                                        $syncReport
      *
      * @return ReportDAO
@@ -93,7 +93,7 @@ class AccountDataExchange extends GeneralDataExchange
      * @throws \Exception
      */
     public function getObjectSyncReport(
-        \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
+        \Mautic\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO $requestedObject,
         ReportDAO $syncReport
     ): ReportDAO {
         $fromDateTime = $requestedObject->getFromDateTime();
@@ -145,7 +145,7 @@ class AccountDataExchange extends GeneralDataExchange
      *
      * @return array|mixed
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
@@ -176,7 +176,7 @@ class AccountDataExchange extends GeneralDataExchange
      *
      * @return UpdatedObjectMappingDAO[]
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
@@ -194,7 +194,7 @@ class AccountDataExchange extends GeneralDataExchange
      *
      * @return UpdatedObjectMappingDAO[]
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectException
@@ -212,7 +212,7 @@ class AccountDataExchange extends GeneralDataExchange
      *
      * @return Account
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException

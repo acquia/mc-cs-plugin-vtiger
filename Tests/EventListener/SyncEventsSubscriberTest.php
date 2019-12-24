@@ -11,8 +11,8 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\EventListener;
 
-use MauticPlugin\IntegrationsBundle\Event\SyncEvent;
-use MauticPlugin\IntegrationsBundle\IntegrationEvents;
+use Mautic\IntegrationsBundle\Event\SyncEvent;
+use Mautic\IntegrationsBundle\IntegrationEvents;
 use MauticPlugin\MauticVtigerCrmBundle\EventListener\SyncEventsSubscriber;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService;

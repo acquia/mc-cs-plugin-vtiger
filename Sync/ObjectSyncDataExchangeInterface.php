@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO;
 
 interface ObjectSyncDataExchangeInterface
 {

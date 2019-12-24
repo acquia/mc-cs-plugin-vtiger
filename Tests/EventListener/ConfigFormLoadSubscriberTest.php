@@ -11,8 +11,8 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\EventListener;
 
-use MauticPlugin\IntegrationsBundle\Event\FormLoadEvent;
-use MauticPlugin\IntegrationsBundle\IntegrationEvents;
+use Mautic\IntegrationsBundle\Event\FormLoadEvent;
+use Mautic\IntegrationsBundle\IntegrationEvents;
 use MauticPlugin\MauticVtigerCrmBundle\EventListener\ConfigFormLoadSubscriber;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;

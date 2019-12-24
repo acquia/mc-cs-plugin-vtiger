@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
+use Mautic\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Service\LeadEventSupplier;
@@ -58,7 +58,7 @@ class EventSyncService
      * @param \DateTimeInterface|null $dateTo
      *
      * @throws \Doctrine\DBAL\DBALException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException

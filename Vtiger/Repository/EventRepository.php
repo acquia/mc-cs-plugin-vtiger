@@ -23,7 +23,7 @@ class EventRepository extends BaseRepository
      * @param Event $module
      *
      * @return Event
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
@@ -40,7 +40,7 @@ class EventRepository extends BaseRepository
      * @param string $id
      *
      * @return Event
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
@@ -57,7 +57,7 @@ class EventRepository extends BaseRepository
      * @param $contactId
      *
      * @return array|Event[]
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
@@ -81,7 +81,7 @@ class EventRepository extends BaseRepository
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidRequestException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\SessionException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
     public function findByContactIds(array $contactIds): array
     {

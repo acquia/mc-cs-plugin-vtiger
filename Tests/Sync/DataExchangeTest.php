@@ -12,15 +12,15 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\Sync;
 
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\InputOptionsDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
-use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\InputOptionsDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Order\ObjectChangeDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\FieldDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Request\ObjectDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Value\NormalizedValueDAO;
+use Mautic\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidObjectValueException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider;
@@ -134,7 +134,7 @@ class DataExchangeTest extends \PHPUnit_Framework_TestCase
             $updates = VtigerContactTestDataProvider::getVtigerContacts();
             /** @var Contact $object */
             foreach ($updates as $object) {
-                $objectDAO = new \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO(
+                $objectDAO = new \Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO(
                     ContactDataExchange::OBJECT_NAME, $object->getId(),
                     new \DateTimeImmutable($object->getModifiedTime()->format('r'))
                 );
@@ -196,7 +196,7 @@ class DataExchangeTest extends \PHPUnit_Framework_TestCase
 
         $contactArray = []; $updatesArray = [];
 
-        /** @var \MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO $contact */
+        /** @var \Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO $contact */
         foreach ($contactReport as $contact) {
             foreach($contact->getFields() as $field) {
                 $contactArray[$contact->getObjectId()][$field->getName()] = $field->getValue()->getNormalizedValue();

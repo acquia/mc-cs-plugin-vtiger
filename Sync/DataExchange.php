@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Sync;
 
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
-use MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
-use MauticPlugin\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
-use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Order\OrderDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\ReportDAO;
+use Mautic\IntegrationsBundle\Sync\DAO\Sync\Request\RequestDAO;
+use Mautic\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException;
+use Mautic\IntegrationsBundle\Sync\Notification\Handler\ContactNotificationHandler;
+use Mautic\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper;
 

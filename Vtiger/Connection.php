@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger;
 
 use GuzzleHttp\Psr7\Response;
-use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
-use MauticPlugin\IntegrationsBundle\Sync\Logger\DebugLogger;
+use Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException;
+use Mautic\IntegrationsBundle\Sync\Logger\DebugLogger;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException;
 use MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException;
@@ -87,7 +87,7 @@ class Connection
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
     public function get(string $operation, array $payload = [])
     {
@@ -135,7 +135,7 @@ class Connection
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
     public function query(string $operation, array $payload = [])
     {
@@ -182,7 +182,7 @@ class Connection
      * @throws InvalidRequestException
      * @throws SessionException
      * @throws VtigerPluginException
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      */
     public function post(string $operation, array $payload)
     {

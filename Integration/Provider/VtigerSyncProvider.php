@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Integration\Provider;
 
-use MauticPlugin\IntegrationsBundle\Integration\ConfigurationTrait;
-use MauticPlugin\IntegrationsBundle\Integration\Interfaces\SyncInterface;
-use MauticPlugin\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
-use MauticPlugin\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
+use Mautic\IntegrationsBundle\Integration\ConfigurationTrait;
+use Mautic\IntegrationsBundle\Integration\Interfaces\SyncInterface;
+use Mautic\IntegrationsBundle\Sync\DAO\Mapping\MappingManualDAO;
+use Mautic\IntegrationsBundle\Sync\SyncDataExchange\SyncDataExchangeInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\BasicTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\DataExchange;
 
@@ -43,7 +43,7 @@ class VtigerSyncProvider implements SyncInterface
     /**
      * @return MappingManualDAO
      *
-     * @throws \MauticPlugin\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException
+     * @throws \Mautic\IntegrationsBundle\Sync\Exception\ObjectNotSupportedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
     public function getMappingManual(): MappingManualDAO

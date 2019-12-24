@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Form\Type;
 
-use MauticPlugin\IntegrationsBundle\Form\Type\NotBlankIfPublishedConstraintTrait;
+use Mautic\IntegrationsBundle\Form\Type\NotBlankIfPublishedConstraintTrait;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerConfigProvider;
 use MauticPlugin\MauticVtigerCrmBundle\Validator\Constraints\Connection as ConnectionConstraint;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection;

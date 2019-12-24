@@ -13,13 +13,13 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Integration\Provider;
 
-use MauticPlugin\IntegrationsBundle\Integration\ConfigurationTrait;
-use MauticPlugin\IntegrationsBundle\Integration\DefaultConfigFormTrait;
-use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormAuthInterface;
-use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormFeaturesInterface;
-use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormInterface;
-use MauticPlugin\IntegrationsBundle\Integration\Interfaces\ConfigFormSyncInterface;
-use MauticPlugin\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
+use Mautic\IntegrationsBundle\Integration\ConfigurationTrait;
+use Mautic\IntegrationsBundle\Integration\DefaultConfigFormTrait;
+use Mautic\IntegrationsBundle\Integration\Interfaces\ConfigFormAuthInterface;
+use Mautic\IntegrationsBundle\Integration\Interfaces\ConfigFormFeaturesInterface;
+use Mautic\IntegrationsBundle\Integration\Interfaces\ConfigFormInterface;
+use Mautic\IntegrationsBundle\Integration\Interfaces\ConfigFormSyncInterface;
+use Mautic\IntegrationsBundle\Mapping\MappedFieldInfoInterface;
 use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigAuthType;
 use MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigSyncFeaturesType;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\BasicTrait;
@@ -78,7 +78,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      *
      * @return array|MappedFieldInfoInterface[]
      *
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
@@ -107,7 +107,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      *
      * @return array|MappedFieldInfoInterface[]
      *
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
@@ -136,7 +136,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      *
      * @return array|MappedFieldInfoInterface[]
      *
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
@@ -180,7 +180,7 @@ class VtigerConfigProvider implements ConfigFormInterface, ConfigFormSyncInterfa
      *
      * @return array|MappedFieldInfoInterface[]
      *
-     * @throws \MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException
+     * @throws \Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\AccessDeniedException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\DatabaseQueryException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException

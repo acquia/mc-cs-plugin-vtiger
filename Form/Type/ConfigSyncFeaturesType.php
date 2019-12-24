@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Form\Type;
 
-use MauticPlugin\IntegrationsBundle\Exception\PluginNotConfiguredException;
+use Mautic\IntegrationsBundle\Exception\PluginNotConfiguredException;
 use MauticPlugin\MauticVtigerCrmBundle\Enum\SettingsKeyEnum;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository;
 use Symfony\Component\Form\AbstractType;
