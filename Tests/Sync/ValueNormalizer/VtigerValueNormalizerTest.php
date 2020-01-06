@@ -22,7 +22,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\LeadFieldDirection;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type\CommonType;
 
-class VtigerValueNormalizerTest extends \PHPUnit_Framework_TestCase
+class VtigerValueNormalizerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var VtigerValueNormalizer
