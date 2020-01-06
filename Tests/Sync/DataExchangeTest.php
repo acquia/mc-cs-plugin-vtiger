@@ -38,7 +38,7 @@ use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository;
 
-class DataExchangeTest extends \PHPUnit_Framework_TestCase
+class DataExchangeTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var DataExchange
@@ -46,47 +46,47 @@ class DataExchangeTest extends \PHPUnit_Framework_TestCase
     private $dataExchange;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|AccountRepository
+     * @var MockObject|AccountRepository
      */
     private $mockAccountRepository;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|ContactRepository
+     * @var MockObject|ContactRepository
      */
     private $mockContactRepository;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|LeadRepository
+     * @var MockObject|LeadRepository
      */
     private $mockLeadRepository;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|Connection
+     * @var MockObject|Connection
      */
     private $mockConnection;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|VtigerSettingProvider
+     * @var MockObject|VtigerSettingProvider
      */
     private $mockSettingsProvider;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|ContactDataExchange
+     * @var MockObject|ContactDataExchange
      */
     private $contactDataExchange;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|LeadDataExchange
+     * @var MockObject|LeadDataExchange
      */
     private $leadDataExchange;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|AccountDataExchange
+     * @var MockObject|AccountDataExchange
      */
     private $accountDataExchange;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|ContactNotificationHandler
+     * @var MockObject|ContactNotificationHandler
      */
     private $contactNotificationHandler;
 

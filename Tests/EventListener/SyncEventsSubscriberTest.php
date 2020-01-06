@@ -17,7 +17,7 @@ use MauticPlugin\MauticVtigerCrmBundle\EventListener\SyncEventsSubscriber;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService;
 
-class SyncEventsSubscriberTest extends \PHPUnit_Framework_TestCase
+class SyncEventsSubscriberTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var SyncEventsSubscriber

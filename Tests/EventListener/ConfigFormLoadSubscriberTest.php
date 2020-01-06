@@ -17,7 +17,7 @@ use MauticPlugin\MauticVtigerCrmBundle\EventListener\ConfigFormLoadSubscriber;
 use MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache;
 
-class ConfigFormLoadSubscriberTest extends \PHPUnit_Framework_TestCase
+class ConfigFormLoadSubscriberTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var ConfigFormLoadSubscriber
