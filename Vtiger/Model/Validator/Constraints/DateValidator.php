@@ -2,7 +2,7 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\Constraints;
 
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use DateTime;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -21,31 +21,28 @@ class DateValidator extends ConstraintValidator
     public function validate($value, Constraint $constraint)
     {
         if (!$constraint instanceof Date) {
-            throw new UnexpectedTypeException($constraint, __NAMESPACE__ . '\Date');
+            throw new UnexpectedTypeException($constraint, Date::class);
         }
 
+        // custom constraints should ignore null and empty values to allow
+        // other constraints (NotBlank, NotNull, etc.) take care of that
         if (null === $value || '' === $value) {
             return;
         }
 
+        // check if item can be converted to string
         if (!is_scalar($value) && !(is_object($value) && method_exists($value, '__toString'))) {
             throw new UnexpectedTypeException($value, 'string');
         }
 
-        $date         = \DateTime::createFromFormat('Y-m-d', $value);
+        $date = DateTime::createFromFormat('Y-m-d', $value);
 
         if (!$date || ($date->format('Y-m-d') != $value)) {
-            if ($this->context instanceof ExecutionContextInterface) {
-                $this->context->buildViolation($constraint->message)
-                              ->setParameter('{{ value }}', $this->formatValue($value))
-                              ->setCode(\Symfony\Component\Validator\Constraints\Date::INVALID_DATE_ERROR)
-                              ->addViolation();
-            } else {
-                $this->buildViolation($constraint->message)
-                     ->setParameter('{{ value }}', $this->formatValue($value))
-                     ->setCode(\Symfony\Component\Validator\Constraints\Date::INVALID_DATE_ERROR)
-                     ->addViolation();
-            }
+            $this->context->buildViolation($constraint->message)
+                ->setParameter('{{ value }}', $this->formatValue($value))
+                ->setCode(\Symfony\Component\Validator\Constraints\Date::INVALID_DATE_ERROR)
+                ->addViolation();
         }
     }
 }
+
