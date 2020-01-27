@@ -44,4 +44,12 @@ class Account extends BaseModel
     {
         return $this->getAccountName();
     }
+
+    /**
+     * @return string|null
+     */
+    public function getAccountName(): ?string
+    {
+        return !isset($this->data['accountname']) ? null : $this->data['accountname'];
+    }
 }
