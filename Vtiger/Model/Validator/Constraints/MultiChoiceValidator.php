@@ -9,9 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\Constraints;;
+namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\Constraints;
 
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
@@ -32,7 +31,7 @@ class MultiChoiceValidator extends ConstraintValidator
     public function validate($value, Constraint $constraint)
     {
         if (!$constraint instanceof MultiChoice) {
-            throw new UnexpectedTypeException($constraint, __NAMESPACE__.'\Choice');
+            throw new UnexpectedTypeException($constraint, MultiChoice::class);
         }
 
         if (!is_array($constraint->choices) && !$constraint->callback) {
@@ -67,20 +66,11 @@ class MultiChoiceValidator extends ConstraintValidator
         if ($constraint->multiple) {
             foreach ($value as $_value) {
                 if (!in_array($_value, $choices, $constraint->strict)) {
-                    if ($this->context instanceof ExecutionContextInterface) {
-                        $this->context->buildViolation($constraint->multipleMessage)
-                            ->setParameter('{{ value }}', $this->formatValue($_value))
-                            ->setCode(MultiChoice::NO_SUCH_CHOICE_ERROR)
-                            ->setInvalidValue($_value)
-                            ->addViolation();
-                    } else {
-                        $this->buildViolation($constraint->multipleMessage)
-                            ->setParameter('{{ value }}', $this->formatValue($_value))
-                            ->setCode(MultiChoice::NO_SUCH_CHOICE_ERROR)
-                            ->setInvalidValue($_value)
-                            ->addViolation();
-                    }
-
+                    $this->context->buildViolation($constraint->multipleMessage)
+                        ->setParameter('{{ value }}', $this->formatValue($_value))
+                        ->setCode(MultiChoice::NO_SUCH_CHOICE_ERROR)
+                        ->setInvalidValue($_value)
+                        ->addViolation();
                     return;
                 }
             }
@@ -88,52 +78,27 @@ class MultiChoiceValidator extends ConstraintValidator
             $count = count($value);
 
             if (null !== $constraint->min && $count < $constraint->min) {
-                if ($this->context instanceof ExecutionContextInterface) {
-                    $this->context->buildViolation($constraint->minMessage)
-                        ->setParameter('{{ limit }}', $constraint->min)
-                        ->setPlural((int) $constraint->min)
-                        ->setCode(MultiChoice::TOO_FEW_ERROR)
-                        ->addViolation();
-                } else {
-                    $this->buildViolation($constraint->minMessage)
-                        ->setParameter('{{ limit }}', $constraint->min)
-                        ->setPlural((int) $constraint->min)
-                        ->setCode(MultiChoice::TOO_FEW_ERROR)
-                        ->addViolation();
-                }
-
+                $this->context->buildViolation($constraint->minMessage)
+                    ->setParameter('{{ limit }}', $constraint->min)
+                    ->setPlural((int) $constraint->min)
+                    ->setCode(MultiChoice::TOO_FEW_ERROR)
+                    ->addViolation();
                 return;
             }
 
             if (null !== $constraint->max && $count > $constraint->max) {
-                if ($this->context instanceof ExecutionContextInterface) {
-                    $this->context->buildViolation($constraint->maxMessage)
-                        ->setParameter('{{ limit }}', $constraint->max)
-                        ->setPlural((int) $constraint->max)
-                        ->setCode(MultiChoice::TOO_MANY_ERROR)
-                        ->addViolation();
-                } else {
-                    $this->buildViolation($constraint->maxMessage)
-                        ->setParameter('{{ limit }}', $constraint->max)
-                        ->setPlural((int) $constraint->max)
-                        ->setCode(MultiChoice::TOO_MANY_ERROR)
-                        ->addViolation();
-                }
-
+                $this->context->buildViolation($constraint->maxMessage)
+                    ->setParameter('{{ limit }}', $constraint->max)
+                    ->setPlural((int) $constraint->max)
+                    ->setCode(MultiChoice::TOO_MANY_ERROR)
+                    ->addViolation();
                 return;
             }
         } elseif (!in_array($value, $choices, $constraint->strict)) {
-            if ($this->context instanceof ExecutionContextInterface) {
-                $this->context->buildViolation($constraint->message)
-                    ->setParameter('{{ value }}', $this->formatValue($value))
-                    ->setCode(MultiChoice::NO_SUCH_CHOICE_ERROR)
-                    ->addViolation();
-            } else {
-                $this->buildViolation($constraint->message)
-                    ->setParameter('{{ value }}', $this->formatValue($value))
-                    ->setCode(MultiChoice::NO_SUCH_CHOICE_ERROR)
-                    ->addViolation();
-            }
+            $this->context->buildViolation($constraint->message)
+                ->setParameter('{{ value }}', $this->formatValue($value))
+                ->setCode(MultiChoice::NO_SUCH_CHOICE_ERROR)
+                ->addViolation();
         }
     }
 }
