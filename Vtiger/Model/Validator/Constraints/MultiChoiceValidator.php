@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\Constraints;;
+namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -31,7 +31,7 @@ class MultiChoiceValidator extends ConstraintValidator
     public function validate($value, Constraint $constraint)
     {
         if (!$constraint instanceof MultiChoice) {
-            throw new UnexpectedTypeException($constraint, __NAMESPACE__.'\Choice');
+            throw new UnexpectedTypeException($constraint, MultiChoice::class);
         }
 
         if (!is_array($constraint->choices) && !$constraint->callback) {
@@ -71,7 +71,6 @@ class MultiChoiceValidator extends ConstraintValidator
                         ->setCode(MultiChoice::NO_SUCH_CHOICE_ERROR)
                         ->setInvalidValue($_value)
                         ->addViolation();
-
                     return;
                 }
             }
@@ -84,7 +83,6 @@ class MultiChoiceValidator extends ConstraintValidator
                     ->setPlural((int) $constraint->min)
                     ->setCode(MultiChoice::TOO_FEW_ERROR)
                     ->addViolation();
-
                 return;
             }
 
@@ -94,7 +92,6 @@ class MultiChoiceValidator extends ConstraintValidator
                     ->setPlural((int) $constraint->max)
                     ->setCode(MultiChoice::TOO_MANY_ERROR)
                     ->addViolation();
-
                 return;
             }
         } elseif (!in_array($value, $choices, $constraint->strict)) {
