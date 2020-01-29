@@ -61,7 +61,7 @@ class ConfigSyncFeaturesType extends AbstractType
                 'multiple'    => true,
                 'label'       => 'mautic.plugin.vtiger.form.updateOwner',
                 'label_attr'  => ['class' => 'control-label'],
-                'empty_value' => false,
+                'placeholder' => false,
                 'required'    => false,
             ]
         );
@@ -77,7 +77,7 @@ class ConfigSyncFeaturesType extends AbstractType
                 'multiple'    => true,
                 'label'       => 'mautic.integrations.form.update.dnc.by.date.label',
                 'label_attr'  => ['class' => 'control-label'],
-                'empty_value' => false,
+                'placeholder' => false,
                 'required'    => false,
             ]
         );
