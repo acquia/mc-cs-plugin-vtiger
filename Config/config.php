@@ -18,24 +18,24 @@ return [
     'author'      => 'Mautic',
     'services'    => [
         'events'       => [
-            'mautic.vtiger_crm.subscriber.events_sync' => [
+            'mautic.vtigercrm.subscriber.events_sync' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\SyncEventsSubscriber::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.sync.events_service',
+                    'mautic.vtigercrm.sync.events_service',
                 ],
             ],
-            'mautic.vtiger_crm.subscriber.config_form_load' => [
+            'mautic.vtigercrm.subscriber.config_form_load' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\EventListener\ConfigFormLoadSubscriber::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.cache.field_cache',
+                    'mautic.vtigercrm.cache.field_cache',
                 ],
             ],
         ],
         'validators' => [
-            'mautic.vtiger_crm.validator.connection_validator' => [
+            'mautic.vtigercrm.validator.connection_validator' => [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Validator\Constraints\ConnectionValidator::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.connection',
+                    'mautic.vtigercrm.connection',
                     'translator',
                 ],
                 'tags' => [
@@ -44,16 +44,16 @@ return [
             ]
         ],
         'forms'        => [
-            'mautic.vtiger_crm.form.config_auth' => [
+            'mautic.vtigercrm.form.config_auth' => [
                 'class' => \MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigAuthType::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.connection'
+                    'mautic.vtigercrm.connection'
                 ]
             ],
-            'mautic.vtiger_crm.form.config_features' => [
+            'mautic.vtigercrm.form.config_features' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Form\Type\ConfigSyncFeaturesType::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.repository.users',
+                    'mautic.vtigercrm.repository.users',
                 ],
             ],
         ],
@@ -63,171 +63,171 @@ return [
             'mautic.guzzle_http.client'                   => [
                 'class' => GuzzleHttp\Client::class,
             ],
-            'mautic.vtiger_crm.settings'                  => [
+            'mautic.vtigercrm.settings'                  => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSettingProvider::class,
                 'arguments' => [
                     'mautic.integrations.helper',
                 ],
             ],
-            'mautic.vtiger_crm.connection'                => [
+            'mautic.vtigercrm.connection'                => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Connection::class,
                 'arguments' => [
                     'mautic.guzzle_http.client',
-                    'mautic.vtiger_crm.settings',
+                    'mautic.vtigercrm.settings',
                 ],
             ],
-            'mautic.vtiger_crm.transformer.vtiger2mautic' => [
+            'mautic.vtigercrm.transformer.vtiger2mautic' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\VtigerMauticTransformer::class,
-                'arguments' => ['mautic.vtiger_crm.repository.leads','mautic.vtiger_crm.repository.contacts','mautic.vtiger_crm.repository.accounts'],
+                'arguments' => ['mautic.vtigercrm.repository.leads','mautic.vtigercrm.repository.contacts','mautic.vtigercrm.repository.accounts'],
             ],
-            'mautic.vtiger_crm.transformer.mautic2vtiger' => [
+            'mautic.vtigercrm.transformer.mautic2vtiger' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\Transformers\MauticVtigerTransformer::class,
                 'arguments' => [],
             ],
-            'mautic.vtiger_crm.value_normalizer'          => [
+            'mautic.vtigercrm.value_normalizer'          => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ValueNormalizer\VtigerValueNormalizer::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.transformer.vtiger2mautic',
-                    'mautic.vtiger_crm.transformer.mautic2vtiger',
+                    'mautic.vtigercrm.transformer.vtiger2mautic',
+                    'mautic.vtigercrm.transformer.mautic2vtiger',
                 ],
             ],
-            'mautic.vtiger_crm.validator.general'         => [
+            'mautic.vtigercrm.validator.general'         => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\GeneralValidator::class,
-                'arguments' => ['mautic.vtiger_crm.repository.users'],
+                'arguments' => ['mautic.vtigercrm.repository.users'],
             ],
-            'mautic.vtiger_crm.validator.contact'         => [
+            'mautic.vtigercrm.validator.contact'         => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\ContactValidator::class,
-                'arguments' => ['mautic.vtiger_crm.repository.contacts', 'mautic.vtiger_crm.validator.general'],
+                'arguments' => ['mautic.vtigercrm.repository.contacts', 'mautic.vtigercrm.validator.general'],
             ],
-            'mautic.vtiger_crm.repository.contacts'       => [
+            'mautic.vtigercrm.repository.contacts'       => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\ContactRepository::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.connection',
-                    'mautic.vtiger_crm.cache.field_cache',
-                    'mautic.vtiger_crm.modelFactory',
-                    'mautic.vtiger_crm.fieldDirectionFactory',
+                    'mautic.vtigercrm.connection',
+                    'mautic.vtigercrm.cache.field_cache',
+                    'mautic.vtigercrm.modelFactory',
+                    'mautic.vtigercrm.fieldDirectionFactory',
                 ],
             ],
-            'mautic.vtiger_crm.validator.lead'            => [
+            'mautic.vtigercrm.validator.lead'            => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\LeadValidator::class,
-                'arguments' => ['mautic.vtiger_crm.repository.leads', 'mautic.vtiger_crm.validator.general'],
+                'arguments' => ['mautic.vtigercrm.repository.leads', 'mautic.vtigercrm.validator.general'],
             ],
 
-            'mautic.vtiger_crm.repository.leads'           => [
+            'mautic.vtigercrm.repository.leads'           => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\LeadRepository::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.connection',
-                    'mautic.vtiger_crm.cache.field_cache',
-                    'mautic.vtiger_crm.modelFactory',
-                    'mautic.vtiger_crm.fieldDirectionFactory',
+                    'mautic.vtigercrm.connection',
+                    'mautic.vtigercrm.cache.field_cache',
+                    'mautic.vtigercrm.modelFactory',
+                    'mautic.vtigercrm.fieldDirectionFactory',
                 ],
             ],
-            'mautic.vtiger_crm.cache.field_cache' => [
+            'mautic.vtigercrm.cache.field_cache' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Cache\FieldCache::class,
                 'arguments' => [
                     'mautic.helper.cache_storage',
                 ],
             ],
-            'mautic.vtiger_crm.validator.account'          => [
+            'mautic.vtigercrm.validator.account'          => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\AccountValidator::class,
-                'arguments' => ['mautic.vtiger_crm.repository.accounts', 'mautic.vtiger_crm.validator.general'],
+                'arguments' => ['mautic.vtigercrm.repository.accounts', 'mautic.vtigercrm.validator.general'],
             ],
 
-            'mautic.vtiger_crm.repository.accounts'   => [
+            'mautic.vtigercrm.repository.accounts'   => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\AccountRepository::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.connection',
-                    'mautic.vtiger_crm.cache.field_cache',
-                    'mautic.vtiger_crm.modelFactory',
-                    'mautic.vtiger_crm.fieldDirectionFactory',
+                    'mautic.vtigercrm.connection',
+                    'mautic.vtigercrm.cache.field_cache',
+                    'mautic.vtigercrm.modelFactory',
+                    'mautic.vtigercrm.fieldDirectionFactory',
                 ],
             ],
-            'mautic.vtiger_crm.repository.events'     => [
+            'mautic.vtigercrm.repository.events'     => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\EventRepository::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.connection',
-                    'mautic.vtiger_crm.cache.field_cache',
-                    'mautic.vtiger_crm.modelFactory',
-                    'mautic.vtiger_crm.fieldDirectionFactory',
+                    'mautic.vtigercrm.connection',
+                    'mautic.vtigercrm.cache.field_cache',
+                    'mautic.vtigercrm.modelFactory',
+                    'mautic.vtigercrm.fieldDirectionFactory',
                 ],
             ],
-            'mautic.vtiger_crm.repository.users'      => [
+            'mautic.vtigercrm.repository.users'      => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\UserRepository::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.connection',
-                    'mautic.vtiger_crm.cache.field_cache',
-                    'mautic.vtiger_crm.modelFactory',
-                    'mautic.vtiger_crm.fieldDirectionFactory',
+                    'mautic.vtigercrm.connection',
+                    'mautic.vtigercrm.cache.field_cache',
+                    'mautic.vtigercrm.modelFactory',
+                    'mautic.vtigercrm.fieldDirectionFactory',
                 ],
             ],
-            'mautic.vtiger_crm.mapping.field_mapping' => [
+            'mautic.vtigercrm.mapping.field_mapping' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Mapping\ObjectFieldMapper::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.settings',
-                    'mautic.vtiger_crm.repository.contacts',
-                    'mautic.vtiger_crm.repository.leads',
-                    'mautic.vtiger_crm.repository.accounts',
+                    'mautic.vtigercrm.settings',
+                    'mautic.vtigercrm.repository.contacts',
+                    'mautic.vtigercrm.repository.leads',
+                    'mautic.vtigercrm.repository.accounts',
                 ],
             ],
-            'mautic.vtiger_crm.sync.data_exchange'    => [
+            'mautic.vtigercrm.sync.data_exchange'    => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\DataExchange::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.mapping.field_mapping',
-                    'mautic.vtiger_crm.sync.data_exchange_contacts',
-                    'mautic.vtiger_crm.sync.data_exchange_leads',
-                    'mautic.vtiger_crm.sync.data_exchange_accounts',
+                    'mautic.vtigercrm.mapping.field_mapping',
+                    'mautic.vtigercrm.sync.data_exchange_contacts',
+                    'mautic.vtigercrm.sync.data_exchange_leads',
+                    'mautic.vtigercrm.sync.data_exchange_accounts',
                     'mautic.integrations.sync.notification.handler_contact'
                 ],
             ],
 
-            'mautic.vtiger_crm.sync.data_exchange_contacts'        => [
+            'mautic.vtigercrm.sync.data_exchange_contacts'        => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\ContactDataExchange::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.settings',
-                    'mautic.vtiger_crm.value_normalizer',
-                    'mautic.vtiger_crm.repository.contacts',
-                    'mautic.vtiger_crm.validator.contact',
+                    'mautic.vtigercrm.settings',
+                    'mautic.vtigercrm.value_normalizer',
+                    'mautic.vtigercrm.repository.contacts',
+                    'mautic.vtigercrm.validator.contact',
                     'mautic.integrations.helper.sync_mapping',
-                    'mautic.vtiger_crm.mapping.field_mapping',
-                    'mautic.vtiger_crm.modelFactory',
+                    'mautic.vtigercrm.mapping.field_mapping',
+                    'mautic.vtigercrm.modelFactory',
                     'mautic.integrations.sync.notification.handler_contact',
                 ],
             ],
-            'mautic.vtiger_crm.sync.data_exchange_leads'           => [
+            'mautic.vtigercrm.sync.data_exchange_leads'           => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\LeadDataExchange::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.settings',
-                    'mautic.vtiger_crm.value_normalizer',
-                    'mautic.vtiger_crm.repository.leads',
-                    'mautic.vtiger_crm.validator.lead',
-                    'mautic.vtiger_crm.modelFactory',
+                    'mautic.vtigercrm.settings',
+                    'mautic.vtigercrm.value_normalizer',
+                    'mautic.vtigercrm.repository.leads',
+                    'mautic.vtigercrm.validator.lead',
+                    'mautic.vtigercrm.modelFactory',
                     'mautic.integrations.sync.notification.handler_contact',
                 ],
             ],
-            'mautic.vtiger_crm.sync.data_exchange_accounts'        => [
+            'mautic.vtigercrm.sync.data_exchange_accounts'        => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\AccountDataExchange::class,
                 'arguments' => [
-                    'mautic.vtiger_crm.settings',
-                    'mautic.vtiger_crm.value_normalizer',
-                    'mautic.vtiger_crm.repository.accounts',
-                    'mautic.vtiger_crm.validator.account',
-                    'mautic.vtiger_crm.modelFactory',
+                    'mautic.vtigercrm.settings',
+                    'mautic.vtigercrm.value_normalizer',
+                    'mautic.vtigercrm.repository.accounts',
+                    'mautic.vtigercrm.validator.account',
+                    'mautic.vtigercrm.modelFactory',
                     'mautic.integrations.sync.notification.handler_company',
                 ],
             ],
-            'mautic.vtiger_crm.lead_event_supplier'                => [
+            'mautic.vtigercrm.lead_event_supplier'                => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Service\LeadEventSupplier::class,
                 'arguments' => ['mautic.lead.model.lead', 'doctrine.orm.entity_manager'],
             ],
-            'mautic.vtiger_crm.sync.events_service'                => [
+            'mautic.vtigercrm.sync.events_service'                => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Sync\EventSyncService::class,
-                'arguments' => ['mautic.vtiger_crm.lead_event_supplier', 'mautic.vtiger_crm.repository.events', 'mautic.vtiger_crm.settings'],
+                'arguments' => ['mautic.vtigercrm.lead_event_supplier', 'mautic.vtigercrm.repository.events', 'mautic.vtigercrm.settings'],
             ],
-            'mautic.vtiger_crm.modelFactory'                => [
+            'mautic.vtigercrm.modelFactory'                => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Mapping\ModelFactory::class,
                 'arguments' => [],
             ],
-            'mautic.vtiger_crm.fieldDirectionFactory' => [
+            'mautic.vtigercrm.fieldDirectionFactory' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Vtiger\Repository\Direction\FieldDirectionFactory::class,
                 'arguments' => [],
             ],
@@ -235,25 +235,25 @@ return [
         'models'       => [
         ],
         'integrations' => [
-            'mautic.integration.vtiger_crm'      => [
+            'mautic.integration.vtigercrm'      => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Integration\VtigerCrmIntegration::class,
                 'tags'      => [
                     'mautic.integration',
                     'mautic.basic_integration',
                 ],
             ],
-            'mautic.integration.vtiger_crm.sync' => [
+            'mautic.integration.vtigercrm.sync' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerSyncProvider::class,
                 'tag'       => 'mautic.sync_integration',
                 'arguments' => [
-                    'mautic.vtiger_crm.sync.data_exchange',
+                    'mautic.vtigercrm.sync.data_exchange',
                 ],
             ],
-            'mautic.integration.vtiger_crm.config' => [
+            'mautic.integration.vtigercrm.config' => [
                 'class'     => \MauticPlugin\MauticVtigerCrmBundle\Integration\Provider\VtigerConfigProvider::class,
                 'tag'       => 'mautic.config_integration',
                 'arguments' => [
-                    'mautic.vtiger_crm.mapping.field_mapping',
+                    'mautic.vtigercrm.mapping.field_mapping',
                 ],
             ],
         ],
