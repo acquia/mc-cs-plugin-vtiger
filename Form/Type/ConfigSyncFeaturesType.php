@@ -55,7 +55,7 @@ class ConfigSyncFeaturesType extends AbstractType
             ChoiceType::class,
             [
                 'choices'     => [
-                    'updateOwner' => 'mautic.plugin.vtiger.updateOwner',
+                    'mautic.plugin.vtiger.updateOwner' => 'updateOwner',
                 ],
                 'expanded'    => true,
                 'multiple'    => true,
@@ -71,7 +71,7 @@ class ConfigSyncFeaturesType extends AbstractType
             ChoiceType::class,
             [
                 'choices'     => [
-                    'updateDncByDate' => 'mautic.integrations.update.dnc.by.date',
+                    'mautic.integrations.update.dnc.by.date' => 'updateDncByDate',
                 ],
                 'expanded'    => true,
                 'multiple'    => true,
@@ -101,8 +101,8 @@ class ConfigSyncFeaturesType extends AbstractType
             ChoiceType::class,
             [
                 'choices'    => [
-                    SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_LEAD    => 'mautic.plugin.vtiger.form.push_mautic_contact_as_lead',
-                    SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_CONTACT => 'mautic.plugin.vtiger.form.push_mautic_contact_as_contact',
+                    'mautic.plugin.vtiger.form.push_mautic_contact_as_lead'    => SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_LEAD,
+                    'mautic.plugin.vtiger.form.push_mautic_contact_as_contact' => SettingsKeyEnum::PUSH_MAUTIC_CONTACT_AS_CONTACT,
                 ],
                 'label'      => 'mautic.plugin.vtiger.form.push_mautic_contact_as',
                 'label_attr' => [
@@ -142,7 +142,7 @@ class ConfigSyncFeaturesType extends AbstractType
         }
         $ownersArray = [];
         foreach ($owners as $owner) {
-            $ownersArray[$owner->getId()] = (string) $owner;
+            $ownersArray[(string) $owner] = $owner->getId();
         }
 
         return $ownersArray;
