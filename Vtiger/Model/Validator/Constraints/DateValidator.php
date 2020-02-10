@@ -2,7 +2,6 @@
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Validator\Constraints;
 
-use DateTime;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -35,7 +34,7 @@ class DateValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, 'string');
         }
 
-        $date = DateTime::createFromFormat('Y-m-d', $value);
+        $date = \DateTime::createFromFormat('Y-m-d', $value);
 
         if (!$date || ($date->format('Y-m-d') != $value)) {
             $this->context->buildViolation($constraint->message)
