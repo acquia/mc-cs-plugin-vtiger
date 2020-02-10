@@ -50,6 +50,6 @@ class Account extends BaseModel
      */
     public function getAccountName(): ?string
     {
-        return !isset($this->data['accountname']) ? null : $this->data['accountname'];
+        return $this->data['accountname'] ?? null;
     }
 }
