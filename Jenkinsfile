@@ -11,29 +11,13 @@ pipeline {
   agent {
     kubernetes {
       inheritFrom 'with-mysql'
-      yaml """
-spec:
-  containers:
-  - name: hosted-tester
-    image: us.gcr.io/mautic-ma/mautic_tester_72:master
-    imagePullPolicy: Always
-    command:
-    - cat
-    tty: true
-    resources:
-      requests:
-        memory: "4500Mi"
-        cpu: "3"
-      limits:
-        memory: "6000Mi"
-        cpu: "4"
-"""
+      yaml libraryResource('mautic-tester.yaml')
     }
   }
   stages {
     stage('Download and combine') {
       steps {
-        container('hosted-tester') {
+        container('mautic-tester') {
           checkout changelog: false, poll: false, scm: [$class: 'GitSCM', branches: [[name: 'beta']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '1a066462-6d24-4247-bef6-1da084c8f484', url: 'git@github.com:mautic-inc/mautic-cloud.git']]]
           sh('rm -r plugins/MauticVtigerCrmBundle || true; mkdir -p plugins/MauticVtigerCrmBundle && chmod 777 plugins/MauticVtigerCrmBundle')
           dir('plugins/MauticVtigerCrmBundle') {
@@ -44,7 +28,7 @@ spec:
     }
     stage('Build') {
       steps {
-        container('hosted-tester') {
+        container('mautic-tester') {
           ansiColor('xterm') {
             sh '''
               ## We need all private plugins enabled during tests so their tests can run successfully
@@ -84,7 +68,7 @@ spec:
     }
     stage('Test') {
       steps {
-        container('hosted-tester') {
+        container('mautic-tester') {
           ansiColor('xterm') {
             sh """
               mysql -h 127.0.0.1 -e 'CREATE DATABASE mautictest; CREATE USER travis@"%"; GRANT ALL on mautictest.* to travis@"%"; GRANT SUPER,PROCESS ON *.* TO travis@"%";'
@@ -98,7 +82,7 @@ spec:
     /*
     stage('Static Analysis') {
       steps {
-        container('hosted-tester') {
+        container('mautic-tester') {
           ansiColor('xterm') {
             dir('plugins/MauticVtigerCrmBundle') {
               sh """
@@ -111,7 +95,7 @@ spec:
     }
     stage('Styling') {
       steps {
-        container('hosted-tester') {
+        container('mautic-tester') {
           ansiColor('xterm') {
             dir('plugins/MauticVtigerCrmBundle') {
               sh """
