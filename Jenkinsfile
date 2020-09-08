@@ -1,9 +1,9 @@
-@Library('jenkins-scripts')
-
-def REPO_NAME = env.JOB_NAME.split("/")[0]
-def SUBMODULE_NAME = "MauticVtigerCrmBundle"
+@Library('jenkins-scripts') _
 
 pipeline {
+  environment {
+    SUBMODULE_NAME = "MauticVtigerCrmBundle"
+  }
   options {
     skipDefaultCheckout()
     disableConcurrentBuilds()
@@ -30,6 +30,9 @@ pipeline {
       steps {
         container('mautic-tester') {
           ansiColor('xterm') {
+            withCredentials([string(credentialsId: 'github-composer-token', variable: 'composertoken')]) {
+              sh("composer config --global github-oauth.github.com ${composertoken}")
+            }
             sh '''
               ## We need all private plugins enabled during tests so their tests can run successfully
               echo "<?php
@@ -57,60 +60,76 @@ pipeline {
                 composer validate --no-check-all --strict || (echo "Composer failed validation. If the lock file is out of sync you can try running 'composer update --lock'"; exit 1)
                 composer install --ansi
             '''
-            /*
-            dir('plugins/MauticVtigerCrmBundle') {
-              sh("composer install --ansi")
-            }
-            */
+            // dir('plugins/MauticVtigerCrmBundle') {
+            //   sh("composer install --ansi")
+            // }
           }
         }
       }
     }
-    stage('Test') {
-      steps {
-        container('mautic-tester') {
-          ansiColor('xterm') {
-            sh """
-              mysql -h 127.0.0.1 -e 'CREATE DATABASE mautictest; CREATE USER travis@"%"; GRANT ALL on mautictest.* to travis@"%"; GRANT SUPER,PROCESS ON *.* TO travis@"%";'
-              export SYMFONY_ENV="test"
-              bin/phpunit -d memory_limit=2048M --bootstrap vendor/autoload.php --fail-on-warning  --testsuite=all --configuration plugins/MauticVtigerCrmBundle/phpunit.xml
-            """
-          }
-        }
-      }
-    }
-    /*
-    stage('Static Analysis') {
-      steps {
-        container('mautic-tester') {
-          ansiColor('xterm') {
-            dir('plugins/MauticVtigerCrmBundle') {
-              sh """
-                composer run-script phpstan
-              """
-            }
-          }
-        }
-      }
-    }
-    stage('Styling') {
-      steps {
-        container('mautic-tester') {
-          ansiColor('xterm') {
-            dir('plugins/MauticVtigerCrmBundle') {
-              sh """
-                vendor/bin/ecs check .
-              """
+    stage('Tests') {
+      parallel {
+        stage('PHPUNIT') {
+          // environment {
+          //   COVERALLS_REPO_TOKEN = credentials('COVERALLS_REPO_TOKEN')
+          //   CI_PULL_REQUEST = "${env.CHANGE_ID}"
+          //   CI_BRANCH = "${env.BRANCH_NAME}"
+          //   CI_BUILD_URL = "${env.BUILD_URL}"
+          // }   
+          steps {
+            container('mautic-tester') {
+              ansiColor('xterm') {
+                sh """
+                  echo "PHP Version Info"
+                  php --version
+
+                  mysql -h 127.0.0.1 -e 'CREATE DATABASE mautictest; CREATE USER travis@"%"; GRANT ALL on mautictest.* to travis@"%"; GRANT SUPER,PROCESS ON *.* TO travis@"%";'
+                  export SYMFONY_ENV="test"
+
+                  # mkdir -p var/cache/coverage-report
+                  # # pcov-clobber needs to be used until we upgrade to phpunit 8
+                  # bin/pcov clobber
+                  bin/phpunit -d memory_limit=3G --bootstrap vendor/autoload.php --configuration plugins/MauticVtigerCrmBundle/phpunit.xml --fail-on-warning  --disallow-test-output --testsuite=all
+                  # php-coveralls -x var/cache/coverage-report/clover.xml --json_path var/cache/coverage-report/coveralls-upload.json
+                """
+              }
             }
           }
         }
+        // stage('Static Analysis') {
+        //   steps {
+        //     container('mautic-tester') {
+        //       ansiColor('xterm') {
+        //         dir('plugins/MauticVtigerCrmBundle') {
+        //           sh """
+        //             composer run-script phpstan
+        //           """
+        //         }
+        //       }
+        //     }
+        //   }
+        // }
+        // stage('Styling') {
+        //   steps {
+        //     container('mautic-tester') {
+        //       ansiColor('xterm') {
+        //         dir('plugins/MauticVtigerCrmBundle') {
+        //           sh """
+        //             vendor/bin/ecs check .
+        //           """
+        //         }
+        //       }
+        //     }
+        //   }
+        // }
       }
     }
-    */
     stage('Automerge to development') {
       when {
-        changeRequest target: 'beta'
-        changeRequest target: 'staging'
+        anyOf {
+          changeRequest target: 'beta'
+          changeRequest target: 'staging'
+        }
       }
       steps {
         script {
@@ -160,28 +179,7 @@ pipeline {
       }
       steps {
         script {
-          echo "Updating ${SUBMODULE_NAME} submodule in mautic-cloud repo (branch ${BRANCH_NAME})"
-          sshagent (credentials: ['1a066462-6d24-4247-bef6-1da084c8f484']) {
-            sh '''
-              git config --global user.email "9725490+mautibot@users.noreply.github.com"
-              git config --global user.name "Jenkins"
-              git clone git@github.com:mautic-inc/mautic-cloud.git -b $BRANCH_NAME
-              cd mautic-cloud
-              if [ -n "$(grep '''+SUBMODULE_NAME+''' .gitmodules)" ]; then
-                CLOUD_COMMIT=$(git submodule status plugins/'''+SUBMODULE_NAME+''' | awk '{print $1}' | cut -c2-41)
-                git submodule update --init --recursive plugins/'''+SUBMODULE_NAME+'''/
-                cd plugins/'''+SUBMODULE_NAME+'''/
-                git reset --hard origin/$BRANCH_NAME
-                SUBMODULE_COMMIT=$(git log -1 | awk 'NR==1{print $2}')
-                if [ "$CLOUD_COMMIT" != "$SUBMODULE_COMMIT" ]; then
-                  cd ../..
-                  git add plugins/'''+SUBMODULE_NAME+'''
-                  git commit -m "'''+SUBMODULE_NAME+''' updated with commit $SUBMODULE_COMMIT"
-                  git push
-                fi
-              fi
-            '''
-          }
+          setRevisionScript()
         }
       }
     }
@@ -189,24 +187,12 @@ pipeline {
   post {
     failure {
       script {
-        if (BRANCH_NAME ==~ /^(development|beta|staging)$/) {
-          slackSend (color: '#FF0000', message: "${REPO_NAME} failed build on branch ${env.BRANCH_NAME}. (${env.BUILD_URL}console)")
-        }
-        if (env.CHANGE_AUTHOR != null && !env.CHANGE_TITLE.contains("WIP")) {
-          if (githubToSlack("${env.CHANGE_AUTHOR}")) {
-            slackSend (channel: "@"+"${githubToSlack("${env.CHANGE_AUTHOR}")}", color: '#FF0000', message: "${REPO_NAME} failed build on ${env.BRANCH_NAME} (${env.CHANGE_TITLE})\nchange: ${env.CHANGE_URL}\nbuild: ${env.BUILD_URL}console")
-          }
-          else {
-            slackSend (color: '#FF0000', message: "${REPO_NAME} failed build on ${env.BRANCH_NAME} (${env.CHANGE_TITLE})\nchange: ${env.CHANGE_URL}\nbuild: ${env.BUILD_URL}console\nsending alert to channel, there is no Github to Slack mapping for '${CHANGE_AUTHOR}'")
-          }
-        }
+        postFailureScript()
       }
     }
     fixed {
       script {
-        if (BRANCH_NAME ==~ /^(development|beta|staging)$/) {
-          slackSend (color: '#00FF00', message: "${REPO_NAME} build on branch ${env.BRANCH_NAME} is fixed. (${env.BUILD_URL}console)")
-        }
+        postFixedScript()
       }
     }
   }
