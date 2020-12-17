@@ -126,6 +126,7 @@ pipeline {
         anyOf {
           changeRequest target: 'beta'
           changeRequest target: 'staging'
+          changeRequest target: /^epic-.*/
         }
       }
       steps {
