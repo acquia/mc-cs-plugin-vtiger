@@ -106,19 +106,19 @@ pipeline {
         //     }
         //   }
         // }
-				stage('CS Fixer') {
-					steps {
-						container('mautic-tester') {
-							ansiColor('xterm') {
-								dir("plugins/${env.SUBMODULE_NAME}") {
-									sh '''
-										composer csfixer
-									'''
-								}
-							}
-						}
-					}
-				}
+        stage('CS Fixer') {
+          steps {
+            container('mautic-tester') {
+              ansiColor('xterm') {
+                dir("plugins/${env.SUBMODULE_NAME}") {
+                  sh '''
+                    composer csfixer
+                  '''
+                }
+              }
+            }
+          }
+        }
       }
     }
     stage('Automerge') {
