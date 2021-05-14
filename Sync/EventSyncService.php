@@ -88,13 +88,16 @@ class EventSyncService
 
         $iter = 0;
         foreach ($eventsToSynchronize['up'] as $event) {
-            DebugLogger::log(VtigerCrmIntegration::NAME,
-                sprintf('Creating %s [%d%%] %d of %d ',
+            DebugLogger::log(
+                VtigerCrmIntegration::NAME,
+                sprintf(
+                    'Creating %s [%d%%] %d of %d ',
                     'event',
                     round(100 * (++$iter / count($eventsToSynchronize['up']))),
                     $iter,
                     count($eventsToSynchronize['up'])
-                ));
+                )
+            );
             $this->eventRepository->create($event);
         }
 

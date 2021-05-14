@@ -65,8 +65,7 @@ abstract class BaseRepository
         FieldCache $fieldCache,
         ModelFactory $modelFactory,
         FieldDirectionFactory $fieldDirectionFactory
-    )
-    {
+    ) {
         $this->connection            = $connection;
         $this->fieldCache            = $fieldCache;
         $this->modelFactory          = $modelFactory;
@@ -260,9 +259,10 @@ abstract class BaseRepository
         if (count($where)) {
             $whereEscaped = [];
             foreach ($where as $key => $value) {
-                $whereEscaped[$key] = sprintf("%s='%s'",
-                                              $key,
-                                              htmlentities($value)
+                $whereEscaped[$key] = sprintf(
+                    "%s='%s'",
+                    $key,
+                    htmlentities($value)
                 );
             }
             $query .= ' where '.join(' and ', $whereEscaped);

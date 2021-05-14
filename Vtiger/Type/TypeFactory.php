@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type;
 
-
 /**
  * Class MultipicklistType
  *
@@ -29,7 +28,8 @@ class TypeFactory
      *
      * @return CommonType|DateType|MultipicklistType|PicklistType|ReferenceType
      */
-    public static function create($data) {
+    public static function create($data)
+    {
         switch ($data->name) {
             case 'multipicklist':
                 return new MultipicklistType($data);

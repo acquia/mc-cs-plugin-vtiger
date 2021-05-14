@@ -74,7 +74,7 @@ class LeadDataExchange extends GeneralDataExchange
         LeadValidator $leadValidator,
         ModelFactory $modelFactory,
         ContactNotificationHandler $notificationHandler
-    ){
+    ) {
         parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationHandler);
         $this->leadRepository = $leadRepository;
         $this->leadValidator  = $leadValidator;
@@ -115,14 +115,13 @@ class LeadDataExchange extends GeneralDataExchange
                     $reportFieldDAO  = new FieldDAO($field, $normalizedValue);
 
                     $objectDAO->addField($reportFieldDAO);
-                }
-                catch (InvalidQueryArgumentException $e) {
-                    DebugLogger::log(VtigerCrmIntegration::NAME,
+                } catch (InvalidQueryArgumentException $e) {
+                    DebugLogger::log(
+                        VtigerCrmIntegration::NAME,
                         sprintf('%s for %s %s', $e->getMessage(), self::OBJECT_NAME, $object->getId())
                     );
                     printf("%s for %s %s\n", $e->getIncomingMessage(), self::OBJECT_NAME, $object->getId());
-                }
-                catch (InvalidObjectValueException $e) {
+                } catch (InvalidObjectValueException $e) {
                     DebugLogger::log(VtigerCrmIntegration::NAME, $e->getMessage());
                     continue(2);
                 }

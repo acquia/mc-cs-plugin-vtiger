@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\TestDataProvider;
 
-
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\Contact;
 
 class VtigerContactTestDataProvider
@@ -103,15 +102,18 @@ class VtigerContactTestDataProvider
     /**
      * @return array
      */
-    public static function getMappedFields() {
+    public static function getMappedFields()
+    {
         return self::$mappedFields;
     }
 
-    public static function getUpdatedVtiger() {
+    public static function getUpdatedVtiger()
+    {
         return self::$updatedVtiger;
     }
 
-    public static function getUpdatedNormalized() {
+    public static function getUpdatedNormalized()
+    {
         return self::$updatedNormalized;
     }
 }

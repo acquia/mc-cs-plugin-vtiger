@@ -115,5 +115,4 @@ final class MauticVtigerTransformer implements TransformerInterface
 
         return $this->transformString($value);
     }
-
 }

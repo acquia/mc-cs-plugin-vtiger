@@ -48,7 +48,7 @@ final class VtigerMauticTransformer implements TransformerInterface
             return null;
         }
         $values = explode('|##|', $mauticValue);
-        array_walk($values, function(&$element){
+        array_walk($values, function (&$element) {
             $element = trim($element);
         });
 
@@ -86,9 +86,11 @@ final class VtigerMauticTransformer implements TransformerInterface
         $type = $this->moduleFieldInfo->getType();
         $dictionary = $type->getPicklistValuesArray();
 
-        if(!isset($dictionary[$value])) {
+        if (!isset($dictionary[$value])) {
             throw new InvalidObjectValueException(
-                sprintf('Invalid picklist value. Available: [%s]', join(',', array_keys($dictionary))), (string)$value, $type->getName()
+                sprintf('Invalid picklist value. Available: [%s]', join(',', array_keys($dictionary))),
+                (string)$value,
+                $type->getName()
             );
         }
 
@@ -103,10 +105,10 @@ final class VtigerMauticTransformer implements TransformerInterface
      * @throws InvalidObjectValueException
      * @throws \MauticPlugin\MauticVtigerCrmBundle\Exceptions\InvalidQueryArgumentException
      */
-    public function transformTyped(ModuleFieldInfo $fieldInfo, $value): NormalizedValueDAO {
+    public function transformTyped(ModuleFieldInfo $fieldInfo, $value): NormalizedValueDAO
+    {
         $this->moduleFieldInfo = $fieldInfo;
 
         return $this->transform($fieldInfo->getTypeName(), $value);
     }
-
 }

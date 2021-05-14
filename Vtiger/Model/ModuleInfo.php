@@ -187,7 +187,8 @@ class ModuleInfo
      * @return ModuleFieldInfo
      * @throws InvalidObjectException
      */
-    public function getField(string $fieldName): ModuleFieldInfo {
+    public function getField(string $fieldName): ModuleFieldInfo
+    {
         if (!isset($this->fields[$fieldName])) {
             throw new InvalidObjectException('Unknown field info requested: ' . $fieldName);
         }

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type;
 
-
 /**
  * Class MultipicklistType
  *
@@ -54,7 +53,8 @@ class PicklistType extends CommonType
      *
      * @return bool
      */
-    public function valueExists($value) {
+    public function valueExists($value)
+    {
         return array_key_exists($value, $this->picklistValues);
     }
 
@@ -79,7 +79,8 @@ class PicklistType extends CommonType
     /**
      * @return array
      */
-    public function getPicklistValuesArray(): array {
+    public function getPicklistValuesArray(): array
+    {
         $response = [];
         foreach ($this->getPicklistValues() as $key=>$picklistValue) {
             $response[$picklistValue->getValue()] = $picklistValue->getLabel();

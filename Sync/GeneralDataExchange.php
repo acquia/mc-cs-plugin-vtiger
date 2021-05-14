@@ -65,7 +65,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
         VtigerSettingProvider $vtigerSettingProvider,
         ValueNormalizerInterface $valueNormalizer,
         HandlerInterface $notificationHandler
-    ){
+    ) {
         $this->vtigerSettingProvider = $vtigerSettingProvider;
         $this->valueNormalizer       = $valueNormalizer;
         $this->notificationHandler = $notificationHandler;
@@ -107,8 +107,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
             /* Perform validation */
             try {
                 $this->getValidator()->validate($objectModel);
-            }
-            catch (InvalidObject $e) {
+            } catch (InvalidObject $e) {
                 $this->logInvalidObject($changedObject, $objectName, $e);
                 continue;
             }
@@ -117,14 +116,17 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
                 $this->getRepository()->update($objectModel);
 
                 $newChange = new ObjectChangeDAO(
-                    VtigerCrmIntegration::NAME, $changedObject->getObject(), $changedObject->getObjectId(), $changedObject->getMappedObject(), $changedObject->getMappedObjectId()
+                    VtigerCrmIntegration::NAME,
+                    $changedObject->getObject(),
+                    $changedObject->getObjectId(),
+                    $changedObject->getMappedObject(),
+                    $changedObject->getMappedObjectId()
                 );
 
                 $updatedMappedObjects[] = $newChange;
 
                 DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Updated to %s ID %s', $objectName, $integrationObjectId), __CLASS__ . ':' . __FUNCTION__);
-            }
-            catch (InvalidQueryArgumentException $e) {
+            } catch (InvalidQueryArgumentException $e) {
                 DebugLogger::log(VtigerCrmIntegration::NAME, sprintf('Update to %s ID %s failed: %s', $objectName, $integrationObjectId, $e->getMessage()), __CLASS__ . ':' . __FUNCTION__);
             }
         }
@@ -165,8 +167,7 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
                 $objectModel->setAssignedUserId($this->vtigerSettingProvider->getOwner());
 
                 $this->getValidator()->validate($objectModel);
-            }
-            catch (InvalidObject $e) {
+            } catch (InvalidObject $e) {
                 $this->logInvalidObject($object, $objectName, $e);
                 continue;
             }
@@ -176,18 +177,22 @@ abstract class GeneralDataExchange implements ObjectSyncDataExchangeInterface
 
                 DebugLogger::log(
                     VtigerCrmIntegration::NAME,
-                    sprintf('Created %s ID %s from %s %d', $objectName, $response->getId(), $object->getMappedObject(), $object->getMappedObjectId()), __CLASS__ . ':' . __FUNCTION__
+                    sprintf('Created %s ID %s from %s %d', $objectName, $response->getId(), $object->getMappedObject(), $object->getMappedObjectId()),
+                    __CLASS__ . ':' . __FUNCTION__
                 );
 
                 $objectMapping = new ObjectChangeDAO(
-                    $object->getIntegration(), $object->getObject(), $response->getId(), $object->getMappedObject(), $object->getMappedObjectId()
+                    $object->getIntegration(),
+                    $object->getObject(),
+                    $response->getId(),
+                    $object->getMappedObject(),
+                    $object->getMappedObjectId()
                 );
 
                 $objectMapping->setChangeDateTime($response->getModifiedTime());
 
                 $objectMappings[] = $objectMapping;
-            }
-            catch (InvalidQueryArgumentException $e) {
+            } catch (InvalidQueryArgumentException $e) {
                 DebugLogger::log(VtigerCrmIntegration::NAME, sprintf("Failed to create %s with error '%s'", $objectName, $e->getMessage()), __CLASS__ . ':' . __FUNCTION__);
             }
         }

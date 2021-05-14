@@ -130,12 +130,13 @@ class DataExchangeTest extends \PHPUnit\Framework\TestCase
         );
 
         $this->contactDataExchange = $this->createMock(ContactDataExchange::class);
-        $this->contactDataExchange->method('getObjectSyncReport')->willReturnCallback(function($requestedObject, $syncReport){
+        $this->contactDataExchange->method('getObjectSyncReport')->willReturnCallback(function ($requestedObject, $syncReport) {
             $updates = VtigerContactTestDataProvider::getVtigerContacts();
             /** @var Contact $object */
             foreach ($updates as $object) {
                 $objectDAO = new \Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO(
-                    ContactDataExchange::OBJECT_NAME, $object->getId(),
+                    ContactDataExchange::OBJECT_NAME,
+                    $object->getId(),
                     new \DateTimeImmutable($object->getModifiedTime()->format('r'))
                 );
 
@@ -144,10 +145,8 @@ class DataExchangeTest extends \PHPUnit\Framework\TestCase
                         $reportFieldDAO = new FieldDAO($field, new NormalizedValueDAO('string', $value, $value));
 
                         $objectDAO->addField($reportFieldDAO);
-                    }
-                    catch (InvalidQueryArgumentException $e) {
-                    }
-                    catch (InvalidObjectValueException $exception) {
+                    } catch (InvalidQueryArgumentException $e) {
+                    } catch (InvalidObjectValueException $exception) {
                         continue(2);
                     }
                 }
@@ -156,11 +155,11 @@ class DataExchangeTest extends \PHPUnit\Framework\TestCase
             }
             return $syncReport;
         });
-        $this->contactDataExchange->method('update')->with($this->callback(function($objects){
+        $this->contactDataExchange->method('update')->with($this->callback(function ($objects) {
             $identified = $this->getSyncOrder(ContactDataExchange::OBJECT_NAME)->getIdentifiedObjects()[ContactDataExchange::OBJECT_NAME];
             return count($identified)===2;
         }));
-        $this->contactDataExchange->method('insert')->with($this->callback(function($objects){
+        $this->contactDataExchange->method('insert')->with($this->callback(function ($objects) {
             $unindentified = $this->getSyncOrder(ContactDataExchange::OBJECT_NAME)->getUnidentifiedObjects()[ContactDataExchange::OBJECT_NAME];
             return count($unindentified)===1;
         }));
@@ -194,17 +193,18 @@ class DataExchangeTest extends \PHPUnit\Framework\TestCase
 
         $updates = VtigerContactTestDataProvider::getVtigerContacts();
 
-        $contactArray = []; $updatesArray = [];
+        $contactArray = [];
+        $updatesArray = [];
 
         /** @var \Mautic\IntegrationsBundle\Sync\DAO\Sync\Report\ObjectDAO $contact */
         foreach ($contactReport as $contact) {
-            foreach($contact->getFields() as $field) {
+            foreach ($contact->getFields() as $field) {
                 $contactArray[$contact->getObjectId()][$field->getName()] = $field->getValue()->getNormalizedValue();
             }
             asort($contactArray[$contact->getObjectId()]);
         }
 
-        foreach($updates as $update) {
+        foreach ($updates as $update) {
             $dehydrated = $update->dehydrate([]);
             asort($dehydrated);
             $updatesArray[$dehydrated['id']] = $dehydrated;
@@ -243,5 +243,4 @@ class DataExchangeTest extends \PHPUnit\Framework\TestCase
 
         return $syncOrder;
     }
-
 }

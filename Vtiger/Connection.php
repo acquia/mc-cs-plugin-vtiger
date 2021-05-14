@@ -97,9 +97,11 @@ class Connection
             $this->authenticate();
         }
 
-        $query = sprintf('%s?operation=%s',
+        $query = sprintf(
+            '%s?operation=%s',
             $this->getApiUrl(),
-            $operation);
+            $operation
+        );
 
         $payload['sessionName'] = $this->sessionId;
 
@@ -145,9 +147,11 @@ class Connection
             $this->authenticate();
         }
 
-        $query = sprintf('%s?operation=%s',
+        $query = sprintf(
+            '%s?operation=%s',
             $this->getApiUrl(),
-            $operation);
+            $operation
+        );
 
         $query .= '&sessionName='.$this->sessionId;
 
@@ -289,9 +293,11 @@ class Connection
                 throw new SessionException('No authentication credentials supplied');
             }
 
-            $query = sprintf('%s?operation=%s',
-                             $this->getApiUrl(),
-                             'getchallenge');
+            $query = sprintf(
+                '%s?operation=%s',
+                $this->getApiUrl(),
+                'getchallenge'
+            );
 
             $query .= '&'.http_build_query(['username' => $credentials->getUsername()]);
 

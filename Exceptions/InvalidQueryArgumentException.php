@@ -29,7 +29,8 @@ class InvalidQueryArgumentException extends SessionException
     {
         $this->incomingMessage = $message;
 
-        $message = sprintf("call to %s failed. with message '%s'. Payload %s",
+        $message = sprintf(
+            "call to %s failed. with message '%s'. Payload %s",
             $apiUrl,
             $message,
             count($payload) ? json_encode($payload) : 'none'
@@ -44,5 +45,4 @@ class InvalidQueryArgumentException extends SessionException
     {
         return $this->incomingMessage;
     }
-
 }

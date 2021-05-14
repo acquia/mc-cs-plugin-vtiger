@@ -35,11 +35,12 @@ class InvalidObject extends InvalidObjectException
             $violationsMessages[] = $violation->getMessage();
         }
 
-        $message = sprintf("Validation of %s failed. Field value: '%s'. %s",
+        $message = sprintf(
+            "Validation of %s failed. Field value: '%s'. %s",
             $fieldInfo->getName(),
             $fieldValue,
             join('. ', $violationsMessages)
-            );
+        );
 
         parent::__construct($message);
     }

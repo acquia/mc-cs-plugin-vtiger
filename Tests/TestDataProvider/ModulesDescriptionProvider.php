@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Tests\TestDataProvider;
 
-
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleFieldInfo;
 use MauticPlugin\MauticVtigerCrmBundle\Vtiger\Model\ModuleInfo;
 
@@ -21,12 +20,14 @@ class ModulesDescriptionProvider
     /**
      * @return ModuleInfo
      */
-    public static function getLead() {
+    public static function getLead()
+    {
         $serialized = file_get_contents(__DIR__ . '/data/serializedLeadDescriptionObject.txt');
         return unserialize($serialized);
     }
 
-    public static function getLeadFieldTypes() {
+    public static function getLeadFieldTypes()
+    {
         $leadFields = self::getLead()->getFields();
 
         $types = [];

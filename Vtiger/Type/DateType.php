@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type;
 
-
 /**
  * Class DateType
  * @package MauticPlugin\MauticVtigerCrmBundle\Vtiger\Type

@@ -39,12 +39,9 @@ class Date extends Constraint
      */
     public function __construct($options)
     {
-        if($options['format'])
-        {
+        if ($options['format']) {
             $this->format = $options['format'];
-        }
-        else
-        {
+        } else {
             throw new MissingOptionsException("You must specify format for the validator", $options);
         }
         parent::__construct($options);

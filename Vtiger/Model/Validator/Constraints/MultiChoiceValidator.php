@@ -43,7 +43,7 @@ class MultiChoiceValidator extends ConstraintValidator
         }
 
         $value = explode('|##|', $value);
-        array_walk($value, function(&$element){
+        array_walk($value, function (&$element) {
             $element = trim($element);
         });
 

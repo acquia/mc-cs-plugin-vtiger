@@ -44,4 +44,3 @@ class DateValidator extends ConstraintValidator
         }
     }
 }
-

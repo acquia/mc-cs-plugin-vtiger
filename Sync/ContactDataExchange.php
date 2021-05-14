@@ -98,7 +98,7 @@ class ContactDataExchange extends GeneralDataExchange
         ObjectFieldMapper $objectFieldMapper,
         ModelFactory $modelFactory,
         ContactNotificationHandler $notificationHandler
-    ){
+    ) {
         parent::__construct($vtigerSettingProvider, $valueNormalizer, $notificationHandler);
         $this->contactRepository = $contactRepository;
         $this->contactValidator  = $contactValidator;
@@ -165,8 +165,7 @@ class ContactDataExchange extends GeneralDataExchange
 
                         $deleted[] = $objectChangeDAO;
                     }
-                }
-                catch (ObjectDeletedException $e) {
+                } catch (ObjectDeletedException $e) {
                     // We have had a Lead but it is deleted already
                 }
             }
@@ -203,14 +202,13 @@ class ContactDataExchange extends GeneralDataExchange
                             $this->valueNormalizer->normalizeForMautic(TransformerInterface::DNC_TYPE, $object->getEmailOptout())
                         )
                     );
-                }
-                catch (InvalidQueryArgumentException $e) {
-                    DebugLogger::log(VtigerCrmIntegration::NAME,
+                } catch (InvalidQueryArgumentException $e) {
+                    DebugLogger::log(
+                        VtigerCrmIntegration::NAME,
                         sprintf('%s for %s %s', $e->getMessage(), self::OBJECT_NAME, $object->getId())
                     );
                     printf("%s for %s %s\n", $e->getIncomingMessage(), self::OBJECT_NAME, $object->getId());
-                }
-                catch (InvalidObjectValueException $e) {
+                } catch (InvalidObjectValueException $e) {
                     DebugLogger::log(VtigerCrmIntegration::NAME, $e->getMessage());
                     continue(2);
                 }
