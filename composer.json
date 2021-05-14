@@ -25,5 +25,9 @@
     "symfony/cache": "*",
     "ext-json": "*"
   },
-  "minimum-stability": "dev"
+  "minimum-stability": "dev",
+  "scripts": {
+    "csfixer": "../../bin/php-cs-fixer fix . -v --dry-run --diff --using-cache=no",
+    "fixcs": "../../bin/php-cs-fixer fix . -v --using-cache=no"
+  }
 }
