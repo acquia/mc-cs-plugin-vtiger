@@ -24,7 +24,7 @@ class SyncEventsSubscriberTest extends \PHPUnit\Framework\TestCase
      */
     private $subscriber;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $eventSyncService = $this->createMock(EventSyncService::class);
         $this->subscriber = new SyncEventsSubscriber($eventSyncService);

@@ -24,7 +24,7 @@ class ConfigFormLoadSubscriberTest extends \PHPUnit\Framework\TestCase
      */
     private $subscriber;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $fieldCache = $this->createMock(FieldCache::class);
         $this->subscriber = new ConfigFormLoadSubscriber($fieldCache);
